@@ -54,6 +54,10 @@ const client = new Client({
         name: `${botUsers} users.`,
         type: 3,
       },
+      {
+        name: "my code",
+        type: 3,
+      }
     ],
     status: "online",
   },
