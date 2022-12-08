@@ -42,17 +42,6 @@ const client = new Client({
         type: 3,
       },
       {
-        name: `${client.guilds.cache.size} guilds.`,
-        type: 3,
-      },
-      {
-        name: `${client.guilds.cache.reduce(
-          (acc, guild) => acc + guild.memberCount,
-          0
-        )} users.`,
-        type: 3,
-      },
-      {
         name: "my code",
         type: 3,
       },
