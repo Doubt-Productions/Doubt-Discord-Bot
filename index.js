@@ -11,11 +11,6 @@ const bfd = require("bfd-api-redux");
 const api = new bfd(config.Client.API_TOKEN, config.Client.ID);
 const ms = require("ms");
 
-const botUsers = client.guilds.cache.reduce(
-  (acc, guild) => acc + guild.memberCount,
-  0
-);
-
 // Creating a new client:
 const client = new Client({
   intents: [
@@ -51,13 +46,16 @@ const client = new Client({
         type: 3,
       },
       {
-        name: `${botUsers} users.`,
+        name: `${client.guilds.cache.reduce(
+          (acc, guild) => acc + guild.memberCount,
+          0
+        )} users.`,
         type: 3,
       },
       {
         name: "my code",
         type: 3,
-      }
+      },
     ],
     status: "online",
   },
@@ -83,6 +81,10 @@ logs(client, {
 
 setTimeout(() => {
   const botGuilds = client.guilds.cache.size;
+  const botUsers = client.guilds.cache.reduce(
+    (acc, guild) => acc + guild.memberCount,
+    0
+  );
 
   const guild = client.guilds.cache.get("833675115408523264");
 
