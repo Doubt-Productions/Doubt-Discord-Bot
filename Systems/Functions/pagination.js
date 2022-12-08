@@ -3,8 +3,15 @@ const {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  ChatInputCommandInteraction,
 } = require("discord.js");
-
+/**
+ *
+ * @param {ChatInputCommandInteraction} interaction
+ * @param {*} pages
+ * @param {*} time
+ * @returns
+ */
 async function buttonPages(interaction, pages, time = 60000) {
   // errors
   if (!interaction) throw new Error("Interaction is a required argument.");
@@ -42,7 +49,7 @@ async function buttonPages(interaction, pages, time = 60000) {
   const next = new ButtonBuilder()
     .setCustomId("next")
     .setEmoji("➡️")
-    .setStyle(ButtonStyle.Primary)
+    .setStyle(ButtonStyle.Primary);
 
   const buttonRow = new ActionRowBuilder().addComponents(prev, home, next);
   let index = 0;
