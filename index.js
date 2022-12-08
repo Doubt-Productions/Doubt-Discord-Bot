@@ -7,6 +7,9 @@ const {
 const config = require("./config/config.json");
 const colors = require("colors");
 const distube = require("distube");
+const bfd = require("bfd-api-redux");
+const api = new bfd(config.Client.API_TOKEN, config.Client.ID);
+const ms = require("ms");
 
 // Creating a new client:
 const client = new Client({
@@ -54,6 +57,32 @@ const logs = require("discord-logs");
 logs(client, {
   debug: true,
 });
+
+// Bot Users & Guilds:
+
+setTimeout(() => {
+  const botUsers = client.guilds.cache.reduce(
+    (acc, guild) => acc + guild.memberCount,
+    0
+  );
+  const botGuilds = client.guilds.cache.size;
+
+  const guild = client.guilds.cache.get("833675115408523264");
+
+  const userChannel = guild.channels.cache.get("1050534250736259163");
+  const guildChannel = guild.channels.cache.get("1050535065232343060");
+
+  userChannel.edit({ name: `Bot Users: | ${botUsers}` });
+  guildChannel.edit({ name: `Bot Guilds: | ${botGuilds}` });
+  console.log(`[BOT] Bot Users: ${botUsers} | Bot Guilds: ${botGuilds}`.green);
+}, 600000);
+
+// Discords.com API
+setInterval(() => {
+  let serverCount = client.guilds.cache.size;
+  api.setServers(serverCount);
+  console.log(`[API] Updated server count to ${serverCount}`.green);
+}, parseInt(ms("2h")));
 
 // Handler:
 client.commands = new Collection();

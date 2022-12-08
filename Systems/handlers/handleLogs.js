@@ -279,27 +279,7 @@ function handleLogs(client) {
 
     return send_log(role.guild.id, embed);
   });
-
-  // Avatar Updated
-  client.on("userAvatarUpdate", 
-  /**
-   * 
-   * @param {GuildMember} user 
-   * @param {*} oldAvatarURL 
-   * @param {*} newAvatarURL 
-   * @returns 
-   */
-  (user, oldAvatarURL, newAvatarURL) => {
-    const embed = new EmbedBuilder()
-      .setTitle("Avatar Updated")
-      .setColor("Green")
-      .setDescription(
-        `${user.tag} updated avatar from [Old Avatar](${oldAvatarURL}) to [New Avatar(${newAvatarURL})]`
-      );
-
-    return send_log(user.guild.id, embed);
-  });
-
+  
   // Username Updated
   client.on("userUsernameUpdate", (user, oldUsername, newUsername) => {
     const embed = new EmbedBuilder()
@@ -307,33 +287,6 @@ function handleLogs(client) {
       .setColor("Green")
       .setDescription(
         `${user.tag} updated their username from ${oldUsername} to ${newUsername}`
-      );
-
-    return send_log(user.guild.id, embed);
-  });
-
-  // Discriminator Updated
-  client.on(
-    "userDiscriminatorUpdate",
-    (user, oldDiscriminator, newDiscriminator) => {
-      const embed = new EmbedBuilder()
-        .setTitle("Discriminator Updated")
-        .setColor("Green")
-        .setDescription(
-          `${user.tag} updated their discriminator from ${oldDiscriminator} to ${oldDiscriminator}`
-        );
-
-      return send_log(user.guild.id, embed);
-    }
-  );
-
-  // Flags Updated
-  client.on("userFlagsUpdate", (user, oldFlags, newFlags) => {
-    const embed = new EmbedBuilder()
-      .setTitle("Flags Updated")
-      .setColor("Green")
-      .setDescription(
-        `${user.tag} updated their flags from ${oldFlags} to ${newFlags}`
       );
 
     return send_log(user.guild.id, embed);
