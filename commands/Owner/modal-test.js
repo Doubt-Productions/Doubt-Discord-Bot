@@ -14,7 +14,7 @@ module.exports = {
     .setName("modal-test")
     .setDefaultMemberPermissions(0)
     .setDescription("Test a modal."),
-  category: "Owner",
+  
   /**
    *
    * @param {client} client

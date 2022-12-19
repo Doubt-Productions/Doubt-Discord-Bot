@@ -13,7 +13,7 @@ module.exports = {
       "Get an accurate list of all known phishing and scam links for testing purposes."
     )
     .setDefaultMemberPermissions(0),
-  category: "Owner",
+  
   /**
    *
    * @param {*} client

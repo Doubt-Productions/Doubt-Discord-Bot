@@ -35,8 +35,6 @@ module.exports = {
         .setDescription("Provide a reason for blacklisting.")
         .setRequired(true)
     ),
-
-  category: "Owner",
   ownerOnly: true,
   /**
    *

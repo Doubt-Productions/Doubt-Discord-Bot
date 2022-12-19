@@ -24,7 +24,6 @@ module.exports = {
     const emojis = {
       General: "📜",
       Admin: "🔒",
-      Owner: "👑",
       Music: "🎵",
       Leveling: "📈",
       Moderation: "🛠️",

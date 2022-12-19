@@ -10,7 +10,6 @@ module.exports = {
     .setName("guilds")
     .setDescription("Get a list of all guilds the bot is in.")
     .setDefaultMemberPermissions(0),
-  category: "General",
   /**
    *
    * @param {*} client

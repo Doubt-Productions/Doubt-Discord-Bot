@@ -21,7 +21,7 @@ module.exports = {
           { name: "Leave", value: "leave" }
         )
     ),
-  category: "Owner",
+  
   options: [],
   /**
    *

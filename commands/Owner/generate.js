@@ -35,7 +35,7 @@ module.exports = {
         .setDescription("How many codes do you want to generate?")
         .setRequired(false)
     ),
-  category: "Owner",
+  
   /**
    *
    * @param {client} client
