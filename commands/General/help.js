@@ -32,10 +32,17 @@ module.exports = {
       Setup: "🛠️",
     };
 
-    const directories = [...new Set(client.commands.map((cmd) => cmd.dir))];
+    const directories = [...Set(client.commands.map((cmd) => cmd.dir))];
 
-    const formatString = (str) =>
-      `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
+    const index = directories.indexOf("Owner");
+
+    if (index !== -1) {
+      directories.splice(index, 1);
+    }
+
+    function formatString(str) {
+      return `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
+    }
 
     const categories = directories.map((dir) => {
       const getCommands = client.commands
