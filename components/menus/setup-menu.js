@@ -1,11 +1,14 @@
 const {
-  SelectMenuInteraction,
+  StringSelectMenuInteraction,
+  ChannelSelectMenuBuilder,
+  ChannelSelectMenuInteraction,
   EmbedBuilder,
   ActionRowBuilder,
   ModalBuilder,
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle,
+  ChannelType,
 } = require("discord.js");
 
 module.exports = {
@@ -14,7 +17,7 @@ module.exports = {
   },
   /**
    *
-   * @param {SelectMenuInteraction} interaction
+   * @param {StringSelectMenuInteraction} interaction
    * @param {*} client
    */
   async execute(interaction, client) {
@@ -56,7 +59,7 @@ module.exports = {
               inline: true,
             },
             {
-              name: "Anti-Word",
+              name: "Anti-Swear",
               value: "Setup the Anti-Word system.",
               inline: true,
             },
@@ -66,12 +69,12 @@ module.exports = {
               inline: true,
             },
           ]);
-
-        interaction.reply({
+        await interaction.reply({
+          ephemeral: true,
           embeds: [embed],
           components: [
             new ActionRowBuilder().addComponents(
-              new SelectMenuBuilder()
+              new StringSelectMenuBuilder()
                 .setCustomId("automod-menu")
                 .setPlaceholder("Please select an option")
                 .addOptions([
@@ -89,6 +92,14 @@ module.exports = {
                     description: "Setup the Anti-Link system.",
                     emoji: {
                       name: "🔗",
+                    },
+                  },
+                  {
+                    label: "Anti-Swear",
+                    value: "antiswear",
+                    description: "Setup the Anti-Swear system.",
+                    emoji: {
+                      name: "🤬",
                     },
                   },
                   {
@@ -115,6 +126,14 @@ module.exports = {
                       name: "📢",
                     },
                   },
+                  {
+                    label: "Anti-Alt",
+                    value: "antialt",
+                    description: "Setup the Anti-Alt system.",
+                    emoji: {
+                      name: "🤖",
+                    },
+                  },
                 ])
             ),
           ],
@@ -122,7 +141,41 @@ module.exports = {
         break;
       }
 
+      case "suggestions": {
+        const embed = new EmbedBuilder()
+          .setTitle("Suggestions")
+          .setDescription(
+            "Please select an option from the dropdown menu below."
+          )
+          .setColor("Random")
+          .addFields({
+            name: "Channel",
+            value: "Setup the suggestions channel.",
+            inline: true,
+          });
+        await interaction.reply({
+          ephemeral: true,
+          embeds: [embed],
+          components: [
+            new ActionRowBuilder().addComponents(
+              new ChannelSelectMenuBuilder()
+                .setCustomId("suggestions-channel")
+                .setPlaceholder("Select a channel")
+                .setMinValues(1)
+                .setMaxValues(1)
+                .setChannelTypes(ChannelType.GuildText)
+            ),
+          ],
+        });
+        break;
+      }
+
       default:
+        return interaction.reply({
+          content:
+            "This option is currently unavailable. Please try again later.",
+          ephemeral: true,
+        });
         break;
     }
   },

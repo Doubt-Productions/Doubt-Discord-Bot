@@ -7,6 +7,7 @@ const {
 } = require("discord.js");
 const client = require("../../index");
 const config = require("../../config/config.json");
+const User = require("../../Systems/models/UserModel");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -112,6 +113,14 @@ module.exports = {
       ? new Array(deviceFilter)
       : deviceFilter;
 
+    let premUser = client.userSettings.get(target.id);
+    const findUser = await User.findOne({ UserID: target.id });
+    if (!findUser) {
+      const newUser = await User.create({ UserID: target.id });
+      client.userSettings.set(target.id, newUser);
+      premUser = newUser;
+    }
+
     interaction.reply({
       embeds: [
         new EmbedBuilder()
@@ -138,7 +147,7 @@ module.exports = {
             },
             {
               name: "Joined Server",
-              value: `<t:${parseInt(target.user.joinedTimestamp / 1000)}:R>`,
+              value: `<t:${parseInt(target.joinedTimestamp / 1000)}:R>`,
             },
             {
               name: "Account Created",
@@ -154,12 +163,12 @@ module.exports = {
                 "None"
               }`,
             },
-            {
-              name: "Badges",
-              value: userFlags.length
-                ? formatter.format(userFlags.map((flag) => `${badges[flag]}`))
-                : "None",
-            },
+            // {
+            //   name: "Badges",
+            //   value: userFlags.length
+            //     ? formatter.format(userFlags.map((flag) => `${badges[flag]}`))
+            //     : "None",
+            // },
             {
               name: "Devices",
               value: devices
@@ -172,6 +181,10 @@ module.exports = {
               value: roles.premiumSubscriberRole
                 ? `Since <t:${parseInt(target.premiumSinceTimestamp / 1000)}:R>`
                 : "No",
+            },
+            {
+              name: "Premium",
+              value: `${premUser.isPremium ? "Yes" : "No"}`,
             },
             {
               name: "Banner",

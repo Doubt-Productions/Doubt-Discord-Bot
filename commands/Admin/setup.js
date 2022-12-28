@@ -5,6 +5,8 @@ const {
   ComponentType,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  StringSelectMenuBuilder,
 } = require("discord.js");
 
 module.exports = {
@@ -13,6 +15,13 @@ module.exports = {
     .setDescription("Setup different parts of the bot.")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   category: "Admin",
+  /**
+   *
+   * @param {*} client
+   * @param {ChatInputCommandInteraction} interaction
+   * @param {*} config
+   * @param {*} db
+   */
   run: async (client, interaction, config, db) => {
     const embed = new EmbedBuilder()
       .setTitle("Setup")
@@ -22,6 +31,16 @@ module.exports = {
         {
           name: "Logging",
           value: "Setup the logging system.",
+          inline: true,
+        },
+        {
+          name: "Auto-Mod",
+          value: "Setup the Auto-Mod system.",
+          inline: true,
+        },
+        {
+          name: "Suggestions",
+          value: "Setup the suggestion system for your guild.",
           inline: true,
         },
         {
@@ -43,9 +62,11 @@ module.exports = {
 
     interaction.reply({
       embeds: [embed],
+      ephemeral: true,
+      fetchReply: true,
       components: [
         new ActionRowBuilder().addComponents(
-          new SelectMenuBuilder()
+          new StringSelectMenuBuilder()
             .setCustomId("setup-menu")
             .setPlaceholder("Please select an option")
             .addOptions([
@@ -63,6 +84,14 @@ module.exports = {
                 description: "Setup the Auto-Mod system.",
                 emoji: {
                   name: "🔨",
+                },
+              },
+              {
+                label: "Suggestions",
+                value: "suggestions",
+                description: "Setup the suggestion system for your guild.",
+                emoji: {
+                  name: "🖊️",
                 },
               },
               {

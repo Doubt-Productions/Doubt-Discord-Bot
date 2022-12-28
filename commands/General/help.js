@@ -5,6 +5,7 @@ const {
   SelectMenuBuilder,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
+  StringSelectMenuBuilder,
 } = require("discord.js");
 const client = require("../../index");
 
@@ -22,17 +23,19 @@ module.exports = {
    */
   run: async (client, interaction, config) => {
     const emojis = {
-      General: "📜",
-      Admin: "🔒",
-      Music: "🎵",
-      Leveling: "📈",
-      Moderation: "🛠️",
-      Tickets: "🎫",
-      Suggestions: "📝",
-      Setup: "🛠️",
+      general: "📜",
+      admin: "🔒",
+      roles: "👑",
+      music: "🎵",
+      leveling: "📈",
+      moderation: "🛠️",
+      tickets: "🎫",
+      suggestions: "📝",
+      setup: "🛠️",
+      fun: "🎉",
     };
 
-    const directories = [...Set(client.commands.map((cmd) => cmd.dir))];
+    const directories = [...new Set(client.commands.map((cmd) => cmd.dir))];
 
     const index = directories.indexOf("Owner");
 
@@ -40,9 +43,14 @@ module.exports = {
       directories.splice(index, 1);
     }
 
-    function formatString(str) {
+    /**
+     *
+     * @param {String} str
+     * @returns
+     */
+    const formatString = (str) => {
       return `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
-    }
+    };
 
     const categories = directories.map((dir) => {
       const getCommands = client.commands
@@ -65,7 +73,7 @@ module.exports = {
 
     const components = (state) => [
       new ActionRowBuilder().addComponents(
-        new SelectMenuBuilder()
+        new StringSelectMenuBuilder()
           .setCustomId("help-menu")
           .setPlaceholder("Please select a category")
           .setDisabled(state)
