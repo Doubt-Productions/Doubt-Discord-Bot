@@ -89,8 +89,8 @@ setTimeout(() => {
 setInterval(() => {
   let serverCount = client.guilds.cache.size;
   api.setServers(serverCount);
-  console.log(`[API] Updated server count to ${serverCount}`.green);
-}, parseInt(ms("2h")));
+//   console.log(`[API] Updated server count to ${serverCount}`.green);
+}, parseInt(ms("10m")));
 
 // Handler:
 client.commands = new Collection();
