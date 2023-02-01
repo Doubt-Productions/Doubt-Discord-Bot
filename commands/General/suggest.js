@@ -1,83 +1,77 @@
 const {
   EmbedBuilder,
-  ChatInputCommandInteraction,
   SlashCommandBuilder,
+  PermissionFlagsBits,
+  ChatInputCommandInteraction,
 } = require("discord.js");
-const client = require("../../index");
-const config = require("../../config/config.json");
-const suggestSchema = require("../../Systems/models/Suggestions");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("suggest")
-    .setDescription("Suggest something for the server.")
+    .setDescription("Send a suggestion.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addStringOption((option) =>
       option
-        .setName("name")
-        .setDescription("The name of your suggestion")
-        .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("description")
-        .setDescription("The description of your suggestion")
+        .setName("query")
+        .setDescription("The suggestion you want to send.")
         .setRequired(true)
     ),
-
   category: "General",
   /**
    *
-   * @param {client} client
+   * @param {*} client
    * @param {ChatInputCommandInteraction} interaction
-   * @param {config} config
+   * @param {*} config
    */
   run: async (client, interaction, config) => {
-    const { guild, member, options } = interaction;
+    const suggestion = interaction.options.getString("query");
+    const Schema = require("../../Systems/models/Suggestions/suggestion");
+    const CSchema = require("../../Systems/models/Suggestions/channel");
 
-    const name = options.getString("name");
-    const description = options.getString("description");
+    CSchema.findOne({ Guild: interaction.guild.id }, async (err, data) => {
+      if (err) throw err;
+      const pass = gen();
+      const channel = interaction.guild.channels.cache.get(data.Channel);
+      if (!data) return interaction.reply(`Suggestion system is not setup!`);
+      if (data) {
+        const embed = new EmbedBuilder()
+          .setTitle("Suggestion")
+          .setAuthor({
+            name: interaction.user.tag,
+            iconURL: interaction.user.avatarURL(),
+          })
+          .setDescription(`**Suggestion:** ${suggestion}`)
+          .addFields({ name: "Status", value: "Pending", inline: true })
+          .setColor(`Orange`)
+          .setFooter({ text: `Token: ${pass}` });
 
-    const errorEmbed = new EmbedBuilder();
-
-    const embed = new EmbedBuilder()
-      .setColor("Random")
-      .setDescription(`A suggestion made by ${member}`)
-      .setThumbnail(guild.iconURL({ dynamic: true }))
-      .addFields(
-        {
-          name: "Name",
-          value: name,
-        },
-        {
-          name: "Description",
-          value: description,
-        }
-      )
-      .setFooter({
-        text: member.user.tag,
-        iconURL: member.user.displayAvatarURL({ dynamic: true }),
-      });
-
-    suggestSchema.findOne({ Guild: guild.id }, async (err, data) => {
-      if (err) throw new err();
-      if (!data) {
-        return interaction.reply(
-          errorEmbed
-            .setColor(`Red`)
-            .setTitle(`No setup found!`)
-            .setDescription(
-              `Please visit the [dashboard](https://dashboard.zvapor.xyz) to set up the suggestion channel.`
-            )
-        );
-      } else {
-        const Channel = guild.channels.cache.get(data.Channel);
-        Channel.send({ embeds: [embed] }).then((msg) => {
-          interaction.reply({
-            content: `Your suggestion has been sent!`,
-            ephemeral: true,
+        channel
+          .send({
+            embeds: [embed],
+          })
+          .then((m) => {
+            interaction.reply(`Suggestion sent!`);
+            m.react("👍");
+            m.react("👎");
+            new Schema({
+              message: m.id,
+              token: pass,
+              suggestion: suggestion,
+              user: interaction.user.id,
+              guild: interaction.guild.id,
+            }).save();
           });
-        });
       }
     });
   },
 };
+
+function gen() {
+  var length = 12,
+    charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    retVal = "";
+  for (var i = 0, n = charset.length; i < length; i++) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}

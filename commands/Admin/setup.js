@@ -1,12 +1,11 @@
 const {
   EmbedBuilder,
   ActionRowBuilder,
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   ComponentType,
   PermissionFlagsBits,
   SlashCommandBuilder,
   ChatInputCommandInteraction,
-  StringSelectMenuBuilder,
 } = require("discord.js");
 
 module.exports = {

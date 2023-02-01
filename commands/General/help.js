@@ -2,11 +2,9 @@ const {
   EmbedBuilder,
   ComponentType,
   ActionRowBuilder,
-  SelectMenuBuilder,
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
   StringSelectMenuBuilder,
-} = require("discord.js");
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,} = require("discord.js");
 const client = require("../../index");
 
 module.exports = {
