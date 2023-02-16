@@ -13,41 +13,8 @@ const ms = require("ms");
 
 // Creating a new client:
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildPresences,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageTyping,
-  ],
-  partials: [
-    Partials.Channel,
-    Partials.Message,
-    Partials.User,
-    Partials.GuildMember,
-    Partials.Reaction,
-  ],
-  presence: {
-    activities: [
-      {
-        name: "/help",
-        type: 3,
-      },
-      {
-        name: "with my commands",
-        type: 3,
-      },
-      {
-        name: "my code",
-        type: 3,
-      },
-    ],
-    status: "online",
-  },
+  intents: [Object.keys(GatewayIntentBits)],
+  partials: [Object.keys(Partials)],
 });
 
 // Getting the bot token:
@@ -89,7 +56,7 @@ setTimeout(() => {
 setInterval(() => {
   let serverCount = client.guilds.cache.size;
   api.setServers(serverCount);
-//   console.log(`[API] Updated server count to ${serverCount}`.green);
+  //   console.log(`[API] Updated server count to ${serverCount}`.green);
 }, parseInt(ms("10m")));
 
 // Handler:

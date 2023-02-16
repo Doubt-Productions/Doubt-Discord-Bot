@@ -16,4 +16,43 @@ client.once("ready", async () => {
   }
 
   require("../../Systems/handlers/premium")(client);
+
+  // Rotating Status
+  const activities = [
+    {
+      name: "/help",
+      type: 3,
+      status: "online",
+    },
+    {
+      name: "with my commands",
+      type: 0,
+      status: "online",
+    },
+    {
+      name: "my code",
+      type: 3,
+      status: "online",
+    },
+  ];
+
+  async function pickStatus() {
+    const option = Math.floor(Math.random() * activities.length);
+
+    try {
+      client.user.setPresence({
+        activities: [
+          {
+            name: activities[option].name,
+            type: activities[option].type,
+          },
+        ],
+        status: activities[option].status,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  setInterval(pickStatus, 8 * 1000);
 });
