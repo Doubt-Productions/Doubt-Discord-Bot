@@ -1,6 +1,6 @@
 const { ShardingManager } = require("discord.js");
 const config = require("../../config/config.json");
-const colors = require("colors");
+require("colors");
 
 const manager = new ShardingManager("./index.js", {
   totalShards: "auto",

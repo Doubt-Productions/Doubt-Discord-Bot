@@ -139,7 +139,7 @@ function handleLogs(client) {
     return send_log(member.guild.id, embed);
   });
 
-  // Member Joined
+  // Member Left
   client.on("guildMemberRemove", (member) => {
     const embed = new EmbedBuilder()
       .setTitle("User Left")
@@ -150,28 +150,6 @@ function handleLogs(client) {
       );
 
     return send_log(member.guild.id, embed);
-  });
-
-  // Server Boost Level Up
-  client.on("guildBoostLevelUp", (guild, oldLevel, newLevel) => {
-    const embed = new EmbedBuilder()
-      .setTitle("Server Boost Level Up")
-      .setColor("Pink")
-      .setDescription(`${guild.name} reached the boost level ${newLevel}`);
-
-    return send_log(guild.id, embed);
-  });
-
-  // Server Boost Level Down
-  client.on("guildBoostLevelDown", (guild, oldLevel, newLevel) => {
-    const embed = new EmbedBuilder()
-      .setTitle("Server Boost Level Down")
-      .setColor("Pink")
-      .setDescription(
-        `${guild.name} lost a level from ${oldLevel} to ${newLevel}`
-      );
-
-    return send_log(guild.id, embed);
   });
 
   // Banner Added
@@ -324,94 +302,6 @@ function handleLogs(client) {
           " and joined " +
           newChannel.name +
           "!"
-      );
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // VC Mute
-  client.on("voiceChannelMute", (member, muteType) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Muted")
-      .setColor("Red")
-      .setDescription(
-        member.user.tag + " became muted! (type: " + muteType + ")"
-      );
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // VC Unmute
-  client.on("voiceChannelUnmute", (member, oldMuteType) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Unmuted")
-      .setColor("Green")
-      .setDescription(member.user.tag + " became unmuted!");
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // VC Defean
-  client.on("voiceChannelDeaf", (member, deafType) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Deafend")
-      .setColor("Red")
-      .setDescription(member.user.tag + " become deafed!");
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // VC Undefean
-  client.on("voiceChannelUndeaf", (member, deafType) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Undeafend")
-      .setColor("Green")
-      .setDescription(member.user.tag + " become undeafed!");
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // User Started to Stream
-  client.on("voiceStreamingStart", (member, voiceChannel) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Started to Stream")
-      .setColor("Green")
-      .setDescription(
-        member.user.tag + " started streaming in " + voiceChannel.name
-      );
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // User Stopped to Stream
-  client.on("voiceStreamingStop", (member, voiceChannel) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Stopped to Stream")
-      .setColor("Red")
-      .setDescription(
-        member.user.tag + " stopped streaming in " + voiceChannel.name
-      );
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // Member Became Offline
-  client.on("guildMemberOffline", (member, oldStatus) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Offline")
-      .setColor("Green")
-      .setDescription(member.user.tag + " went offline!");
-
-    return send_log(member.guild.id, embed);
-  });
-
-  // Member Became Online
-  client.on("guildMemberOnline", (member, newStatus) => {
-    const embed = new EmbedBuilder()
-      .setTitle("User Online")
-      .setColor("#2F3136")
-      .setDescription(
-        member.user.tag + " was offline and is now " + newStatus + "!"
       );
 
     return send_log(member.guild.id, embed);

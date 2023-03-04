@@ -5,7 +5,7 @@ const {
   GatewayIntentBits,
 } = require("discord.js");
 const config = require("./config/config.json");
-const colors = require("colors");
+require("colors");
 const distube = require("distube");
 const bfd = require("bfd-api-redux");
 const api = new bfd(config.Client.API_TOKEN, config.Client.ID);

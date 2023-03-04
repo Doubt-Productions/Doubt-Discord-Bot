@@ -1,5 +1,5 @@
 const fs = require("fs");
-const colors = require("colors");
+require("colors");
 const client = require("../../index");
 
 /**

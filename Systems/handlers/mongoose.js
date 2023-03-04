@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const config = require("../../config/config.json");
-const colors = require("colors");
+require("colors");
 
 module.exports = (client) => {
   console.log("[DATABASE] Started connecting to MongoDB...".brightYellow);

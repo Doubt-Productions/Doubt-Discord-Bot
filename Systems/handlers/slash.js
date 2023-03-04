@@ -2,7 +2,7 @@ const client = require("../../index");
 const config = require("../../config/config.json");
 const { PermissionsBitField, Routes, REST } = require("discord.js");
 const fs = require("fs");
-const colors = require("colors");
+require("colors");
 
 /**
  *
