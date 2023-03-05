@@ -112,6 +112,7 @@ process.on("unhandledRejection", async (err, promise) => {
     useTheme404: true,
     bot: client,
     acceptPrivacyPolicy: true,
+    useUnderMaintenance: true,
     useThemeMaintenance: true,
     useTheme404: true,
     underMaintenance: {
