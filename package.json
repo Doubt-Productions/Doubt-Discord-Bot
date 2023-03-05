@@ -23,6 +23,7 @@
     "bfd-api-redux": "^1.2.2",
     "canvacord": "^5.4.8",
     "colors": "^1.4.0",
+    "connect-mongodb-session": "^3.1.1",
     "dbd-soft-ui": "^1.6.36-beta.1",
     "discord-anti-spam": "^2.8.1",
     "discord-api-types": "^0.36.2",

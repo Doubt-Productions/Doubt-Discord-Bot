@@ -10,6 +10,7 @@ const distube = require("distube");
 const bfd = require("bfd-api-redux");
 const SoftUI = require("dbd-soft-ui");
 const DBD = require("discord-dashboard");
+const MongoStore = require('connect-mongo')
 const api = new bfd(config.Client.API_TOKEN, config.Client.ID);
 const ms = require("ms");
 
@@ -103,6 +104,11 @@ process.on("unhandledRejection", async (err, promise) => {
   DBD.Dashboard = DBD.UpdatedClass();
 
   const Dashboard = new DBD.Dashboard({
+    sessionStorage: MongoStore.create({
+      mongoUrl: config.Handlers.MONGO,
+      collection: "sessions",
+      databaseName: "dbd",
+    }),
     port: config.dbd.port,
     client: config.discord.client,
     redirectUri: `${config.dbd.domain}${config.dbd.redirectUri}`,
@@ -115,6 +121,9 @@ process.on("unhandledRejection", async (err, promise) => {
     useUnderMaintenance: true,
     useThemeMaintenance: true,
     useTheme404: true,
+    requiredPermissions: [
+      DBD.DISCORD_FLAGS.Permissions.MANAGE_GUILD
+    ],
     underMaintenance: {
       title: "Under Maintenance",
       contentTitle: "This page is under maintenance",
