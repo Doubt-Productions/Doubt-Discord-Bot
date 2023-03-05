@@ -81,6 +81,15 @@ client.DisTube = new DisTube(client, {
   ],
 });
 
+// Top.GG API
+const { AutoPoster } = require("topgg-autoposter");
+
+const ap = AutoPoster(config.Client.TOPGG_TOKEN, client);
+
+ap.on("posted", () => {
+  console.log("Posted stats to Top.gg!");
+});
+
 // Handle errors:
 process.on("unhandledRejection", async (err, promise) => {
   console.error(`[ANTI-CRASH] Unhandled Rejection: ${err}`.red);
