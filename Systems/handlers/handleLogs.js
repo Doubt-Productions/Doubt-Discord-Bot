@@ -257,18 +257,6 @@ function handleLogs(client) {
 
     return send_log(role.guild.id, embed);
   });
-  
-  // Username Updated
-  client.on("userUsernameUpdate", (user, oldUsername, newUsername) => {
-    const embed = new EmbedBuilder()
-      .setTitle("Username Updated")
-      .setColor("Green")
-      .setDescription(
-        `${user.tag} updated their username from ${oldUsername} to ${newUsername}`
-      );
-
-    return send_log(user.guild.id, embed);
-  });
 
   // Joined VC
   client.on("voiceChannelJoin", (member, channel) => {
