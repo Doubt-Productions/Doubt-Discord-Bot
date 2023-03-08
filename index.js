@@ -166,7 +166,7 @@ process.on("unhandledRejection", async (err, promise) => {
       supporteMail: "contact@doubtbot.tk",
       icons: {
         favicon:
-          "https://links.zvapor.xyz/doubt",
+          "https://links.zvapor.xyz/favicon",
         noGuildIcon:
           "https://pnggrid.com/wp-content/uploads/2021/05/Discord-Logo-Circle-1024x1024.png",
         sidebar: {
