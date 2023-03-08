@@ -155,7 +155,7 @@ process.on("unhandledRejection", async (err, promise) => {
         index: async ({ req, res, config }) => {
           return {
             values: [],
-            graph: {},
+            graph: { graph },
             cards: [],
           };
         },
@@ -165,8 +165,7 @@ process.on("unhandledRejection", async (err, promise) => {
       colorScheme: "pink",
       supporteMail: "contact@doubtbot.tk",
       icons: {
-        favicon:
-          "https://links.zvapor.xyz/favicon",
+        favicon: "https://links.zvapor.xyz/favicon",
         noGuildIcon:
           "https://pnggrid.com/wp-content/uploads/2021/05/Discord-Logo-Circle-1024x1024.png",
         sidebar: {
@@ -192,9 +191,9 @@ process.on("unhandledRejection", async (err, promise) => {
         graph: {
           enabled: true,
           lineGraph: false,
-          title: "Memory Usage",
-          tag: "Memory (MB)",
-          max: 100,
+          title: "Server Count",
+          tag: "Servers",
+          max: 150,
         },
       },
       sweetalert: {
