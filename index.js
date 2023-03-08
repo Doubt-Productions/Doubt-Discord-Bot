@@ -166,12 +166,12 @@ process.on("unhandledRejection", async (err, promise) => {
       supporteMail: "contact@doubtbot.tk",
       icons: {
         favicon:
-          "https://assistantscenter.com/wp-content/uploads/2021/11/cropped-cropped-logov6.png",
+          "https://links.zvapor.xyz/doubt",
         noGuildIcon:
           "https://pnggrid.com/wp-content/uploads/2021/05/Discord-Logo-Circle-1024x1024.png",
         sidebar: {
-          darkUrl: "https://assistantscenter.com/img/logo.png",
-          lightUrl: "https://assistanscenter.com/img/logo.png",
+          darkUrl: "https://links.zvapor.xyz/doubt",
+          lightUrl: "https://links.zvapor.xyz/doubt",
           hideName: true,
           borderRadius: false,
           alignCenter: true,
@@ -179,14 +179,14 @@ process.on("unhandledRejection", async (err, promise) => {
       },
       index: {
         card: {
-          category: "Soft UI",
-          title: "Assistants - The center of everything",
+          category: "Onboarding",
+          title: "Doubt bot - The bot everyone needs",
           description:
-            "Assistants Discord Bot management panel. <b><i>Feel free to use HTML</i></b>",
-          image: "/img/soft-ui.webp",
+            "You can learn more by clicking the link below <b><i>Invite me using the link below!</i></b>",
+          image: "https://links.zvapor.xyz/doubt",
           link: {
             enabled: true,
-            url: "https://google.com",
+            url: "https://top.gg/bot/941052587837378570",
           },
         },
         graph: {
@@ -204,7 +204,7 @@ process.on("unhandledRejection", async (err, promise) => {
         },
       },
       preloader: {
-        image: "/img/soft-ui.webp",
+        image: "https://links.zvapor.xyz/doubt",
         spinner: false,
         text: "Page is loading",
       },
