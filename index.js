@@ -111,7 +111,7 @@ process.on("unhandledRejection", async (err, promise) => {
     }),
     port: config.dbd.port,
     client: config.discord.client,
-    redirectUri: `${config.dbd.domain}:${config.dbd.port}${config.dbd.redirectUri}`,
+    redirectUri: `${config.dbd.domain}${config.dbd.redirectUri}`,
     domain: config.dbd.domain,
     ownerIDs: config.dbd.ownerIDs,
     useThemeMaintenance: true,
