@@ -204,8 +204,8 @@ process.on("unhandledRejection", async (err, promise) => {
         },
       },
       preloader: {
-        image: "https://links.zvapor.xyz/loading",
-        spinner: false,
+        image: "https://links.zvapor.xyz/doubt",
+        spinner: true,
         text: "Page is loading",
       },
       admin: {
