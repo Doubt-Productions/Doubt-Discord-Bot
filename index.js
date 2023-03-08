@@ -155,7 +155,7 @@ process.on("unhandledRejection", async (err, promise) => {
         index: async ({ req, res, config }) => {
           return {
             values: [],
-            graph: { graph },
+            graph: {},
             cards: [],
           };
         },
