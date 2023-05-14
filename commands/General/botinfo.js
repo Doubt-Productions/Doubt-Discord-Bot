@@ -6,6 +6,7 @@ const {
   ChatInputCommandInteraction,
   UserFlags,
   version,
+  GatewayVersion,
 } = require("discord.js");
 const buttonPages = require("../../Systems/Functions/pagination");
 const client = require("../../index");
@@ -54,7 +55,7 @@ module.exports = {
         },
         {
           name: "Owner",
-          value: `${client.application.owner.tag}`,
+          value: `zVapor_#8196`,
           inline: true,
         },
         {
@@ -147,39 +148,7 @@ module.exports = {
           inline: true,
         }
       );
-
-    const embed3 = new EmbedBuilder()
-      .setTitle(`${interaction.guild.name} Channels`)
-      .setColor("DarkAqua")
-      .setDescription(`The amount of channels in the server.`)
-      .addFields(
-        {
-          name: "Text Channels",
-          value: `${getChannelTypesize([
-            ChannelType.GuildText,
-            ChannelType.GuildAnnouncement,
-          ])}`,
-          inline: true,
-        },
-        {
-          name: "Voice Channels",
-          value: `${getChannelTypesize([
-            ChannelType.GuildVoice,
-            ChannelType.GuildStageVoice,
-          ])}`,
-          inline: true,
-        },
-        {
-          name: "Threads",
-          value: `${getChannelTypesize([
-            ChannelType.PublicThread,
-            ChannelType.PrivateThread,
-          ])}`,
-          inline: true,
-        }
-      );
-
-    const pages = [embed1, embed2, embed3];
+    const pages = [embed1, embed2];
 
     buttonPages(interaction, pages);
   },
