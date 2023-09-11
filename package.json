@@ -1,0 +1,25 @@
+{
+  "name": "new-doubt",
+  "version": "0.0.1",
+  "description": "An advanced multi-purpose discord bot designed to make your discord server run more smoothly!",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Wow is this a test?\" && exit 1",
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "keywords": [],
+  "author": "zVapor_",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "canvacord": "^5.4.10",
+    "chalk": "^2.4.2",
+    "discord-economy-super": "^1.7.6",
+    "discord-html-transcripts": "^3.1.5",
+    "discord-leveling-super": "^1.0.13",
+    "discord.js": "^14.12.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.4.5"
+  }
+}
