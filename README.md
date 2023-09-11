@@ -5,7 +5,7 @@
 <div align="center">
 
 <a href="https://github.com/Doubt-Productions/Doubt-Discord-Bot">
-  <img src="https://github.com/Doubt-Productions/Assets/blob/main/Doubt%20Logo.jpg" alt="Logo" width="300" height="120" />
+  <img src="https://github.com/Doubt-Productions/Assets/blob/main/Doubt%20Logo.jpg" alt="Logo" width="512" height="512" />
 </a>
   
 <h3 align="center">Doubt Discord Bot</h3>
