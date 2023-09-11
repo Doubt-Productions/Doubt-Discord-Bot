@@ -9,7 +9,7 @@
 </a>
   
 <h3 align="center">Doubt Discord Bot</h3>
-<h4 align="center">Made For <a href="https://github.com/Doubt-Productions">Douybt Productions</a><br>By <a href="https://github.com/zVapor-Dev">zVapor-Dev</a> (Vapor)</h4>
+<h4 align="center">Made For <a href="https://github.com/Doubt-Productions">Doubt Productions</a><br>By <a href="https://github.com/zVapor-Dev">zVapor-Dev</a> (Vapor)</h4>
 
 A multi-purpose bot with lots of features!<br/>
 This project is currently a WIP!
