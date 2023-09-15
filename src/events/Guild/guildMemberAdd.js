@@ -2,6 +2,7 @@ const ExtendedClient = require("../../class/ExtendedClient");
 const { Guild } = require("discord.js");
 const config = require("../../config");
 const welcomeSchema = require("../../schemas/welcomeSchema");
+const { log } = require("../../functions");
 
 module.exports = {
   event: "guildMemberAdd",
@@ -45,8 +46,9 @@ module.exports = {
     } catch (error) {
       return guild.channels
         .fetch(config.variables.channels.logs)
-        .then((owner) => {
-          owner.send(`Error: ${error}`);
+        .then((channel) => {
+          channel.send(`Error: ${error}`);
+          log(error, "err");
         });
     }
   },
