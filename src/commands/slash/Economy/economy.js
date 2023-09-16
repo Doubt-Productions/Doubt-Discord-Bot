@@ -44,7 +44,7 @@ module.exports = {
         name: `Success`,
         value: `Your account has been successfully created! You have got $1000 uppon creating your account!`,
       })
-      .setFooter({ text: `XenoPVP` })
+      .setFooter({ text: `Doubt` })
       .setTimestamp();
 
     const embed3 = new EmbedBuilder()
@@ -55,7 +55,7 @@ module.exports = {
         name: `Success`,
         value: `Your account has been successfully deleted! `,
       })
-      .setFooter({ text: `XenoPVP` })
+      .setFooter({ text: `Doubt` })
       .setTimestamp();
 
     const button = new ActionRowBuilder().addComponents(

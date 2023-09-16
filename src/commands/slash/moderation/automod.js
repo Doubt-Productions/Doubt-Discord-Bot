@@ -99,7 +99,7 @@ module.exports = {
 
         const rule = await guild.autoModerationRules
           .create({
-            name: `Block profanity, sexual content, and slurs. (XenoPVP)`,
+            name: `Block profanity, sexual content, and slurs. (Doubt)`,
             creatorId: config.client.id,
             enabled: true,
             eventType: 1,
@@ -112,7 +112,7 @@ module.exports = {
                 type: 1,
                 metadata: {
                   customMessage:
-                    "This message was prevented by XenoPVP's automod system.",
+                    "This message was prevented by Doubt's automod system.",
                 },
               },
               {
@@ -151,7 +151,7 @@ module.exports = {
 
         const rule2 = await guild.autoModerationRules
           .create({
-            name: `Prevents ${word} from being used. (XenoPVP)`,
+            name: `Prevents ${word} from being used. (Doubt)`,
             creatorId: config.client.id,
             enabled: true,
             eventType: 1,
@@ -164,7 +164,7 @@ module.exports = {
                 type: 1,
                 metadata: {
                   customMessage:
-                    "This message was prevented by XenoPVP's automod system.",
+                    "This message was prevented by Doubt's automod system.",
                 },
               },
               {
@@ -211,7 +211,7 @@ module.exports = {
 
         const rule3 = await guild.autoModerationRules
           .create({
-            name: `Prevent spam messages. (XenoPVP)`,
+            name: `Prevent spam messages. (Doubt)`,
             creatorId: config.client.id,
             enabled: true,
             eventType: 1,
@@ -222,7 +222,7 @@ module.exports = {
                 type: 1,
                 metadata: {
                   customMessage:
-                    "This message was prevented by XenoPVP's automod system.",
+                    "This message was prevented by Doubt's automod system.",
                 },
               },
               {
@@ -261,7 +261,7 @@ module.exports = {
 
         const rule4 = await guild.autoModerationRules
           .create({
-            name: `Prevent spam mentions. (XenoPVP)`,
+            name: `Prevent spam mentions. (Doubt)`,
             creatorId: config.client.id,
             enabled: true,
             eventType: 1,
@@ -274,7 +274,7 @@ module.exports = {
                 type: 1,
                 metadata: {
                   customMessage:
-                    "This message was prevented by XenoPVP's automod system.",
+                    "This message was prevented by Doubt's automod system.",
                 },
               },
               {

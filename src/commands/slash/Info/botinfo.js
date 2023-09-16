@@ -38,7 +38,7 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel("XenoPvP")
+        .setLabel("Doubt")
         .setStyle(ButtonStyle.Link)
         .setURL("https://discord.gg/rmqAhQz2qu"),
       new ButtonBuilder()
