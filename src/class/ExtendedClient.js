@@ -74,7 +74,7 @@ module.exports = class extends Client {
         .channels.edit(config.variables.channels.botUsers, {
           name: `Bot Users | ${users}`,
         });
-    }, 1000 * 5);
+    }, 1000 * 60 * 30);
 
     if (config.handler.deploy) deploy(this, config);
   };
