@@ -1,23 +1,35 @@
 module.exports = {
   client: {
-    token: "Your Bot token (USE ENV FOR SAFETY)",
-    id: "Your Bot ID (USE ENV FOR SAFETY)",
+    token: process.env.CLIENT_TOKEN,
+    id: process.env.CLIENT_ID,
+  },
+  variables: {
+    channels: {
+      logs: "",
+    },
+    dbName: "",
+    supportServerId: "",
+  },
+  moderation: {
+    admins: [""],
+    developers: [""],
+    moderators: [],
+    support: [],
   },
   handler: {
     prefix: "?",
     deploy: true,
+    guildDeploy: true,
+    guildId: "",
     commands: {
-      prefix: true,
+      prefix: false,
       slash: true,
       user: true,
       message: true,
     },
     mongodb: {
-      uri: "Your MongoDB URI string (USE ENV FOR SAFETY)",
-      toggle: false,
+      uri: process.env.MONGODB_URI,
+      toggle: true,
     },
-  },
-  users: {
-    developers: [""],
   },
 };
