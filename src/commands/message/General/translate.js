@@ -21,17 +21,17 @@ module.exports = {
       return;
     }
 
-    const translatedMessage = translate(message.content, { to: "en" });
+    const translatedMessage = await translate(message.content, { to: "en" });
 
     const embed = new EmbedBuilder()
       .setColor("Blurple")
-      .setAuthor(
-        message.author.displayName,
-        message.author.displayAvatarURL({ dynamic: true })
-      )
+      .setAuthor({
+        name: message.author.displayName,
+        iconURL: message.author.displayAvatarURL({ dynamic: true }),
+      })
       .setTitle("🔍 Translation Successful!")
-      .addFields({ name: "Original Message", value: message.content })
-      .addFields({ name: "Translated Message", value: translatedMessage });
+      .addFields({ name: "Original Message", value: `${message.content}` })
+      .addFields({ name: "Translated Message", value: `${translatedMessage.text}` });
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
   },
