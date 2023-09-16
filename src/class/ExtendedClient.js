@@ -49,7 +49,7 @@ module.exports = class extends Client {
     commands(this);
     events(this);
     components(this);
-    if (config.handler.mongodb.toggle) mongoose();
+    if (config.handler.mongodb.toggle) await mongoose();
 
     console.log();
 
