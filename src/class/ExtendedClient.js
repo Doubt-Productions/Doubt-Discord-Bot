@@ -12,6 +12,7 @@ const deploy = require("../handlers/deploy");
 const mongoose = require("../handlers/mongoose");
 const components = require("../handlers/components");
 const pjson = require("../../package.json");
+const { log } = require("../functions");
 
 module.exports = class extends Client {
   collection = {
@@ -53,6 +54,27 @@ module.exports = class extends Client {
     console.log();
 
     await this.login(process.env.CLIENT_TOKEN || config.client.token);
+
+    setInterval(async () => {
+      const guilds = await this.guilds.fetch({});
+      const users = this.guilds.cache.reduce(
+        (acc, guild) => acc + guild.memberCount,
+        0
+      );
+
+      log(`Bot Guilds: ${guilds.size}`, "info");
+      log(`Bot Users: ${users}`, "info");
+      this.guilds.cache
+        .get(config.handler.guildId)
+        .channels.edit(config.variables.channels.botGuilds, {
+          name: `Bot Guilds | ${guilds.size}`,
+        });
+      this.guilds.cache
+        .get(config.handler.guildId)
+        .channels.edit(config.variables.channels.botUsers, {
+          name: `Bot Users | ${users}`,
+        });
+    }, 1000 * 5);
 
     if (config.handler.deploy) deploy(this, config);
   };

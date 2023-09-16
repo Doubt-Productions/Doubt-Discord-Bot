@@ -6,6 +6,7 @@ const client = new ExtendedClient();
 
 client.start();
 
+
 // Start the express server for ping and uptime.
 server();
 
