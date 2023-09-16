@@ -17,6 +17,7 @@ module.exports = class extends Client {
   collection = {
     interactioncommands: new Collection(),
     prefixcommands: new Collection(),
+    developercommands: new Collection(),
     aliases: new Collection(),
     version: pjson.version,
     components: {
@@ -26,6 +27,7 @@ module.exports = class extends Client {
     },
   };
   applicationcommandsArray = [];
+  developerCommandsArray = [];
 
   constructor() {
     super({
@@ -33,9 +35,6 @@ module.exports = class extends Client {
       partials: [Object.keys(Partials)],
       presence: {
         activities: [
-          {
-            name: "Ariza Bot",
-          },
           {
             name: "/help or !help",
             type: ActivityType.Watching,

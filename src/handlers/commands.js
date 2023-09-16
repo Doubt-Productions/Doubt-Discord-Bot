@@ -28,7 +28,17 @@ module.exports = (client) => {
                             client.collection.aliases.set(alias, module.structure.name);
                         });
                     };
-                } else {
+                } else if (type === 'Developers') {
+                    if (!module.structure?.name || !module.run) {
+                        log('Unable to load the command ' + file +' due to missing \'structure#name\' or/and \'run\' properties.', 'warn');
+        
+                        continue;
+                    }
+
+                    client.collection.developercommands.set(module.structure.name, module);
+                    client.developerCommandsArray.push(module.structure);
+                }
+                 else {
                     if (!module.structure?.name || !module.run) {
                         log('Unable to load the command ' + file +' due to missing \'structure#name\' or/and \'run\' properties.', 'warn');
         
