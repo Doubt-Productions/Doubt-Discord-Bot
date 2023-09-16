@@ -37,7 +37,7 @@ module.exports = class extends Client {
       presence: {
         activities: [
           {
-            name: "/help or !help",
+            name: "/help",
             type: ActivityType.Watching,
           },
         ],
