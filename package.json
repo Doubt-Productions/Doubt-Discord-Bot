@@ -12,6 +12,7 @@
   "author": "zVapor_",
   "license": "GPL-3.0",
   "dependencies": {
+    "@iamtraction/google-translate": "^2.0.1",
     "canvacord": "^5.4.10",
     "chalk": "^2.4.2",
     "discord-economy-super": "^1.7.6",
