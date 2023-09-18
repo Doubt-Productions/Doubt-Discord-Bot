@@ -7,6 +7,8 @@ module.exports = async () => {
 
   await connect(process.env.MONGODB_URI || config.handler.mongodb.uri, {
     dbName: config.variables.dbName,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
     .then(() => {
       log("MongoDB is connected to the atlas!", "done");
