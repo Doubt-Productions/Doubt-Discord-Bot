@@ -80,6 +80,14 @@ module.exports = {
             PermissionFlagsBits.ReadMessageHistory,
           ],
         },
+        {
+          id: data.Role,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+          ],
+        }
       ],
     });
 

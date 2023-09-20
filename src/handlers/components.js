@@ -15,7 +15,7 @@ module.exports = (client) => {
 
       if (!module) continue;
 
-      if (dir === "button") {
+      if (dir === "buttons") {
         if (!module.customId || !module.run) {
           log(
             "Unable to load the component " +
@@ -28,7 +28,7 @@ module.exports = (client) => {
         }
 
         client.collection.components.buttons.set(module.customId, module);
-      } else if (dir === "select") {
+      } else if (dir === "selects") {
         if (!module.customId || !module.run) {
           log(
             "Unable to load the select menu " +

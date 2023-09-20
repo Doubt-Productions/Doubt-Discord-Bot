@@ -28,8 +28,13 @@ module.exports = {
         .setDescription("The category where the ticket system will be setup!")
         .setRequired(true)
         .addChannelTypes(ChannelType.GuildCategory)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("role")
+        .setDescription("The role that can see the ticket system!")
+        .setRequired(true)
     ),
-
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
@@ -38,6 +43,7 @@ module.exports = {
   run: async (client, interaction, args) => {
     const channel = interaction.options.getChannel("channel");
     const category = interaction.options.getChannel("category");
+    const role = interaction.options.getRole("role");
 
     const data = await ticketSchema.findOne({ Guild: interaction.guild.id });
 
@@ -45,10 +51,12 @@ module.exports = {
       new ticketSchema({
         Guild: interaction.guild.id,
         Channel: category.id,
+        Role: role.id,
         Ticket: "first",
       }).save();
     } else {
       data.Channel = category.id;
+      data.Role = role.id;
       data.save();
       interaction.reply({
         content: `Successfully setup the ticket system in ${channel}!`,
