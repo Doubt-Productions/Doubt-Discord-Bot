@@ -11,7 +11,7 @@ const mongoose = require("../../../handlers/mongoose");
 
 module.exports = {
   structure: new SlashCommandBuilder()
-    .setName("conncetdb")
+    .setName("connectdb")
     .setDescription("Attempt to connect the DB."),
   options: {
     developers: true,
