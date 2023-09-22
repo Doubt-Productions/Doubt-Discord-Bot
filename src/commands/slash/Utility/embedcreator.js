@@ -3,21 +3,16 @@ const {
   SlashCommandBuilder,
   EmbedBuilder,
   ChannelType,
-  Colors
+  Colors,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
+const { embed, log } = require("../../../functions");
 
 module.exports = {
   structure: new SlashCommandBuilder()
     .setName("embedcreator")
     .setDescription("This creates a custom embed!")
-    .addChannelOption((option) =>
-      option
-        .setName("channel")
-        .setDescription("The channel to send the embed to")
-        .setRequired(true)
-        .addChannelTypes(ChannelType.GuildText)
-    )
+
     .addStringOption((option) =>
       option
         .setName("title")
@@ -34,8 +29,14 @@ module.exports = {
       option
         .setName("color")
         .setDescription("Use a 6 digit hex code")
-        .setMaxLength(6)
         .setRequired(true)
+    )
+    .addChannelOption((option) =>
+      option
+        .setName("channel")
+        .setDescription("The channel to send the embed to")
+        .setRequired(false)
+        .addChannelTypes(ChannelType.GuildText)
     )
     .addStringOption((option) =>
       option
@@ -71,47 +72,23 @@ module.exports = {
     const thumbnail = options.getString("thumbnail");
     const footer = options.getString("footer");
 
-    function isHexColor (hex) {
-        return typeof hex === 'string'
-            && hex.length === 6
-            && !isNaN(Number('0x' + hex))
-        }
-    
-        if (!isHexColor(color) && !Object.keys(Colors).includes(color.toUpperCase())) {
-            interaction.reply('Please enter a valid HEX color to use'); return;
-           }
-
-    if (image && !image.startsWith("https://"))
+    try {
+      embed(
+        title,
+        description,
+        color,
+        footer,
+        image,
+        thumbnail,
+        channel,
+        interaction
+      );
       return interaction.reply({
-        content: "The image must be a link!",
+        content: `Successfully sent the embed to ${channel || `this channel`}`,
         ephemeral: true,
       });
-    if (thumbnail && !thumbnail.startsWith("https://"))
-      return interaction.reply({
-        content: "The thumbnail must be a link!",
-        ephemeral: true,
-      });
-
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setDescription(description)
-      .setColor(`${color}`)
-      .setImage(image)
-      .setThumbnail(thumbnail)
-      .setFooter({
-        text: `${footer||"Ariza Network"}`,
-        iconURL: `${interaction.user.displayAvatarURL({ dynamic: true })}`,
-      })
-      .setTimestamp();
-
-    await interaction.reply({
-        content: "Embed created!",
-        ephemeral: true,
-        });
-
-    const reqChannel = interaction.guild.channels.cache.get(channel.id);
-
-    await reqChannel.send({ embeds: [embed] });
-
+    } catch (error) {
+      log(error, "err");
+    }
   },
 };

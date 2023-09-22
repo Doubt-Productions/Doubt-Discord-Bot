@@ -9,8 +9,6 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
-const config = require("../../../config");
-const GuildSchema = require("../../../schemas/GuildSchema");
 
 module.exports = {
   structure: new SlashCommandBuilder()
