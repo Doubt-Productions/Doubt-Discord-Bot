@@ -17,14 +17,14 @@ module.exports = {
         .setDescription("The code to be executed.")
         .setRequired(true)
     ),
+  options: {
+    developers: true,
+  },
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
    * @param {[]} args
    */
-  options: {
-    developers: true,
-  },
   run: async (client, interaction, args) => {
     await interaction.deferReply();
     const toCode = interaction.options.getString("code");

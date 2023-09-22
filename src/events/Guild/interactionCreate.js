@@ -1,6 +1,7 @@
 const config = require("../../config");
 const { log } = require("../../functions");
 const ExtendedClient = require("../../class/ExtendedClient");
+const { ChatInputCommandInteraction } = require("discord.js");
 
 const cooldown = new Map();
 
@@ -9,7 +10,7 @@ module.exports = {
   /**
    *
    * @param {ExtendedClient} client
-   * @param {import('discord.js').Interaction} interaction
+   * @param {ChatInputCommandInteraction} interaction
    * @returns
    */
   run: async (client, interaction) => {
@@ -55,6 +56,27 @@ module.exports = {
             ephemeral: true,
           });
 
+          return;
+        }
+      }
+
+      if (command.options?.staffOnly) {
+        const member = interaction.guild.members.cache.get(interaction.user.id);
+
+        console.log(
+          member.roles.cache.some((role) =>
+            config.moderation.staffRoles.includes(role.id)
+          )
+        );
+        if (
+          !member.roles.cache.some((role) =>
+            config.moderation.staffRoles.includes(role.id)
+          )
+        ) {
+          await interaction.reply({
+            content: `This is a staff only command.`,
+            ephemeral: true,
+          });
           return;
         }
       }

@@ -1,6 +1,6 @@
 {
   "name": "new-doubt",
-  "version": "1.0.0",
+  "version": "1.2",
   "description": "An advanced multi-purpose discord bot designed to make your discord server run more smoothly!",
   "main": "src/index.js",
   "scripts": {
