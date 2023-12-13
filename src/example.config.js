@@ -1,35 +1,43 @@
 module.exports = {
-    client: {
-      token: process.env.CLIENT_TOKEN,
-      id: process.env.CLIENT_ID,
+  client: {
+    token: process.env.CLIENT_TOKEN,
+    id: process.env.CLIENT_ID,
+  },
+  variables: {
+    channels: {
+      logs: "",
     },
-    variables: {
-      channels: {
-        logs: "",
-      },
-      dbName: "",
-      supportServerId: "",
+    dbName: "",
+    supportServerId: "",
+  },
+  moderation: {
+    admins: [""],
+    developers: [""],
+    moderators: [],
+    support: [],
+  },
+  handler: {
+    prefix: "?",
+    deploy: true,
+    guildDeploy: true,
+    guildId: "",
+    commands: {
+      prefix: false,
+      slash: true,
+      user: true,
+      message: true,
     },
-    moderation: {
-      admins: [""],
-      developers: [""],
-      moderators: [],
-      support: [],
-    },
-    handler: {
-      prefix: "?",
-      deploy: true,
-      guildDeploy: true,
-      guildId: "",
-      commands: {
-        prefix: false,
-        slash: true,
-        user: true,
-        message: true,
-      },
-      mongodb: {
-        uri: process.env.MONGODB_URI,
+    api: {
+      personal: {
         toggle: true,
+        url: "",
+        port: "",
       },
     },
-  };
+    chatgpt: "",
+  },
+  mongodb: {
+    uri: process.env.MONGODB_URI,
+    toggle: true,
+  },
+};

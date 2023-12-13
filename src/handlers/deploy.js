@@ -19,15 +19,24 @@ module.exports = async (client) => {
         "warn"
       );
 
-      await rest.put(
-        Routes.applicationGuildCommands(
-          config.client.id,
-          config.handler.guildId
-        ),
-        {
-          body: client.applicationcommandsArray,
-        }
-      );
+      await rest
+        .put(
+          Routes.applicationGuildCommands(
+            config.client.id,
+            config.handler.guildId
+          ),
+          {
+            body: client.applicationcommandsArray,
+          }
+        )
+        .then(() =>
+          log(
+            `Added guild commands to ${
+              client.guilds.cache.get(config.handler.guildId).name
+            }!`,
+            "done"
+          )
+        );
 
       await rest.put(
         Routes.applicationGuildCommands(
