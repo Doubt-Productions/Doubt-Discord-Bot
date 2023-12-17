@@ -13,8 +13,11 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@iamtraction/google-translate": "^2.0.1",
+    "@keyv/mongo": "^2.2.8",
     "canvacord": "^5.4.10",
     "chalk": "^2.4.2",
+    "dbd-soft-ui": "^1.0.12",
+    "discord-dashboard": "^2.3.62",
     "discord-economy-super": "^1.7.6",
     "discord-html-transcripts": "^3.1.5",
     "discord-leveling-super": "^1.0.13",
