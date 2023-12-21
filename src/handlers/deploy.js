@@ -57,6 +57,7 @@ module.exports = async (client) => {
         "Unable to load guild application commands to Discord API. " + e,
         "err"
       );
+      console.error(e);
     }
   } else if (config.handler.guildDeploy === false) {
     try {
