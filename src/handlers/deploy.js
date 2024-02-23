@@ -9,7 +9,7 @@ const ExtendedClient = require("../class/ExtendedClient");
  */
 module.exports = async (client) => {
   const rest = new REST({ version: "10" }).setToken(
-    process.env.CLIENT_TOKEN || config.client.token
+    config.client.token
   );
 
   if (config.handler.guildDeploy === true) {
@@ -29,10 +29,12 @@ module.exports = async (client) => {
             body: client.applicationcommandsArray,
           }
         )
-        .then(() =>
+        .then(async () =>
           log(
             `Added guild commands to ${
-              client.guilds.cache.get(config.handler.guildId).name
+              (
+                await client.guilds.fetch(config.handler.guildId)
+              ).name
             }!`,
             "done"
           )
