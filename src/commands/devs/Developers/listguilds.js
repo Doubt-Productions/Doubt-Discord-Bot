@@ -4,12 +4,11 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
-const { log } = require("../../../functions");
 
 module.exports = {
   structure: new SlashCommandBuilder()
     .setName("listguilds")
-    .setDescription("Simulates a user joining the server!"),
+    .setDescription("List all guilds!"),
   options: {
     developers: true,
   },
