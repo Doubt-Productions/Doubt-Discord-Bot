@@ -51,9 +51,7 @@ module.exports = class extends Client {
     components(this);
     if (config.handler.mongodb.toggle) mongoose();
 
-    console.log();
-
-    await this.login(process.env.CLIENT_TOKEN || config.client.token);
+    await this.login(config.client.token);
 
     setInterval(async () => {
       const guilds = await this.guilds.fetch({});

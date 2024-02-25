@@ -37,7 +37,6 @@ module.exports = {
         { name: "Bank", value: `$${bank}` },
         { name: "Total", value: `$${total}` }
       );
-
     await interaction.reply({ embeds: [embed] });
   },
 };

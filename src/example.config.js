@@ -37,11 +37,17 @@ module.exports = {
       user: true,
       message: true,
     },
-    mongodb: {
-      uri: process.env.PRODUCTION
-        ? process.env.MONGODB_URI
-        : process.env.DEV_MONGODB_URI,
-      toggle: true,
+    api: {
+      personal: {
+        toggle: true,
+        url: "",
+        port: "",
+      },
     },
+    chatgpt: "",
+  },
+  mongodb: {
+    uri: process.env.MONGODB_URI,
+    toggle: true,
   },
 };
