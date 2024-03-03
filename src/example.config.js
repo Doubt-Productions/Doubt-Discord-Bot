@@ -1,53 +1,47 @@
 module.exports = {
   client: {
-    token: process.env.PRODUCTION
-      ? process.env.CLIENT_TOKEN
-      : process.env.DEV_TOKEN,
-    id: process.env.PRODUCTION
-      ? process.env.CLIENT_ID
-      : process.env.DEV_CLIENT_ID,
+    token: process.env.PRODUCTION === true
+      ? process.env.DEV_TOKEN
+      : process.env.CLIENT_TOKEN,
+    id: process.env.PRODUCTION === true
+      ? process.env.DEV_CLIENT_ID
+      : process.env.CLIENT_ID,
   },
   variables: {
     channels: {
       logs: "",
-      botGuilds: process.env.PRODUCTION
+      botGuilds: process.env.PRODUCTION === true
         ? ""
         : "",
-      botUsers: process.env.PRODUCTION
+      botUsers: process.env.PRODUCTION === true
         ? ""
         : "",
     },
-    dbName: process.env.PRODUCTION ? "production" : "development",
+    dbName: process.env.PRODUCTION === true ? "development" : "production",
     supportServerId: process.env.GUILD_ID,
   },
   moderation: {
     developers: [""],
-    staffRoles: [""],
+    staffRoles: ["", ""],
   },
   handler: {
     prefix: "?",
     deploy: true,
-    guildDeploy: true,
-    guildId: process.env.PRODUCTION
-      ? process.env.GUILD_ID
-      : process.env.DEV_GUILD_ID,
+    guildDeploy: process.env.PRODUCTION === true ? true : false,
+    guildId: process.env.PRODUCTION === true
+      ? process.env.DEV_GUILD_ID
+      : process.env.GUILD_ID,
     commands: {
       prefix: false,
       slash: true,
       user: true,
       message: true,
     },
-    api: {
-      personal: {
-        toggle: true,
-        url: "",
-        port: "",
-      },
+    mongodb: {
+      uri: process.env.PRODUCTION === true
+        ? process.env.DEV_MONGODB_URI
+        : process.env.MONGODB_URI,
+      toggle: true,
     },
-    chatgpt: "",
-  },
-  mongodb: {
-    uri: process.env.MONGODB_URI,
-    toggle: true,
   },
 };
