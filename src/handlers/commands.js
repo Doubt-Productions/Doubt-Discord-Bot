@@ -1,12 +1,17 @@
 const { readdirSync } = require("fs");
 const { log } = require("../functions");
 const ExtendedClient = require("../class/ExtendedClient");
+const AsciiTable = require("ascii-table");
+const { default: chalk } = require("chalk");
 
 /**
  *
  * @param {ExtendedClient} client
  */
 module.exports = (client) => {
+  const table = new AsciiTable(`Doubt | Slash Commands`)
+    .setHeading("Command", "Type", "Status");
+
   for (const type of readdirSync("./src/commands/")) {
     for (const dir of readdirSync("./src/commands/" + type)) {
       for (const file of readdirSync(
@@ -21,13 +26,16 @@ module.exports = (client) => {
           if (!module.structure?.name || !module.run) {
             log(
               "Unable to load the command " +
-                file +
-                " due to missing 'structure#name' or/and 'run' properties.",
+              file +
+              " due to missing 'structure#name' or/and 'run' properties.",
               "warn"
             );
+            table.addRow(module.structure.name, type, "Failed");
 
             continue;
           }
+
+          table.addRow(module.structure.name, type, "Loaded");
 
           client.collection.prefixcommands.set(module.structure.name, module);
 
@@ -39,17 +47,21 @@ module.exports = (client) => {
               client.collection.aliases.set(alias, module.structure.name);
             });
           }
-        } else if (type === "Developers") {
+        } else if (type === "devOnly") {
           if (!module.structure?.name || !module.run) {
             log(
               "Unable to load the command " +
-                file +
-                " due to missing 'structure#name' or/and 'run' properties.",
+              file +
+              " due to missing 'structure#name' or/and 'run' properties.",
               "warn"
             );
 
+            table.addRow(module.structure.name, type, "Failed");
+
             continue;
           }
+
+          table.addRow(module.structure.name, type, "Loaded");
 
           client.collection.developercommands.set(
             module.structure.name,
@@ -60,13 +72,17 @@ module.exports = (client) => {
           if (!module.structure?.name || !module.run) {
             log(
               "Unable to load the command " +
-                file +
-                " due to missing 'structure#name' or/and 'run' properties.",
+              file +
+              " due to missing 'structure#name' or/and 'run' properties.",
               "warn"
             );
 
+            table.addRow(module.structure.name, type, "Failed");
+
             continue;
           }
+
+          table.addRow(module.structure.name, type, "Loaded");
 
           client.collection.interactioncommands.set(
             module.structure.name,
@@ -75,8 +91,9 @@ module.exports = (client) => {
           client.applicationcommandsArray.push(module.structure);
         }
 
-        log("Loaded new command: " + file, "info");
+
       }
     }
   }
+  console.log(chalk.green(table.toString()));
 };

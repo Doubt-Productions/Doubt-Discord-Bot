@@ -1,12 +1,17 @@
 const { readdirSync } = require('fs');
 const { log } = require('../functions');
 const ExtendedClient = require('../class/ExtendedClient');
+const AsciiTable = require('ascii-table');
+const { default: chalk } = require('chalk');
 
 /**
  * 
  * @param {ExtendedClient} client 
  */
 module.exports = (client) => {
+    const table = new AsciiTable(`Doubt | Events`)
+        .setHeading('Event', 'Status');
+
     for (const dir of readdirSync('./src/events/')) {
         for (const file of readdirSync('./src/events/' + dir).filter((f) => f.endsWith('.js'))) {
             const module = require('../events/' + dir + '/' + file);
@@ -16,10 +21,12 @@ module.exports = (client) => {
             if (!module.event || !module.run) {
                 log('Unable to load the event ' + file + ' due to missing \'name\' or/and \'run\' properties.', 'warn');
 
+                table.addRow(file, 'Failed');
+
                 continue;
             };
 
-            log('Loaded new event: ' + file, 'info');
+            table.addRow(module.event, 'Loaded');
 
             if (module.once) {
                 client.once(module.event, (...args) => module.run(client, ...args));
@@ -28,4 +35,6 @@ module.exports = (client) => {
             };
         };
     };
+
+    console.log(chalk.red(table.toString()));
 };
