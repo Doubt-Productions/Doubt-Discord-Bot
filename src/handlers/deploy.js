@@ -9,7 +9,7 @@ const ExtendedClient = require("../class/ExtendedClient");
  */
 module.exports = async (client) => {
   const rest = new REST({ version: "10" }).setToken(
-    process.env.CLIENT_TOKEN || config.client.token
+    config.client.token
   );
 
   if (config.handler.guildDeploy === true) {
@@ -19,15 +19,26 @@ module.exports = async (client) => {
         "warn"
       );
 
-      await rest.put(
-        Routes.applicationGuildCommands(
-          config.client.id,
-          config.handler.guildId
-        ),
-        {
-          body: client.applicationcommandsArray,
-        }
-      );
+      await rest
+        .put(
+          Routes.applicationGuildCommands(
+            config.client.id,
+            config.handler.guildId
+          ),
+          {
+            body: client.applicationcommandsArray,
+          }
+        )
+        .then(async () =>
+          log(
+            `Added guild commands to ${
+              (
+                await client.guilds.fetch(config.handler.guildId)
+              ).name
+            }!`,
+            "done"
+          )
+        );
 
       await rest.put(
         Routes.applicationGuildCommands(
@@ -48,6 +59,7 @@ module.exports = async (client) => {
         "Unable to load guild application commands to Discord API. " + e,
         "err"
       );
+      console.error(e);
     }
   } else if (config.handler.guildDeploy === false) {
     try {
