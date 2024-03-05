@@ -51,8 +51,6 @@ module.exports = class extends Client {
     components(this);
     if (config.handler.mongodb.toggle) mongoose();
 
-    console.log(process.env.PRODUCTION)
-
     await this.login(config.client.token);
 
     setInterval(async () => {
