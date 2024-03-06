@@ -19,7 +19,7 @@ This project is currently a WIP!
 <!--- Credits -->
 ## ℹ️ Credits
 ```md
-- zVapor-Dev (Vapor) (General Structure + Commands beloning to init commit)
+- zVapor-Dev (Vapor) (General data + Commands beloning to init commit)
 ```
 
 `IF YOU ADD SOMETHING TO THE REPO ADD YOURSELF TO THE CREDITS!`

@@ -9,7 +9,7 @@ const config = require("../../../config");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("automod")
     .setDescription("Manage the automod system.")
     .addSubcommand((sub) =>

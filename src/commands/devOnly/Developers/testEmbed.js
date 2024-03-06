@@ -9,7 +9,7 @@ const GuildSchema = require("../../../schemas/GuildSchema");
 const { embed } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("testembed")
     .setDescription("Testing the embed function."),
   /**

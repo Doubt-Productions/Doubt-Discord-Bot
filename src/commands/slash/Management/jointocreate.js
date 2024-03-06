@@ -3,7 +3,7 @@ const ExtendedClient = require('../../../class/ExtendedClient');
 const schema = require('../../../schemas/join-to-create')
 
 module.exports = {
-    structure: new SlashCommandBuilder()
+    data: new SlashCommandBuilder()
         .setName('setup-jointocreate')
         .setDescription('Setup the join to create system!')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)

@@ -4,7 +4,7 @@ const config = require('../../../config');
 const GuildSchema = require('../../../schemas/GuildSchema');
 
 module.exports = {
-    structure: {
+    data: {
         name: 'prefix',
         description: 'Get/Set/Default prefix',
         aliases: []

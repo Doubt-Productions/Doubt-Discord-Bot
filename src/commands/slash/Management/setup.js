@@ -15,7 +15,7 @@ const welcomeSchema = require("../../../schemas/welcomeSchema");
 const chatbotSchema = require("../../../schemas/chatbotSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("setup")
     .setDescription("Setup command!"),
   /**

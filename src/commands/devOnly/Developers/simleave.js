@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("simleave")
     .setDescription("Simulates a user leaving the server!"),
   options: {
