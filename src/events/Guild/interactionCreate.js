@@ -16,6 +16,8 @@ module.exports = {
   run: async (client, interaction) => {
     if (!interaction.isCommand()) return;
 
+    console.log(interaction.commandName)
+
     if (
       config.handler.commands.slash === false &&
       interaction.isChatInputCommand()
@@ -34,8 +36,8 @@ module.exports = {
 
     const command = client.collection.interactioncommands.get(
       interaction.commandName
-    );
-
+    ) || client.collection.developercommands.get(interaction.commandName);
+    
     if (!command) return;
 
     try {
