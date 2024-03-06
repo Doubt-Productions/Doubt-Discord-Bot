@@ -60,7 +60,6 @@ module.exports = {
       if (!bg) continue;
 
       badges.push(client.emojis.cache.get(bg?.emoji)?.toString() || bg?.emoji);
-      
     }
 
     console.log(badges);
@@ -93,6 +92,7 @@ module.exports = {
       `**Timed out?**: ${
         user.communicationDisabledUntilTimestamp ? "Yes" : "No"
       }`,
+      `**Badges**: ${badges.join(", ")}`,
     ];
 
     await interaction.editReply({
@@ -103,7 +103,7 @@ module.exports = {
           .setDescription(`${arr.join("\n")}`)
           .setColor("Blurple"),
       ],
-    //   files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
+      //   files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
     });
   },
 };
