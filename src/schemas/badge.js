@@ -5,6 +5,7 @@ const Badge = new Schema({
   name: String,
   emoji: String,
   createdAt: String,
+  animated: Boolean,
 });
 
 module.exports = model("badge", Badge);

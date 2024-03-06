@@ -3,6 +3,7 @@ const {
   ChatInputCommandInteraction,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
+const { has } = require("node-emoji");
 
 const badges = require("../../../schemas/badge");
 const users = require("../../../schemas/userConfig");
@@ -73,12 +74,32 @@ module.exports = {
             .setDescription("The ID of the badge")
             .setRequired(true)
         )
-        .addStringOption((option) =>
+        .addUserOption((option) =>
           option
             .setName("user-id")
-            .setDescription("The ID of the user")
+            .setDescription("The user ID")
             .setRequired(true)
         )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("take")
+        .setDescription("Take a badge from a user")
+        .addStringOption((option) =>
+          option
+            .setName("id")
+            .setDescription("The ID of the badge")
+            .setRequired(true)
+        )
+        .addUserOption((option) =>
+          option
+            .setName("user-id")
+            .setDescription("The user ID")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("list").setDescription("List all badges")
     ),
 
   /**
@@ -88,17 +109,13 @@ module.exports = {
    * @param {[]} args
    */
   run: async (client, interaction, args) => {
-    if (!client.owners.includes(interaction.user.id))
-      return interaction.reply({ content: `You are not a owner` });
-
     await interaction.deferReply();
 
     let option = interaction.options.getSubcommand(),
       id = interaction.options.getString("id"),
       name = interaction.options.getString("name"),
       emoji = interaction.options.getString("emoji")?.split(/ +/g)[0],
-      user_id = interaction.options.getString("user-id"),
-      user = client.users.cache.get(user_id),
+      user = interaction.options.getUser("user-id"),
       userData = user
         ? (await users.findOne({ user: user?.id })) ||
           (await users.create({ user: user?.id }))
@@ -106,20 +123,17 @@ module.exports = {
       badge = await badges.findOne({ id });
 
     if (option === "create") {
-      if (!isEmoji(client, emoji))
-        return interaction.editReply({
-          embeds: [
-            {
-              title: "❌ Invalid Emoji",
-              description: "Please provide a valid emoji",
-            },
-          ],
-        });
+      let animated = false;
+
+      if (emoji.startsWith("<a:")) {
+        animated = true
+      }
 
       badge = await badges.create({
         id: randomId(8),
         name,
         emoji,
+        animated,
         createdAt: Date.now(),
       });
 
@@ -148,7 +162,7 @@ module.exports = {
               },
               {
                 name: "Created At",
-                value: `<t:${badge.createdAt}>`,
+                value: `<t:${Math.floor(badge.createdAt / 1000)}>`,
                 inline: true,
               },
             ],
@@ -214,7 +228,8 @@ module.exports = {
               },
               {
                 name: "Created At",
-                value: `<t:${badge.createdAt}>` || "Unknown Date",
+                value:
+                  `<t:${Math.floor(badge.createdAt / 1000)}>` || "Unknown Date",
                 inline: true,
               },
             ],
@@ -349,7 +364,9 @@ module.exports = {
 
         str += `${
           client.emojis.cache.get(bg?.emoji)?.toString() || bg?.emoji
-        } **${bg?.name}** | Created At: <t:${bg.createdAt}>\n`;
+        } **${bg?.name}** | \`${bg?.id}\` | Created At: <t:${Math.floor(
+          bg.createdAt / 1000
+        )}>\n`;
       }
 
       interaction.editReply({
@@ -363,3 +380,6 @@ module.exports = {
     }
   },
 };
+function isEmoji(client, emoji) {
+  return client.emojis.cache.get(/\d+/.exec(emoji) + "") || has(emoji);
+}

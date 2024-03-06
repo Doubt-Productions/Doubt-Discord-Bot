@@ -32,7 +32,7 @@ module.exports = class extends Client {
 
   constructor() {
     super({
-      intents: [Object.keys(GatewayIntentBits)],
+      intents: 3276799,
       partials: [Object.keys(Partials)],
       presence: {
         activities: [
