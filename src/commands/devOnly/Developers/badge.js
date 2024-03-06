@@ -4,6 +4,10 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 
+const badges = require("../../../schemas/badge");
+const users = require("../../../schemas/userConfig");
+const { randomId } = require("../../../functions");
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("badge")

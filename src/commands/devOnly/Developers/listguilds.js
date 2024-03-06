@@ -4,6 +4,7 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
+const { buttonPagination } = require("../../../functions");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -18,6 +19,8 @@ module.exports = {
    * @param {[]} args
    */
   run: async (client, interaction, args) => {
+    const guildArray = [];
+
     const guilds = client.guilds.cache;
     const guildChunks = guilds.reduce(
       (acc, guild) => {
@@ -43,6 +46,14 @@ module.exports = {
     guildChunk.forEach((guild) => {
       embed.addFields({ name: `${guild.name}`, value: `ID: ${guild.id}` });
     });
+
+    if (guildChunks.length > 1) {
+      guildArray.push(embed);
+    }
+
+    if (guildArray.length > 1) {
+      await buttonPagination(interaction, guildArray);
+    }
 
     interaction.reply({ embeds: [embed] });
   },
