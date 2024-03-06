@@ -7,7 +7,7 @@ const {
 const ExtendedClient = require("../../../class/ExtendedClient");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("serverinfo")
     .setDescription("View information about the server!"),
   /**

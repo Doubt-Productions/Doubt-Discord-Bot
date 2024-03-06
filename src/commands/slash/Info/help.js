@@ -11,7 +11,7 @@ const {
 const ExtendedClient = require("../../../class/ExtendedClient");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("help")
     .setDescription("View all the possible commands!"),
   /**
@@ -59,9 +59,9 @@ module.exports = {
         .filter((cmd) => cmd.dir === dir)
         .map((cmd) => {
           return {
-            name: cmd.structure.name,
+            name: cmd.data.name,
             description:
-              cmd.structure.description ||
+              cmd.data.description ||
               "Probably message/user interaction command",
           };
         });

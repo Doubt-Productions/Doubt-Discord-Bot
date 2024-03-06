@@ -9,7 +9,7 @@ const ecoSchema = require("../../../schemas/EcoSchema");
 var timeout = [];
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("rob")
     .setDescription("Rob a persons money")
     .addUserOption((option) =>

@@ -8,7 +8,7 @@ const ms = require("ms");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("timeout")
     .setDescription("Time a user out!")
     .addUserOption((option) =>

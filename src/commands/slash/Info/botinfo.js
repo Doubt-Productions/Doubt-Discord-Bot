@@ -10,7 +10,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const { time } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("botinfo")
     .setDescription("General information about the bot"),
   /**

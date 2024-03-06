@@ -9,7 +9,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const { embed, log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("embedcreator")
     .setDescription("This creates a custom embed!")
 

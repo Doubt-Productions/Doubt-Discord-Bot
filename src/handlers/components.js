@@ -24,7 +24,7 @@ module.exports = (client) => {
           log(
             "Unable to load the component " +
             file +
-            " due to missing 'structure#customId' or/and 'run' properties.",
+            " due to missing 'data#customId' or/and 'run' properties.",
             "warn"
           );
 
@@ -41,7 +41,7 @@ module.exports = (client) => {
           log(
             "Unable to load the select menu " +
             file +
-            " due to missing 'structure#customId' or/and 'run' properties.",
+            " due to missing 'data#customId' or/and 'run' properties.",
             "warn"
           );
 
@@ -58,7 +58,7 @@ module.exports = (client) => {
           log(
             "Unable to load the modal " +
             file +
-            " due to missing 'structure#customId' or/and 'run' properties.",
+            " due to missing 'data#customId' or/and 'run' properties.",
             "warn"
           );
 

@@ -23,72 +23,72 @@ module.exports = (client) => {
         if (!module) continue;
 
         if (type === "prefix") {
-          if (!module.structure?.name || !module.run) {
+          if (!module.data?.name || !module.run) {
             log(
               "Unable to load the command " +
               file +
-              " due to missing 'structure#name' or/and 'run' properties.",
+              " due to missing 'data#name' or/and 'run' properties.",
               "warn"
             );
-            table.addRow(module.structure.name, type, "Failed");
+            table.addRow(module.data.name, type, "Failed");
 
             continue;
           }
 
-          table.addRow(module.structure.name, type, "Loaded");
+          table.addRow(module.data.name, type, "Loaded");
 
-          client.collection.prefixcommands.set(module.structure.name, module);
+          client.collection.prefixcommands.set(module.data.name, module);
 
           if (
-            module.structure.aliases &&
-            Array.isArray(module.structure.aliases)
+            module.data.aliases &&
+            Array.isArray(module.data.aliases)
           ) {
-            module.structure.aliases.forEach((alias) => {
-              client.collection.aliases.set(alias, module.structure.name);
+            module.data.aliases.forEach((alias) => {
+              client.collection.aliases.set(alias, module.data.name);
             });
           }
         } else if (type === "devOnly") {
-          if (!module.structure?.name || !module.run) {
+          if (!module.data?.name || !module.run) {
             log(
               "Unable to load the command " +
               file +
-              " due to missing 'structure#name' or/and 'run' properties.",
+              " due to missing 'data#name' or/and 'run' properties.",
               "warn"
             );
 
-            table.addRow(module.structure.name, type, "Failed");
+            table.addRow(module.data.name, type, "Failed");
 
             continue;
           }
 
-          table.addRow(module.structure.name, type, "Loaded");
+          table.addRow(module.data.name, type, "Loaded");
 
           client.collection.developercommands.set(
-            module.structure.name,
+            module.data.name,
             module
           );
-          client.developerCommandsArray.push(module.structure);
+          client.developerCommandsArray.push(module.data);
         } else {
-          if (!module.structure?.name || !module.run) {
+          if (!module.data?.name || !module.run) {
             log(
               "Unable to load the command " +
               file +
-              " due to missing 'structure#name' or/and 'run' properties.",
+              " due to missing 'data#name' or/and 'run' properties.",
               "warn"
             );
 
-            table.addRow(module.structure.name, type, "Failed");
+            table.addRow(module.data.name, type, "Failed");
 
             continue;
           }
 
-          table.addRow(module.structure.name, type, "Loaded");
+          table.addRow(module.data.name, type, "Loaded");
 
           client.collection.interactioncommands.set(
-            module.structure.name,
+            module.data.name,
             properties
           );
-          client.applicationcommandsArray.push(module.structure);
+          client.applicationcommandsArray.push(module.data);
         }
 
 

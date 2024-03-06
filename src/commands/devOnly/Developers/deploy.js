@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const deploy = require("../../../handlers/deploy");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("deploy")
     .setDescription("Deploys all the commands to the discord api!"),
   options: {

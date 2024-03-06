@@ -8,7 +8,7 @@ const config = require("../../../config");
 const GuildSchema = require("../../../schemas/GuildSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("nsfw")
     .setDescription("Nsfw command."),
   /**

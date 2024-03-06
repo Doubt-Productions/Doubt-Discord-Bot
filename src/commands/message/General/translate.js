@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const translate = require("@iamtraction/google-translate");
 
 module.exports = {
-  structure: new ContextMenuCommandBuilder()
+  data: new ContextMenuCommandBuilder()
     .setName("Translate Message")
     .setType(3),
   /**

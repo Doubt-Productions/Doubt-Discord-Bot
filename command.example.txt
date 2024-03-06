@@ -4,7 +4,7 @@ const { Message, PermissionFlagBits } = require('discord.js');
 const ExtendedClient = require('../../../class/ExtendedClient');
 
 module.exports = {
-    structure: {
+    data: {
         name: '',
         description: '',
         aliases: [],
@@ -26,7 +26,7 @@ const { ChatInputCommandInteraction, SlashCommandBuilder } = require('discord.js
 const ExtendedClient = require('../../../class/ExtendedClient');
 
 module.exports = {
-    structure: new SlashCommandBuilder()
+    data: new SlashCommandBuilder()
         .setName('')
         .setDescription(''),
     /**
@@ -44,7 +44,7 @@ const { UserContextMenuCommandInteraction, ContextMenuCommandBuilder } = require
 const ExtendedClient = require('../../../class/ExtendedClient');
 
 module.exports = {
-    structure: new ContextMenuCommandBuilder()
+    data: new ContextMenuCommandBuilder()
         .setName('')
         .setType(2),
     /**
@@ -62,7 +62,7 @@ const { MessageContextMenuCommandInteraction, ContextMenuCommandBuilder } = requ
 const ExtendedClient = require('../../../class/ExtendedClient');
 
 module.exports = {
-    structure: new ContextMenuCommandBuilder()
+    data: new ContextMenuCommandBuilder()
         .setName('')
         .setType(3),
     /**

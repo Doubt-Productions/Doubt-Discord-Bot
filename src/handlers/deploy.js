@@ -8,9 +8,7 @@ const ExtendedClient = require("../class/ExtendedClient");
  * @param {ExtendedClient} client
  */
 module.exports = async (client) => {
-  const rest = new REST({ version: "10" }).setToken(
-    config.client.token
-  );
+  const rest = new REST({ version: "10" }).setToken(config.client.token);
 
   if (config.handler.guildDeploy === true) {
     try {

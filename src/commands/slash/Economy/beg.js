@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const ecoSchema = require("../../../schemas/EcoSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("beg")
     .setDescription("Beg for money"),
   /**

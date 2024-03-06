@@ -8,7 +8,7 @@ const ms = require("ms");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("unban")
     .setDescription("unBan a user from the server!")
     .addStringOption((option) =>

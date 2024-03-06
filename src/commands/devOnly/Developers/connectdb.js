@@ -10,7 +10,7 @@ const { log } = require("../../../functions");
 const mongoose = require("../../../handlers/mongoose");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("connectdb")
     .setDescription("Attempt to connect the DB."),
   options: {
