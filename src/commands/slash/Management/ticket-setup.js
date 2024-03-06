@@ -11,7 +11,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const ticketSchema = require("../../../schemas/ticketSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("setup-ticket")
     .setDescription("Setup the ticket system!")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)

@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const afkSchema = require("../../../schemas/afkSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("afk")
     .setDescription("Go afk inside of your server!")
     .addSubcommand((sub) =>

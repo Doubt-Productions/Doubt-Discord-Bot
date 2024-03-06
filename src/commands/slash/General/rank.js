@@ -10,7 +10,7 @@ const xp = require("../../../schemas/XpSchema");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("rank")
     .setDescription("View your or another users rank")
     .addSubcommand((sub) =>

@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("simjoin")
     .setDescription("Simulates a user joining the server!"),
   options: {

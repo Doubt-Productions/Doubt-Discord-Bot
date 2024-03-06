@@ -11,7 +11,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const welcomeSchema = require("../../../schemas/welcomeSchema");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("setup-welcome")
     .setDescription("Setup welcome system!")
     .addChannelOption((option) =>

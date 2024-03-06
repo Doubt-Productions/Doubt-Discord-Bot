@@ -6,7 +6,7 @@ const {
 const ExtendedClient = require("../../../class/ExtendedClient");
 
 module.exports = {
-  structure: new ContextMenuCommandBuilder().setName("getavatar").setType(2),
+  data: new ContextMenuCommandBuilder().setName("getavatar").setType(2),
   /**
    * @param {ExtendedClient} client
    * @param {UserContextMenuCommandInteraction} interaction

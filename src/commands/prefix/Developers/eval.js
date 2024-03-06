@@ -2,7 +2,7 @@ const { Message } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 
 module.exports = {
-  structure: {
+  data: {
     name: "eval",
     description: "Execute some codes!",
     aliases: ["e"],

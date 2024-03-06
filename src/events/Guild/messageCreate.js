@@ -45,8 +45,8 @@ module.exports = {
     if (command) {
       try {
         if (
-          command.structure?.permissions &&
-          !message.member.permissions.has(command.structure?.permissions)
+          command.data?.permissions &&
+          !message.member.permissions.has(command.data?.permissions)
         ) {
           await message.reply({
             content: "You do not have the permission to use this command.",

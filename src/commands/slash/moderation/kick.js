@@ -8,7 +8,7 @@ const ms = require("ms");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("kick")
     .setDescription("Kick a user from the server!")
     .addUserOption((option) =>

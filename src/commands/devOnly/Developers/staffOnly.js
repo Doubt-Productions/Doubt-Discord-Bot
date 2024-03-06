@@ -7,7 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const { log } = require("../../../functions");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("staffonly")
     .setDescription("Tests if you are a staff member of the bot!"),
   options: {

@@ -4,7 +4,7 @@ const config = require('../../../config');
 const GuildSchema = require('../../../schemas/GuildSchema');
 
 module.exports = {
-    structure: {
+    data: {
         name: 'help',
         description: 'View all the possible commands!',
         aliases: ['h']
@@ -29,7 +29,7 @@ module.exports = {
         };
 
         const mapIntCmds = client.applicationcommandsArray.map((v) => `\`/${v.name}\`: ${v.description || '(No description)'}`);
-        const mapPreCmds = client.collection.prefixcommands.map((v) => `\`${prefix}${v.structure.name}\` (${v.structure.aliases.length > 0 ? v.structure.aliases.map((a) => `**${a}**`).join(', ') : 'None'}): ${v.structure.description || '(No description)'}`);
+        const mapPreCmds = client.collection.prefixcommands.map((v) => `\`${prefix}${v.data.name}\` (${v.data.aliases.length > 0 ? v.data.aliases.map((a) => `**${a}**`).join(', ') : 'None'}): ${v.data.description || '(No description)'}`);
 
         await message.reply({
             embeds: [

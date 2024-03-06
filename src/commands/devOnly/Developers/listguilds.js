@@ -6,7 +6,7 @@ const {
 const ExtendedClient = require("../../../class/ExtendedClient");
 
 module.exports = {
-  structure: new SlashCommandBuilder()
+  data: new SlashCommandBuilder()
     .setName("listguilds")
     .setDescription("List all guilds!"),
   options: {

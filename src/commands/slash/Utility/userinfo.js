@@ -3,7 +3,7 @@ const ExtendedClient = require('../../../class/ExtendedClient');
 const { time } = require('../../../functions');
 
 module.exports = {
-    structure: new SlashCommandBuilder()
+    data: new SlashCommandBuilder()
         .setName('userinfo')
         .setDescription('Get a user\'s information.')
         .addUserOption((opt) =>
