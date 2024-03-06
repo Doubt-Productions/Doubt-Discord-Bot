@@ -16,7 +16,6 @@ module.exports = {
   run: async (client, interaction) => {
     if (!interaction.isCommand()) return;
 
-    console.log(interaction.commandName)
 
     if (
       config.handler.commands.slash === false &&
