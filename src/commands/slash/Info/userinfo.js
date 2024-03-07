@@ -9,6 +9,7 @@ const { time } = require("../../../functions");
 const { profileImage } = require("discord-arts");
 const badge = require("../../../schemas/badge");
 const userConfig = require("../../../schemas/userConfig");
+const config = require("../../../config");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -60,17 +61,22 @@ module.exports = {
       if (!bg) continue;
 
       badges.push(client.emojis.cache.get(bg?.emoji)?.toString() || bg?.emoji);
+      const badgeurls = client.emojis.cache
+        .get(bg?.emojiId)
+        ?.imageURL({ extension: `${bg?.animated ? "gif" : "png"}` });
+
+      badgeURLs.push(badgeurls);
     }
 
     console.log(badges);
 
-    // console.log(badgeURLs);
+    console.log(badgeURLs);
 
-    // const buffer = await profileImage(user.id, {
-    //   customBadges: badgeURLs,
-    //   presenceStatus: user.presence.status,
-    //   customBackground: user.user.bannerURL({ format: "gif", size: 4096 }),
-    // });
+    const buffer = await profileImage(user.id, {
+      customBadges: badgeURLs,
+      presenceStatus: user.presence.status,
+      customBackground: user.user.bannerURL({ format: "gif", size: 4096 }),
+    });
 
     const arr = [
       `**Username**: ${user.user.username}`,
@@ -103,7 +109,7 @@ module.exports = {
           .setDescription(`${arr.join("\n")}`)
           .setColor("Blurple"),
       ],
-      //   files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
+      files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
     });
   },
 };

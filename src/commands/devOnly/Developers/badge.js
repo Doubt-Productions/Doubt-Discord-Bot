@@ -129,11 +129,14 @@ module.exports = {
         animated = true
       }
 
+      const emojiId = /\d+/.exec(emoji) + "";
+
       badge = await badges.create({
         id: randomId(8),
         name,
         emoji,
         animated,
+        emojiId,
         createdAt: Date.now(),
       });
 
