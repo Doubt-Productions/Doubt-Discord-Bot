@@ -17,6 +17,13 @@ module.exports = async (client) => {
         "warn"
       );
 
+      rest.on("rateLimited", (rateLimitInfo) => {
+        log(
+          `Rate Limited: ${require("ms")(rateLimitInfo.timeToReset)}`,
+          "warn"
+        );
+      });
+
       await rest
         .put(
           Routes.applicationGuildCommands(
