@@ -102,7 +102,7 @@ module.exports = {
           `**Timed out?**: ${
             user.communicationDisabledUntilTimestamp ? "Yes" : "No"
           }`,
-          `**Badges**: ${badges.join(", ")}`,
+          `**Badges**: ${badges.join(", ") || "None"}`,
         ];
 
         await interaction.editReply({
