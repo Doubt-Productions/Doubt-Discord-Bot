@@ -13,10 +13,23 @@ const config = require("../../../config");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("userinfo")
+    .setName("user")
     .setDescription("Get a user's information.")
-    .addUserOption((opt) =>
-      opt.setName("user").setDescription("The user.").setRequired(false)
+    .addSubcommand((sub) =>
+      sub
+        .setName("info")
+        .setDescription("Get user info.")
+        .addUserOption((opt) =>
+          opt.setName("user").setDescription("The user.").setRequired(false)
+        )
+    )
+    .addSubcommand((sub) =>
+      sub
+        .setName("profile")
+        .setDescription("Get user profile.")
+        .addUserOption((opt) =>
+          opt.setName("user").setDescription("The user.").setRequired(false)
+        )
     ),
   /**
    * @param {ExtendedClient} client
@@ -24,6 +37,8 @@ module.exports = {
    */
   run: async (client, interaction) => {
     await interaction.deferReply();
+
+    const subCommand = interaction.options.getSubcommand();
 
     const user =
       interaction.options.getMember("user") ||
@@ -37,14 +52,6 @@ module.exports = {
       return;
     }
 
-    const roles = [];
-
-    if (user.roles)
-      user.roles.cache.forEach((role) => {
-        if (role.id !== interaction.guild.roles.everyone.id)
-          roles.push(`${role.toString()}`);
-      });
-
     const u =
       (await userConfig.findOne({ user: user.id })) ||
       (await userConfig.create({ user: user.id }));
@@ -53,9 +60,6 @@ module.exports = {
     let badgeURLs = [];
 
     for (let i = 0; i < u.badges.length; i++) {
-      console.log(u.badges[i]);
-      console.log(u);
-
       const bg = await badge.findOne({ id: u.badges[i] });
 
       if (!bg) continue;
@@ -68,48 +72,65 @@ module.exports = {
       badgeURLs.push(badgeurls);
     }
 
-    console.log(badges);
+    switch (subCommand) {
+      case "info":
+        const roles = [];
 
-    console.log(badgeURLs);
+        if (user.roles)
+          user.roles.cache.forEach((role) => {
+            if (role.id !== interaction.guild.roles.everyone.id)
+              roles.push(`${role.toString()}`);
+          });
 
-    const buffer = await profileImage(user.id, {
-      customBadges: badgeURLs,
-      presenceStatus: user.presence.status,
-      customBackground: user.user.bannerURL({ format: "gif", size: 4096 }),
-    });
+        const arr = [
+          `**Username**: ${user.user.username}`,
+          `**Display name**: ${user.displayName}`,
+          `**ID**: ${user.id}`,
+          `**Joined Discord**: ${time(user.user.createdTimestamp, "d")} (${time(
+            user.user.createdTimestamp,
+            "R"
+          )})`,
+          `**Joined server**: ${time(user.joinedTimestamp, "d")} (${time(
+            user.joinedTimestamp,
+            "R"
+          )})`,
+          `**Roles** [${user.roles?.cache?.size - 1}]: ${roles.join(", ")}`,
+          `**In a voice channel?**: ${user.voice ? "Yes" : "No"}`,
+          `**Guild owner?**: ${
+            interaction.guild.ownerId === user.id ? "Yes" : "No"
+          }`,
+          `**Timed out?**: ${
+            user.communicationDisabledUntilTimestamp ? "Yes" : "No"
+          }`,
+          `**Badges**: ${badges.join(", ")}`,
+        ];
 
-    const arr = [
-      `**Username**: ${user.user.username}`,
-      `**Display name**: ${user.displayName}`,
-      `**ID**: ${user.id}`,
-      `**Joined Discord**: ${time(user.user.createdTimestamp, "d")} (${time(
-        user.user.createdTimestamp,
-        "R"
-      )})`,
-      `**Joined server**: ${time(user.joinedTimestamp, "d")} (${time(
-        user.joinedTimestamp,
-        "R"
-      )})`,
-      `**Roles** [${user.roles?.cache?.size - 1}]: ${roles.join(", ")}`,
-      `**In a voice channel?**: ${user.voice ? "Yes" : "No"}`,
-      `**Guild owner?**: ${
-        interaction.guild.ownerId === user.id ? "Yes" : "No"
-      }`,
-      `**Timed out?**: ${
-        user.communicationDisabledUntilTimestamp ? "Yes" : "No"
-      }`,
-      `**Badges**: ${badges.join(", ")}`,
-    ];
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("User info - " + user.user.globalName)
+              .setThumbnail(user.displayAvatarURL())
+              .setDescription(`${arr.join("\n")}`)
+              .setColor("Blurple"),
+          ],
+        });
 
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle("User info - " + user.user.globalName)
-          .setThumbnail(user.displayAvatarURL())
-          .setDescription(`${arr.join("\n")}`)
-          .setColor("Blurple"),
-      ],
-      files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
-    });
+        break;
+
+      case "profile":
+        const buffer = await profileImage(user.id, {
+          username: user.user.username,
+          avatar: user.user.displayAvatarURL({ format: "png" }),
+          customBadges: badgeURLs,
+          background: user.user.bannerURL(),
+          color: user.user.accentColor,
+        });
+
+        await interaction.editReply({
+          files: [new AttachmentBuilder(buffer, `${user.id}.png`)],
+        });
+
+        break;
+    }
   },
 };
