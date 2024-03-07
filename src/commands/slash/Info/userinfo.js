@@ -63,7 +63,7 @@ module.exports = {
       badges.push(client.emojis.cache.get(bg?.emoji)?.toString() || bg?.emoji);
       const badgeurls = client.emojis.cache
         .get(bg?.emojiId)
-        ?.imageURL({ extension: `${bg?.animated ? "gif" : "png"}` });
+        ?.imageURL({ extension: `png` });
 
       badgeURLs.push(badgeurls);
     }
