@@ -2,6 +2,7 @@ const {
   UserContextMenuCommandInteraction,
   ContextMenuCommandBuilder,
   EmbedBuilder,
+  AttachmentBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 
