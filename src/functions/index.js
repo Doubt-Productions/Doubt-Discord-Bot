@@ -9,6 +9,7 @@ const {
   ActionRowBuilder,
   ComponentType,
 } = require("discord.js");
+const { AutoPoster } = require("topgg-autoposter");
 
 /**
  *
@@ -217,10 +218,24 @@ const buttonPagination = async (interaction, pages, time = 30 * 1000) => {
   }
 };
 
+const topgg = async (client) => {
+  if (!process.env.TOPGG_TOKEN) return;
+
+  const ap = AutoPoster(process.env.TOPGG_TOKEN, client);
+
+  ap.on("posted", (stats) => {
+    log(
+      `Posted stats to Top.gg | ${stats.serverCount} servers | ${stats.shardCount} shards`,
+      "done"
+    );
+  });
+};
+
 module.exports = {
   log,
   time,
   embed,
   randomId,
   buttonPagination,
+  topgg,
 };

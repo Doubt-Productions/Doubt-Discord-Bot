@@ -12,7 +12,7 @@ const deploy = require("../handlers/deploy");
 const mongoose = require("../handlers/mongoose");
 const components = require("../handlers/components");
 const pjson = require("../../package.json");
-const { log } = require("../functions");
+const { log, topgg } = require("../functions");
 
 module.exports = class extends Client {
   collection = {
@@ -52,6 +52,8 @@ module.exports = class extends Client {
     if (config.handler.mongodb.toggle) mongoose();
 
     await this.login(config.client.token);
+
+    if (process.env.TOPGG_TOKEN) await topgg(this);
 
     setInterval(async () => {
       const guilds = await this.guilds.fetch({});
