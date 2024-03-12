@@ -20,6 +20,11 @@ module.exports = {
   run: async (client, interaction) => {
     const name = client.user.username;
     const icon = `${client.user.displayAvatarURL({ forceStatic: false })}`;
+    const guilds = await client.guilds.fetch({});
+    const users = client.guilds.cache.reduce(
+      (acc, guild) => acc + guild.memberCount,
+      0
+    );
 
     let totalSeconds = client.uptime / 1000;
     let days = Math.floor(totalSeconds / 86400);
@@ -98,6 +103,16 @@ module.exports = {
         {
           name: "Total Commands",
           value: `${prefixcommands + slashcommands} Commands`,
+          inline: true,
+        },
+        {
+          name: "Bot Guilds",
+          value: `${guilds.size} Guilds`,
+          inline: true,
+        },
+        {
+          name: "Bot Users",
+          value: `${users} Users`,
           inline: true,
         }
       );

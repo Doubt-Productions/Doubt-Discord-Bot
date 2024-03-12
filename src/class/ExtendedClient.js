@@ -45,6 +45,7 @@ module.exports = class extends Client {
     });
   }
 
+
   start = async () => {
     commands(this);
     events(this);

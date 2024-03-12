@@ -1,25 +1,21 @@
 const {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
+  ButtonInteraction,
+  ButtonBuilder,
+  ButtonStyle,
   EmbedBuilder,
-  ChannelType,
   StringSelectMenuBuilder,
   ActionRowBuilder,
 } = require("discord.js");
-const ExtendedClient = require("../../../class/ExtendedClient");
-const welcomeSchema = require("../../../schemas/welcomeSchema");
-const chatbotSchema = require("../../../schemas/chatbotSchema");
+const ExtendedClient = require("../../class/ExtendedClient");
 
 module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("setup")
-    .setDescription("Setup command!"),
+  customId: "goBackBtn",
   /**
+   *
    * @param {ExtendedClient} client
-   * @param {ChatInputCommandInteraction} interaction
-   * @param {[]} args
+   * @param {ButtonInteraction} interaction
    */
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     const embed = new EmbedBuilder()
       .setTitle(`Setup`)
       .setDescription(`Welcome to the setup!`)
@@ -68,7 +64,7 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(setupSSM);
 
-    await interaction.reply({
+    await interaction.update({
       embeds: [embed],
       components: [row],
     });
