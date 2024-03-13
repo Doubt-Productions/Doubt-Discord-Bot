@@ -5,6 +5,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  version,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { time } = require("../../../functions");
@@ -86,6 +87,11 @@ module.exports = {
           inline: true,
         },
         {
+          name: "API Latency",
+          value: `${client.ws.ping}ms`,
+          inline: true,
+        },
+        {
           name: "Bot Created At",
           value: `${time(client.user.createdAt, "f")}`,
           inline: true,
@@ -113,6 +119,18 @@ module.exports = {
         {
           name: "Bot Users",
           value: `${users} Users`,
+          inline: true,
+        },
+        {
+          name: "Memory Usage",
+          value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
+            2
+          )} MB`,
+          inline: true,
+        },
+        {
+          name: "Packages",
+          value: `\`\`\`💻 Node.JS: ${process.version}\n📊 Discord.JS: v${version}\n🤖 Bot: v${client.collection.version}\`\`\``,
           inline: true,
         }
       );
