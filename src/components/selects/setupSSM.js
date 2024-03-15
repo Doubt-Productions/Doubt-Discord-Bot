@@ -18,6 +18,13 @@ module.exports = {
   run: async (client, interaction) => {
     const value = interaction.values[0];
 
+    const goBackBtn = new ButtonBuilder()
+      .setCustomId("goBackBtn")
+      .setLabel("Go Back")
+      .setStyle(ButtonStyle.Primary);
+
+    const goBackRow = new ActionRowBuilder().addComponents(goBackBtn);
+
     switch (value) {
       case "welcome":
         const welcomeSSM = new StringSelectMenuBuilder()
@@ -51,13 +58,7 @@ module.exports = {
             },
           ]);
 
-        const goBackBtn = new ButtonBuilder()
-          .setCustomId("goBackBtn")
-          .setLabel("Go Back")
-          .setStyle(ButtonStyle.Primary);
-
         const welcomeRow = new ActionRowBuilder().addComponents(welcomeSSM);
-        const buttonRow = new ActionRowBuilder().addComponents(goBackBtn);
 
         const embed = new EmbedBuilder()
           .setTitle(`Welcome System`)
@@ -93,11 +94,64 @@ module.exports = {
 
         await interaction.update({
           embeds: [embed],
-          components: [welcomeRow, buttonRow],
+          components: [welcomeRow, goBackRow],
         });
 
         break;
       case "ticket":
+        const ticketSSM = new StringSelectMenuBuilder()
+          .setCustomId("ticketSSM")
+          .setPlaceholder("Select a setup")
+          .addOptions([
+            {
+              label: "Category",
+              value: "category",
+              description: "Message to send!",
+              emoji: "📂",
+            },
+            {
+              label: "Channel",
+              value: "channel",
+              description: "Channel to send welcome message!",
+              emoji: "📌",
+            },
+            {
+              label: "Support Role",
+              value: "support-role",
+              description: "Channel to send rules and info!",
+              emoji: "🛠️",
+            },
+          ]);
+
+        const ticketRow = new ActionRowBuilder().addComponents(ticketSSM);
+
+        const embed2 = new EmbedBuilder()
+          .setTitle(`🎫 | Ticket System`)
+          .setDescription(`Welcome to the ticket setup!`)
+          .setColor("Blurple")
+          .addFields(
+            {
+              name: "Category",
+              value: "Please select a category!",
+              inline: true,
+            },
+            {
+              name: "Channel",
+              value: "Please select a channel!",
+              inline: true,
+            },
+            {
+              name: "Support Role",
+              value: "Please select a support role!",
+              inline: true,
+            }
+          );
+
+        await interaction.update({
+          embeds: [embed2],
+          components: [ticketRow, goBackRow],
+        });
+
         break;
       case "jtc":
         break;
