@@ -9,6 +9,9 @@ const {
   ActionRowBuilder,
   ComponentType,
 } = require("discord.js");
+const fetch = require("node-fetch");
+const { createCanvas, loadImage } = require("canvas");
+const ItemShop = require("../schemas/itemShop");
 const { AutoPoster } = require("topgg-autoposter");
 
 /**
@@ -230,6 +233,8 @@ const topgg = async (client) => {
     );
   });
 };
+
+
 
 module.exports = {
   log,

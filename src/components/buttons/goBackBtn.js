@@ -49,16 +49,19 @@ module.exports = {
           label: "Welcome",
           value: "welcome",
           description: "Setup welcome system",
+          emoji: "👋",
         },
         {
           label: "Ticket",
           value: "ticket",
           description: "Setup ticket system",
+          emoji: "🎫",
         },
         {
           label: "Join-to-create",
           value: "jtc",
           description: "Setup join to create system",
+          emoji: "🔉",
         },
       ]);
 

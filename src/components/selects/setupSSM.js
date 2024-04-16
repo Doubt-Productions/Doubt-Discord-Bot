@@ -27,39 +27,6 @@ module.exports = {
 
     switch (value) {
       case "welcome":
-        const welcomeSSM = new StringSelectMenuBuilder()
-          .setCustomId("welcomeSSM")
-          .setPlaceholder("Select a setup")
-          .addOptions([
-            {
-              label: "Channel",
-              value: "channel",
-              description: "Channel to send welcome message!",
-            },
-            {
-              label: "Message",
-              value: "message",
-              description: "Message to send!",
-            },
-            {
-              label: "Rules Channel",
-              value: "rules-channel",
-              description: "Channel to send rules and info!",
-            },
-            {
-              label: "Member Role",
-              value: "member-role",
-              description: "Role to give to members!",
-            },
-            {
-              label: "Bot Role",
-              value: "bot-role",
-              description: "Role to give to bots!",
-            },
-          ]);
-
-        const welcomeRow = new ActionRowBuilder().addComponents(welcomeSSM);
-
         const embed = new EmbedBuilder()
           .setTitle(`Welcome System`)
           .setDescription(`Welcome to the welcome setup!`)
@@ -92,6 +59,43 @@ module.exports = {
             }
           );
 
+        const welcomeSSM = new StringSelectMenuBuilder()
+          .setCustomId("welcomeSSM")
+          .setPlaceholder("Select a setup")
+          .addOptions([
+            {
+              label: "Channel",
+              value: "channel",
+              description: "Channel to send welcome message!",
+              emoji: "📝",
+            },
+            {
+              label: "Message",
+              value: "message",
+              description: "Message to send!",
+              emoji: "🖋️",
+            },
+            {
+              label: "Rules Channel",
+              value: "rules-channel",
+              description: "Channel to send rules and info!",
+              emoji: "📜",
+            },
+            {
+              label: "Member Role",
+              value: "member-role",
+              description: "Role to give to members!",
+              emoji: "👥",
+            },
+            {
+              label: "Bot Role",
+              value: "bot-role",
+              description: "Role to give to bots!",
+              emoji: "🤖",
+            },
+          ]);
+
+        const welcomeRow = new ActionRowBuilder().addComponents(welcomeSSM);
         await interaction.update({
           embeds: [embed],
           components: [welcomeRow, goBackRow],
