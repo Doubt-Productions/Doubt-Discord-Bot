@@ -122,7 +122,7 @@ module.exports = {
 
         collector2.on("collect", async (msg) => {
           if (msg.content) {
-            collector.stop();
+            collector2.stop();
             embed.setDescription(
               `Message: \n\`\`\`${msg.content}\`\`\`\n\nIs this the message you want to send?`
             );
@@ -312,7 +312,7 @@ module.exports = {
                 `The member role has been set to <@&${memberRole}>! You can continue the setup by pressing \`Go back\``
               );
 
-              await i.update({
+              await interaction.update({
                 embeds: [embed],
                 components: [goBackRow],
               });
@@ -381,6 +381,10 @@ module.exports = {
         });
         break;
       default:
+        interaction.update({
+          content: "An error occurred!",
+          components: [],
+        });
         break;
     }
   },

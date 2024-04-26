@@ -1,4 +1,4 @@
-const { EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 module.exports = {
   customId: "wcmGoBackBtn",
@@ -8,6 +8,12 @@ module.exports = {
    * @param {ButtonInteraction} interaction
    */
   run: async (client, interaction) => {
+    const goBackButton = new ButtonBuilder()
+      .setCustomId("goBackBtn")
+      .setLabel("Go Back")
+      .setStyle(ButtonStyle.Primary)
+
+
     const embed = new EmbedBuilder()
       .setTitle(`Welcome System`)
       .setDescription(`Welcome to the welcome setup!`)
@@ -77,10 +83,11 @@ module.exports = {
       ]);
 
     const welcomeRow = new ActionRowBuilder().addComponents(welcomeSSM);
+    const goBackRow = new ActionRowBuilder().addComponents(goBackButton);
 
     interaction.update({
       embeds: [embed],
-      components: [welcomeRow],
+      components: [welcomeRow, goBackRow],
     });
   },
 };

@@ -6,6 +6,7 @@ const {
   EmbedBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
+  RoleSelectMenuBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../class/ExtendedClient");
 const ticketSchema = require("../../schemas/ticketSchema");
@@ -86,9 +87,15 @@ module.exports = {
             }).save();
           }
 
-          await i.reply({
-            content: "Category has been set!",
-            ephemeral: true,
+          await i.update({
+            components: [goBackRow],
+            embeds: [
+              embed
+                .setDescription(
+                  "`✅` Category has been set!\n\n`💡` To continue the setup press `Go Back`"
+                )
+                .setColor("Green"),
+            ],
           });
         });
 
@@ -142,9 +149,75 @@ module.exports = {
             }).save();
           }
 
-          await i.reply({
-            content: "Channel has been set!",
-            ephemeral: true,
+          await i.update({
+            components: [goBackRow],
+            embeds: [
+              embed
+                .setDescription(
+                  "`✅` Channel has been set!\n\n`💡` To continue the setup press `Go Back`"
+                )
+                .setColor("Green"),
+            ],
+          });
+        });
+        break;
+
+      case "support-role":
+        const ticketRSM = new RoleSelectMenuBuilder()
+          .setCustomId("ticketRSM")
+          .setPlaceholder("Select a role")
+          .setMinValues(1)
+          .setMaxValues(1);
+
+        const ticketRow3 = new ActionRowBuilder().addComponents(ticketRSM);
+
+        embed.setDescription(
+          "Please select a role which will have access to tickets!"
+        );
+
+        const reply3 = await interaction.update({
+          embeds: [embed],
+          components: [ticketRow3, goBackRow],
+          fetchReply: true,
+        });
+
+        const filter3 = (i) => i.customId === "ticketRSM";
+        const collector3 = reply3.createMessageComponentCollector({
+          filter: filter3,
+          time: 60000,
+        });
+
+        collector3.on("collect", async (i) => {
+          const role = i.values[0];
+          const guild = i.guild;
+          const role2 = guild.roles.cache.get(role);
+
+          if (!role2) {
+            return i.reply({
+              content: "Please select a valid role!",
+              ephemeral: true,
+            });
+          }
+
+          if (ticketData) {
+            ticketData.Role = role;
+            ticketData.save();
+          } else {
+            new ticketSchema({
+              Guild: guild.id,
+              Role: role,
+            }).save();
+          }
+
+          await i.update({
+            embeds: [
+              embed
+                .setDescription(
+                  "`✅` Role has been set!\n\n`💡` To continue the setup press `Go Back`"
+                )
+                .setColor("Green"),
+            ],
+            components: [goBackRow],
           });
         });
 
