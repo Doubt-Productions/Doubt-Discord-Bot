@@ -3,6 +3,7 @@ package-lock.json
 
 # DO NOT REMOVE THESE FOR SECURITY
 .env
+src/config.js
 src/commands/message/Testing
 src/commands/user/Testing
 v14_revamped/
