@@ -106,7 +106,9 @@ module.exports = {
         });
         break;
       case "message":
-        embed.setDescription("Type the message you want to send!");
+        embed.setDescription(
+          "Type the message you want to send!\n\n`💡` You can use the variable {RULES} to mention the rules channel.\n\n`💡` You can use {USER} to mention the user."
+        );
 
         await interaction.update({
           embeds: [embed],
@@ -157,7 +159,7 @@ module.exports = {
               if (i.customId === "wcmConfirmBtn") {
                 collector.stop();
                 embed.setDescription(
-                  `The message has been set to \n\`\`\`${msg.content}\`\`\`\n\n\`💡\` You can use the variable {RULES} to mention the rules channel.\n\n\`💡\` You can continue the setup by pressing \`Go back\``
+                  `The message has been set to \n\`\`\`${msg.content}\`\`\`\n\n\`💡\` You can continue the setup by pressing \`Go back\``
                 );
 
                 if (!data) {

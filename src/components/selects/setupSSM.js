@@ -25,9 +25,10 @@ module.exports = {
 
     const goBackRow = new ActionRowBuilder().addComponents(goBackBtn);
 
+    const embed = new EmbedBuilder();
     switch (value) {
       case "welcome":
-        const embed = new EmbedBuilder()
+        embed
           .setTitle(`Welcome System`)
           .setDescription(`Welcome to the welcome setup!`)
           .setColor("Blurple")
@@ -129,7 +130,7 @@ module.exports = {
 
         const ticketRow = new ActionRowBuilder().addComponents(ticketSSM);
 
-        const embed2 = new EmbedBuilder()
+        embed
           .setTitle(`🎫 | Ticket System`)
           .setDescription(`Welcome to the ticket setup!`)
           .setColor("Blurple")
@@ -152,12 +153,52 @@ module.exports = {
           );
 
         await interaction.update({
-          embeds: [embed2],
+          embeds: [embed],
           components: [ticketRow, goBackRow],
         });
 
         break;
       case "jtc":
+        const jtcSSM = new StringSelectMenuBuilder()
+          .setCustomId("jtcSSM")
+          .setPlaceholder("Select a setup")
+          .addOptions([
+            {
+              label: "Category",
+              value: "category",
+              description: "Category to create the channel in!",
+              emoji: "📂",
+            },
+            {
+              label: "Name",
+              value: "name",
+              description: "Name of the channel!",
+              emoji: "📌",
+            },
+          ]);
+
+        const jtcRow = new ActionRowBuilder().addComponents(jtcSSM);
+
+        embed
+          .setTitle(`🔊 | Join to Create`)
+          .setDescription(`Welcome to the JTC setup!`)
+          .setColor("Blurple")
+          .addFields(
+            {
+              name: "Category",
+              value:
+                "Select the category you want the join-to-create system to be created in!",
+            },
+            {
+              name: "Name",
+              value: "The name of the channel. (Default: Join to create)",
+            }
+          );
+
+        interaction.update({
+          embeds: [embed],
+          components: [jtcRow, goBackRow],
+        });
         break;
       default:
         await interaction.update({
