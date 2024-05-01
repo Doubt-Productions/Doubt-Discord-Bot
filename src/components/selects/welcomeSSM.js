@@ -312,7 +312,7 @@ module.exports = {
                 `The member role has been set to <@&${memberRole}>! You can continue the setup by pressing \`Go back\``
               );
 
-              await interaction.update({
+              await i.update({
                 embeds: [embed],
                 components: [goBackRow],
               });
