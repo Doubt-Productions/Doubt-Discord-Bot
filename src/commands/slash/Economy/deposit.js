@@ -15,7 +15,8 @@ module.exports = {
         .setName("amount")
         .setDescription("The amount of money you want to deposit")
         .setRequired(true)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

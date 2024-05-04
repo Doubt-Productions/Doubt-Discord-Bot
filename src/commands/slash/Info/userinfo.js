@@ -30,7 +30,8 @@ module.exports = {
         .addUserOption((opt) =>
           opt.setName("user").setDescription("The user.").setRequired(false)
         )
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

@@ -13,7 +13,8 @@ const { time } = require("../../../functions");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("botinfo")
-    .setDescription("General information about the bot"),
+    .setDescription("General information about the bot")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

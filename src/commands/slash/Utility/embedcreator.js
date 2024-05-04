@@ -55,7 +55,8 @@ module.exports = {
         .setName("footer")
         .setDescription("The footer of the embed")
         .setRequired(false)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

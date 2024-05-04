@@ -25,7 +25,8 @@ module.exports = {
     )
     .addStringOption((option) =>
       option.setName(`reason`).setDescription(`The reason for the time out`)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

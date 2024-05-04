@@ -81,7 +81,5 @@ module.exports = class extends Client {
           name: `Bot Users | ${users}`,
         });
     }, 1000 * 60 * 30);
-
-    if (config.handler.deploy) deploy(this, config);
   };
 };
