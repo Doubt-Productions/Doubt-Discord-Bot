@@ -13,7 +13,8 @@ const chatbotSchema = require("../../../schemas/chatbotSchema");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("setup")
-    .setDescription("Setup command!"),
+    .setDescription("Setup command!")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

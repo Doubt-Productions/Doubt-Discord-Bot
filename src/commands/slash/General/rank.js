@@ -51,7 +51,8 @@ module.exports = {
             .setDescription("The level to set")
             .setRequired(true)
         )
-    ),
+    )
+    .toJSON(),
 
   /**
    * @param {ExtendedClient} client
