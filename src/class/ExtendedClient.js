@@ -32,8 +32,14 @@ module.exports = class extends Client {
 
   constructor() {
     super({
-      intents: 3276799,
-      partials: [Object.keys(Partials)],
+      intents: 3252111,
+      partials: [
+        Partials.Channel,
+        Partials.GuildMember,
+        Partials.Message,
+        Partials.User,
+        Partials.Reaction,
+      ],
       presence: {
         activities: [
           {
@@ -75,7 +81,5 @@ module.exports = class extends Client {
           name: `Bot Users | ${users}`,
         });
     }, 1000 * 60 * 30);
-
-    if (config.handler.deploy) deploy(this, config);
   };
 };

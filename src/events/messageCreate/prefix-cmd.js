@@ -4,15 +4,14 @@ const { log } = require("../../functions");
 const GuildSchema = require("../../schemas/GuildSchema");
 const ExtendedClient = require("../../class/ExtendedClient");
 
-module.exports = {
-  event: "messageCreate",
+module.exports =
   /**
    *
    * @param {ExtendedClient} client
    * @param {Message} message
    * @returns
    */
-  run: async (client, message) => {
+  async (client, message) => {
     if (message.author.bot || message.channel.type === ChannelType.DM) return;
 
     if (!config.handler.commands.prefix) return;
@@ -60,5 +59,4 @@ module.exports = {
         log(error, "err");
       }
     }
-  },
-};
+  };

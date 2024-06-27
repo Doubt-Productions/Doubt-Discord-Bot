@@ -9,7 +9,8 @@ const ecoSchema = require("../../../schemas/EcoSchema");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("beg")
-    .setDescription("Beg for money"),
+    .setDescription("Beg for money")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

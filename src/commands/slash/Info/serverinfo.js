@@ -9,7 +9,8 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("serverinfo")
-    .setDescription("View information about the server!"),
+    .setDescription("View information about the server!")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

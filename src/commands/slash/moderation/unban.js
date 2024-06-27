@@ -16,7 +16,8 @@ module.exports = {
         .setName(`user`)
         .setDescription(`The user id to unban!`)
         .setRequired(true)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

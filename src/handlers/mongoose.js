@@ -5,7 +5,7 @@ const { log } = require("../functions");
 module.exports = async () => {
   log("Started connecting to MongoDB...", "warn");
 
-  await connect(process.env.MONGODB_URI || config.handler.mongodb.uri, {
+  await connect(config.handler.mongodb.uri, {
     dbName: config.variables.dbName,
     useNewUrlParser: true,
     useUnifiedTopology: true,

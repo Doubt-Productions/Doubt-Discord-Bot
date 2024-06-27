@@ -17,7 +17,8 @@ module.exports = {
         .setName("user")
         .setDescription("The user you want to rob")
         .setRequired(true)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

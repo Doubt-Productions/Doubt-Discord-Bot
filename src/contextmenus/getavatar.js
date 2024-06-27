@@ -3,7 +3,7 @@ const {
   ContextMenuCommandBuilder,
   EmbedBuilder,
 } = require("discord.js");
-const ExtendedClient = require("../../../class/ExtendedClient");
+const ExtendedClient = require("../class/ExtendedClient");
 
 module.exports = {
   data: new ContextMenuCommandBuilder().setName("getavatar").setType(2),

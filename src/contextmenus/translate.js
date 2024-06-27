@@ -3,7 +3,7 @@ const {
   ContextMenuCommandBuilder,
   EmbedBuilder,
 } = require("discord.js");
-const ExtendedClient = require("../../../class/ExtendedClient");
+const ExtendedClient = require("../class/ExtendedClient");
 const translate = require("@iamtraction/google-translate");
 
 module.exports = {
