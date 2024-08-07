@@ -32,7 +32,7 @@ module.exports = class extends Client {
 
   constructor() {
     super({
-      intents: 3184271,
+      intents: 3252111,
       partials: [
         Partials.Channel,
         Partials.GuildMember,
