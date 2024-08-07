@@ -29,19 +29,19 @@ module.exports = {
         {
           name: "Welcome",
           value:
-            "Please use the command `/setup-welcome` to setup welcome system!",
+            "Setup the welcome system using this option!",
           inline: true,
         },
         {
           name: "Ticket",
           value:
-            "Please use the command `/setup-ticket` to setup ticket system!",
+            "Setup the ticket system using this option!",
           inline: true,
         },
         {
           name: "Join-to-create",
           value:
-            "Please use the command `/setup-jointocreate` to setup join to create system!",
+            "This feature will be added at a later date.",
           inline: true,
         }
       );
@@ -62,12 +62,12 @@ module.exports = {
           description: "Setup ticket system",
           emoji: "🎫",
         },
-        {
-          label: "Join-to-create",
-          value: "jtc",
-          description: "Setup join to create system",
-          emoji: "🔉",
-        },
+        // {
+        //   label: "Join-to-create",
+        //   value: "jtc",
+        //   description: "Setup join to create system",
+        //   emoji: "🔉",
+        // },
       ]);
 
     const row = new ActionRowBuilder().addComponents(setupSSM);

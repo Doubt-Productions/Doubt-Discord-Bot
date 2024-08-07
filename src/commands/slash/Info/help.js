@@ -98,7 +98,7 @@ module.exports = {
           name: "Categories",
           value: `${categories.map((cmd) => {
             return `\`${cmd.directory}\``;
-          })}`,
+          })}` + ` `,
           inline: true,
         },
         {
