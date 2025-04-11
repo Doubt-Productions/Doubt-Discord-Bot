@@ -119,7 +119,7 @@ module.exports = {
         break;
 
       case "profile":
-        const buffer = await profileImage(user.id, {
+        const buffer = await profileImage(user.user.id, {
           username: user.user.username,
           avatar: user.user.displayAvatarURL({ format: "png" }),
           customBadges: badgeURLs,
