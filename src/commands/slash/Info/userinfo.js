@@ -23,14 +23,14 @@ module.exports = {
           opt.setName("user").setDescription("The user.").setRequired(false)
         )
     )
-    .addSubcommand((sub) =>
-      sub
-        .setName("profile")
-        .setDescription("Get user profile.")
-        .addUserOption((opt) =>
-          opt.setName("user").setDescription("The user.").setRequired(false)
-        )
-    )
+    // .addSubcommand((sub) =>
+    //   sub
+    //     .setName("profile")
+    //     .setDescription("Get user profile.")
+    //     .addUserOption((opt) =>
+    //       opt.setName("user").setDescription("The user.").setRequired(false)
+    //     )
+    // )
     .toJSON(),
   /**
    * @param {ExtendedClient} client
