@@ -3,11 +3,11 @@ const {
   ContextMenuCommandBuilder,
   EmbedBuilder,
 } = require("discord.js");
-const ExtendedClient = require("../../../class/ExtendedClient");
+const ExtendedClient = require("../class/ExtendedClient");
 
-const badge = require("../../../schemas/badge");
-const userConfig = require("../../../schemas/userConfig");
-const { time } = require("../../../functions");
+const badge = require("../schemas/badge");
+const userConfig = require("../schemas/userConfig");
+const { time } = require("../functions");
 
 module.exports = {
   data: new ContextMenuCommandBuilder().setName("info").setType(2),
@@ -82,7 +82,7 @@ module.exports = {
     await interaction.editReply({
       embeds: [
         new EmbedBuilder()
-          .setTitle("User info - " + user.user.globalName)
+          .setTitle("User info - " + user.displayName)
           .setThumbnail(user.displayAvatarURL())
           .setDescription(`${arr.join("\n")}`)
           .setColor("Blurple"),

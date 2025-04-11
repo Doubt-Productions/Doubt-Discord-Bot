@@ -4,10 +4,10 @@ const {
   EmbedBuilder,
   AttachmentBuilder,
 } = require("discord.js");
-const ExtendedClient = require("../../../class/ExtendedClient");
+const ExtendedClient = require("../class/ExtendedClient");
 
-const badge = require("../../../schemas/badge");
-const userConfig = require("../../../schemas/userConfig");
+const badge = require("../schemas/badge");
+const userConfig = require("../schemas/userConfig");
 const { profileImage } = require("discord-arts");
 
 module.exports = {

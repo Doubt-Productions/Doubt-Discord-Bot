@@ -5,6 +5,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  version,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { time } = require("../../../functions");
@@ -12,7 +13,8 @@ const { time } = require("../../../functions");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("botinfo")
-    .setDescription("General information about the bot"),
+    .setDescription("General information about the bot")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
@@ -20,6 +22,11 @@ module.exports = {
   run: async (client, interaction) => {
     const name = client.user.username;
     const icon = `${client.user.displayAvatarURL({ forceStatic: false })}`;
+    const guilds = await client.guilds.fetch({});
+    const users = client.guilds.cache.reduce(
+      (acc, guild) => acc + guild.memberCount,
+      0
+    );
 
     let totalSeconds = client.uptime / 1000;
     let days = Math.floor(totalSeconds / 86400);
@@ -81,6 +88,11 @@ module.exports = {
           inline: true,
         },
         {
+          name: "API Latency",
+          value: `${client.ws.ping}ms`,
+          inline: true,
+        },
+        {
           name: "Bot Created At",
           value: `${time(client.user.createdAt, "f")}`,
           inline: true,
@@ -98,6 +110,28 @@ module.exports = {
         {
           name: "Total Commands",
           value: `${prefixcommands + slashcommands} Commands`,
+          inline: true,
+        },
+        {
+          name: "Bot Guilds",
+          value: `${guilds.size} Guilds`,
+          inline: true,
+        },
+        {
+          name: "Bot Users",
+          value: `${users} Users`,
+          inline: true,
+        },
+        {
+          name: "Memory Usage",
+          value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
+            2
+          )} MB`,
+          inline: true,
+        },
+        {
+          name: "Packages",
+          value: `\`\`\`💻 Node.JS: ${process.version}\n📊 Discord.JS: v${version}\n🤖 Bot: v${client.collection.version}\`\`\``,
           inline: true,
         }
       );
