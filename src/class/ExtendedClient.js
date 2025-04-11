@@ -56,8 +56,10 @@ module.exports = class extends Client {
     events(this);
     components(this);
     if (config.handler.mongodb.toggle) mongoose();
-
+    
     await this.login(config.client.token);
+    
+    deploy(this);
 
     if (process.env.TOPGG_TOKEN) await topgg(this);
 

@@ -96,9 +96,9 @@ module.exports = {
       .setFields(
         {
           name: "Categories",
-          value: `${categories
-            .map((cmd) => `\`${cmd.directory}\``)
-            .join(", ")}`,
+          value: `${categories.map((cmd) => {
+            return `\`${cmd.directory}\``;
+          })}` + ` `,
           inline: true,
         },
         {
