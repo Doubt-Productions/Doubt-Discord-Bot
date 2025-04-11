@@ -23,7 +23,8 @@ module.exports = {
     )
     .addSubcommand((sub) =>
       sub.setName(`remove`).setDescription(`Remove your afk status!`)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

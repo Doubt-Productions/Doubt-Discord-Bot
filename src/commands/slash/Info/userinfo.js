@@ -23,14 +23,15 @@ module.exports = {
           opt.setName("user").setDescription("The user.").setRequired(false)
         )
     )
-    .addSubcommand((sub) =>
-      sub
-        .setName("profile")
-        .setDescription("Get user profile.")
-        .addUserOption((opt) =>
-          opt.setName("user").setDescription("The user.").setRequired(false)
-        )
-    ),
+    // .addSubcommand((sub) =>
+    //   sub
+    //     .setName("profile")
+    //     .setDescription("Get user profile.")
+    //     .addUserOption((opt) =>
+    //       opt.setName("user").setDescription("The user.").setRequired(false)
+    //     )
+    // )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
@@ -118,7 +119,7 @@ module.exports = {
         break;
 
       case "profile":
-        const buffer = await profileImage(user.id, {
+        const buffer = await profileImage(user.user.id, {
           username: user.user.username,
           avatar: user.user.displayAvatarURL({ format: "png" }),
           customBadges: badgeURLs,

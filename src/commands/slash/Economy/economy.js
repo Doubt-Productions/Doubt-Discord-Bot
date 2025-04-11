@@ -13,7 +13,8 @@ const ecoSchema = require("../../../schemas/EcoSchema");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("economy")
-    .setDescription("Create your economy account!"),
+    .setDescription("Create your economy account!")
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

@@ -9,6 +9,7 @@ const {
   ActionRowBuilder,
   ComponentType,
 } = require("discord.js");
+const fetch = require("node-fetch");
 const { AutoPoster } = require("topgg-autoposter");
 
 /**
@@ -230,6 +231,8 @@ const topgg = async (client) => {
     );
   });
 };
+
+
 
 module.exports = {
   log,

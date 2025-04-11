@@ -1,40 +1,28 @@
-const { readdirSync } = require('fs');
-const { log } = require('../functions');
-const ExtendedClient = require('../class/ExtendedClient');
-const AsciiTable = require('ascii-table');
-const { default: chalk } = require('chalk');
+const path = require("path");
+const getAllFiles = require("../utils/getAllFiles");
+const ascii = require("ascii-table");
+const { default: chalk } = require("chalk");
 
-/**
- * 
- * @param {ExtendedClient} client 
- */
 module.exports = (client) => {
-    const table = new AsciiTable(`Doubt | Events`)
-        .setHeading('Event', 'Status');
+  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
 
-    for (const dir of readdirSync('./src/events/')) {
-        for (const file of readdirSync('./src/events/' + dir).filter((f) => f.endsWith('.js'))) {
-            const module = require('../events/' + dir + '/' + file);
+  const table = new ascii().setHeading("Event", "Status");
 
-            if (!module) continue;
+  for (const eventFolder of eventFolders) {
+    const eventFiles = getAllFiles(eventFolder);
+    let eventName;
+    eventName = eventFolder.replace(/\\/g, "/").split("/").pop();
 
-            if (!module.event || !module.run) {
-                log('Unable to load the event ' + file + ' due to missing \'name\' or/and \'run\' properties.', 'warn');
+    table.addRow(eventName, "Loaded");
 
-                table.addRow(file, 'Failed');
+    eventName === "validations" ? (eventName = "interactionCreate") : eventName;
+    client.on(eventName, async (...args) => {
+      for (const eventFile of eventFiles) {
+        const eventFunction = require(eventFile);
+        await eventFunction(client, ...args);
+      }
+    });
+  }
 
-                continue;
-            };
-
-            table.addRow(module.event, 'Loaded');
-
-            if (module.once) {
-                client.once(module.event, (...args) => module.run(client, ...args));
-            } else {
-                client.on(module.event, (...args) => module.run(client, ...args));
-            };
-        };
-    };
-
-    console.log(chalk.red(table.toString()));
+  console.log(chalk.green(table.toString()));
 };

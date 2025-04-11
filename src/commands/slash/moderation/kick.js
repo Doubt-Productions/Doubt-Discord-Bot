@@ -19,7 +19,8 @@ module.exports = {
     )
     .addStringOption((option) =>
       option.setName(`reason`).setDescription(`The reason for the kick`)
-    ),
+    )
+    .toJSON(),
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

@@ -82,8 +82,8 @@ module.exports = {
         (!newChannel || newChannel.id !== jointocreate)
       ) {
         if (member.length > 0) {
-          letRandomID = members[Math.floor(Math.random() * members.length)];
-          let randomMember = guild.members.cache.get(letRandomID);
+          let RandomID = members[Math.floor(Math.random() * members.length)];
+          let randomMember = guild.members.cache.get(RandomID);
           randomMember.voice.setChannel(oldChannel).then((v) => {
             oldChannel
               .setName(randomMember.displayName)

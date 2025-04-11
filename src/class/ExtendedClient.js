@@ -32,8 +32,14 @@ module.exports = class extends Client {
 
   constructor() {
     super({
-      intents: 3276799,
-      partials: [Object.keys(Partials)],
+      intents: 53575423,
+      partials: [
+        Partials.Channel,
+        Partials.GuildMember,
+        Partials.Message,
+        Partials.User,
+        Partials.Reaction,
+      ],
       presence: {
         activities: [
           {
@@ -50,8 +56,10 @@ module.exports = class extends Client {
     events(this);
     components(this);
     if (config.handler.mongodb.toggle) mongoose();
-
+    
     await this.login(config.client.token);
+    
+    deploy(this);
 
     if (process.env.TOPGG_TOKEN) await topgg(this);
 
@@ -75,7 +83,5 @@ module.exports = class extends Client {
           name: `Bot Users | ${users}`,
         });
     }, 1000 * 60 * 30);
-
-    if (config.handler.deploy) deploy(this, config);
   };
 };
