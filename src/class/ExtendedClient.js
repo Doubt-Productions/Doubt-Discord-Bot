@@ -32,7 +32,7 @@ module.exports = class extends Client {
 
   constructor() {
     super({
-      intents: 3276799,
+      intents: 53575423,
       partials: [Object.keys(Partials)],
       presence: {
         activities: [
