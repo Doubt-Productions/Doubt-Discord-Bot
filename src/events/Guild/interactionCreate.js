@@ -62,15 +62,10 @@ module.exports = {
       }
 
       if (command.options?.staffOnly) {
-        const member = interaction.guild.members.cache.get(interaction.user.id);
+        const member = interaction.member;
 
-        console.log(
-          member.roles.cache.some((role) =>
-            config.moderation.staffRoles.includes(role.id)
-          )
-        );
         if (
-          !member.roles.cache.some((role) =>
+          !member?.roles?.cache?.some((role) =>
             config.moderation.staffRoles.includes(role.id)
           )
         ) {

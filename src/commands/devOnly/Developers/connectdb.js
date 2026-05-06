@@ -1,11 +1,8 @@
 const {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
-  EmbedBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
-const config = require("../../../config");
-const GuildSchema = require("../../../schemas/GuildSchema");
 const { log } = require("../../../functions");
 const mongoose = require("../../../handlers/mongoose");
 
@@ -24,16 +21,19 @@ module.exports = {
   run: async (client, interaction, args) => {
     try {
       await interaction.deferReply();
-      await mongoose().catch((err) => {
-        log(err, "err");
-        interaction.editReply(
-          "An error occurred while connecting to the database."
-        );
+      await mongoose();
+      await interaction.editReply({
+        content: "Successfully connected to the database.",
       });
-      interaction.editReply("Successfully connected to the database.");
     } catch (error) {
       log(error, "err");
-      interaction.reply("An error occurred while connecting to the database.");
+      try {
+        await interaction.editReply({
+          content: "An error occurred while connecting to the database.",
+        });
+      } catch (replyErr) {
+        log(replyErr, "err");
+      }
     }
   },
 };

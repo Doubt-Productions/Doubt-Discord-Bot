@@ -38,7 +38,7 @@ module.exports = {
         ephemeral: true,
       });
 
-    if (amount.toLowerCase === "all") {
+    if (amount.toLowerCase() === "all") {
       if (Data.Wallet === 0)
         return await interaction.reply({
           content: `You don't have any money to deposit!`,

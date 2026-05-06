@@ -4,7 +4,7 @@
   "description": "An advanced multi-purpose discord bot designed to make your discord server run more smoothly!",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Wow is this a test?\" && exit 1",
+    "test": "node --test tests/",
     "start": "node .",
     "dev": "nodemon ."
   },
