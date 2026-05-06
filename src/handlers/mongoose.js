@@ -5,13 +5,15 @@ const { log } = require("../functions");
 module.exports = async () => {
   log("Started connecting to MongoDB...", "warn");
 
-  await connect(config.handler.mongodb.uri, {
-    dbName: config.variables.dbName,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-    .then(() => {
-      log("MongoDB is connected to the atlas!", "done");
-    })
-    .catch((err) => log(err, "err"));
+  try {
+    await connect(config.handler.mongodb.uri, {
+      dbName: config.variables.dbName,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    log("MongoDB is connected to the atlas!", "done");
+  } catch (err) {
+    log(err, "err");
+    throw err;
+  }
 };

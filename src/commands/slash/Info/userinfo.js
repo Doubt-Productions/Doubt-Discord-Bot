@@ -46,7 +46,7 @@ module.exports = {
       interaction.guild.members.cache.get(interaction.user.id);
 
     if (!user) {
-      await interaction.reply({
+      await interaction.editReply({
         content: "That user is not on the guild.",
       });
 
