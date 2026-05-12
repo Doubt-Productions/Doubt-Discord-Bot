@@ -89,6 +89,22 @@ module.exports = {
 
     collector.on("collect", async (i) => {
       if (i.customId === "page1") {
+        const existing = await ecoSchema.findOne({
+          Guild: guild.id,
+          User: user.id,
+        });
+        if (existing) {
+          const embedAlready = new EmbedBuilder()
+            .setColor("Yellow")
+            .setTitle(`Account`)
+            .setDescription(`You already have an economy account.`);
+          await i.update({
+            embeds: [embedAlready],
+            components: [],
+          });
+          return;
+        }
+
         Data = new ecoSchema({
           Guild: guild.id,
           User: user.id,
@@ -104,7 +120,24 @@ module.exports = {
         });
       }
       if (i.customId === "page2") {
-        await Data.deleteMany();
+        const doc = await ecoSchema.findOne({
+          Guild: guild.id,
+          User: user.id,
+        });
+        if (!doc) {
+          const embedNoDelete = new EmbedBuilder()
+            .setColor("Orange")
+            .setTitle(`Account`)
+            .setDescription(`You do not have an economy account to delete.`);
+          await i.update({
+            embeds: [embedNoDelete],
+            components: [],
+          });
+          return;
+        }
+
+        await doc.deleteOne();
+        Data = null;
 
         await i.update({
           embeds: [embed3],
