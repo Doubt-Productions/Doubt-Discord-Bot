@@ -88,8 +88,11 @@ module.exports = {
         ephemeral: true,
       });
     } else {
-      Data.Wallet -= amount;
-      TargetData.Wallet += amount;
+      // `amount` is derived from the victim's wallet and can exceed the robber's balance;
+      // capping avoids negative wallets and corrupted economy state.
+      const fine = Math.min(amount, Data.Wallet);
+      Data.Wallet -= fine;
+      TargetData.Wallet += fine;
       await Data.save();
       await TargetData.save();
 
@@ -99,7 +102,7 @@ module.exports = {
       }, 60000);
 
       return await interaction.reply({
-        content: `You got caught and paid ${target.username} $${amount}!`,
+        content: `You got caught and paid ${target.username} $${fine}!`,
         ephemeral: true,
       });
     }
