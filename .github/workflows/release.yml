@@ -14,7 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # Full history is required for accurate changelog generation (git log
+          # <previous>..HEAD). A shallow clone silently omits older commits.
+          fetch-depth: 0
 
       - name: Get current version
         id: version
@@ -33,7 +35,9 @@ jobs:
         id: tag_check
         run: |
           git fetch --tags
-          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+          # Do not use git rev-parse on the bare tag name: a branch with the same
+          # name would be resolved and incorrectly skip the release.
+          if git show-ref --verify --quiet "refs/tags/${{ steps.version.outputs.tag }}"; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
