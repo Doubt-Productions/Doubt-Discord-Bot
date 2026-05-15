@@ -88,8 +88,9 @@ module.exports = {
         ephemeral: true,
       });
     } else {
-      Data.Wallet -= amount;
-      TargetData.Wallet += amount;
+      const penalty = Math.min(amount, Data.Wallet);
+      Data.Wallet -= penalty;
+      TargetData.Wallet += penalty;
       await Data.save();
       await TargetData.save();
 
@@ -99,7 +100,7 @@ module.exports = {
       }, 60000);
 
       return await interaction.reply({
-        content: `You got caught and paid ${target.username} $${amount}!`,
+        content: `You got caught and paid ${target.username} $${penalty}!`,
         ephemeral: true,
       });
     }
