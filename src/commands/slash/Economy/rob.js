@@ -70,11 +70,11 @@ module.exports = {
       });
 
     const chance = Math.floor(Math.random() * 100) + 1;
-    const amount = Math.floor(Math.random() * TargetData.Wallet) + 1;
+    const stolenAmount = Math.floor(Math.random() * TargetData.Wallet) + 1;
 
     if (chance <= 50) {
-      Data.Wallet += amount;
-      TargetData.Wallet -= amount;
+      Data.Wallet += stolenAmount;
+      TargetData.Wallet -= stolenAmount;
       await Data.save();
       await TargetData.save();
 
@@ -84,15 +84,13 @@ module.exports = {
       }, 60000);
 
       return await interaction.reply({
-        content: `You robbed $${amount} from ${target.username}!`,
+        content: `You robbed $${stolenAmount} from ${target.username}!`,
         ephemeral: true,
       });
     } else {
-      // `amount` is derived from the victim's wallet and can exceed the robber's balance;
-      // capping avoids negative wallets and corrupted economy state.
-      const fine = Math.min(amount, Data.Wallet);
-      Data.Wallet -= fine;
-      TargetData.Wallet += fine;
+      const penalty = Math.min(amount, Data.Wallet);
+      Data.Wallet -= penalty;
+      TargetData.Wallet += penalty;
       await Data.save();
       await TargetData.save();
 
@@ -102,7 +100,7 @@ module.exports = {
       }, 60000);
 
       return await interaction.reply({
-        content: `You got caught and paid ${target.username} $${fine}!`,
+        content: `You got caught and paid ${target.username} $${penalty}!`,
         ephemeral: true,
       });
     }

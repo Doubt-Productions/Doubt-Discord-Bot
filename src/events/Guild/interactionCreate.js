@@ -41,19 +41,21 @@ module.exports = {
 
     try {
       if (command.options?.developers) {
-        if (
-          config.moderation.developers?.length > 0 &&
-          !config.moderation.developers?.includes(interaction.user.id)
-        ) {
+        const developerIds = config.moderation?.developers;
+        const developerCount = developerIds?.length ?? 0;
+
+        if (developerCount <= 0) {
           await interaction.reply({
-            content: `This is a developer only command.`,
+            content: `This is a developer only command, but unable to execute due to missing user IDs in configuration file.`,
             ephemeral: true,
           });
 
           return;
-        } else if (config.moderation.developers?.length <= 0) {
+        }
+
+        if (!developerIds.includes(interaction.user.id)) {
           await interaction.reply({
-            content: `This is a developer only command, but unable to execute due to missing user IDs in configuration file.`,
+            content: `This is a developer only command.`,
             ephemeral: true,
           });
 
@@ -64,9 +66,11 @@ module.exports = {
       if (command.options?.staffOnly) {
         const member = interaction.member;
 
+        const staffRoleIds = config.moderation?.staffRoles ?? [];
+
         if (
           !member?.roles?.cache?.some((role) =>
-            config.moderation.staffRoles.includes(role.id)
+            staffRoleIds.includes(role.id)
           )
         ) {
           await interaction.reply({
@@ -126,7 +130,7 @@ module.exports = {
         }
       }
 
-      command.run(client, interaction);
+      await command.run(client, interaction);
     } catch (error) {
       log(error, "err");
     }
