@@ -11,6 +11,8 @@ module.exports = {
      * @returns 
      */
     run: (client, interaction) => {
+        if (interaction.replied || interaction.deferred) return;
+
         if (interaction.isButton()) {
             const component = client.collection.components.buttons.get(interaction.customId);
 

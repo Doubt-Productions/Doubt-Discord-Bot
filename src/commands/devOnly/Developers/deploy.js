@@ -19,16 +19,15 @@ module.exports = {
    * @param {[]} args
    */
   run: async (client, interaction, args) => {
-    interaction.reply({
+    await interaction.reply({
       content: `Starting to deploy commands!`,
       ephemeral: true,
     });
 
     await deploy(client);
 
-    interaction.editReply({
+    await interaction.editReply({
       content: `Successfully deployed commands!`,
-      ephemeral: true,
     });
   },
 };

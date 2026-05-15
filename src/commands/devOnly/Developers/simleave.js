@@ -19,11 +19,11 @@ module.exports = {
    * @param {[]} args
    */
   run: async (client, interaction, args) => {
-    client.emit("guildMemberAdd", interaction.member);
+    client.emit("guildMemberRemove", interaction.member);
 
-    log(`Simulated a user joining the server!`, "info");
+    log(`Simulated a user leaving the server!`, "info");
     await interaction.reply({
-      content: `Simulated a user joining the server!`,
+      content: `Simulated a user leaving the server!`,
       ephemeral: true,
     });
   },
