@@ -28,11 +28,10 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 ### Known issues
 
-- `src/commands/slash/Economy/rob.js` has a pre-existing SyntaxError (`Unexpected token 'else'` at line 112) that prevents full command loading on startup. The Express health-check server still starts, but `client.login()` is never reached due to the error in the synchronous command-loading phase.
 - No ESLint or other linter is configured in this repo.
 - `package-lock.json` is `.gitignore`d, so `npm install` may resolve slightly different dependency versions across environments.
 
 ### Testing notes
 
-- Tests are pure unit tests using Node's built-in test runner (`node --test`). They do not require MongoDB, Discord, or any external service.
+- Tests are pure unit tests using Node's built-in test runner (`node --test`). They do not require MongoDB, Discord, or any external service. `tests/rob-module-loads.test.js` runs `node --check` on `rob.js` so a syntax regression fails CI without installing `discord.js`.
 - The health-check endpoint at `http://localhost:8080/` can be used to verify the Express server is running.
