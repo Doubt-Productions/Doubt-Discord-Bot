@@ -77,7 +77,7 @@ module.exports = {
           return;
         }
 
-        command.run(client, message, args);
+        await command.run(client, message, args);
       } catch (error) {
         log(error, "err");
       }
