@@ -70,11 +70,11 @@ module.exports = {
       });
 
     const chance = Math.floor(Math.random() * 100) + 1;
-    const amount = Math.floor(Math.random() * TargetData.Wallet) + 1;
+    const stolenAmount = Math.floor(Math.random() * TargetData.Wallet) + 1;
 
     if (chance <= 50) {
-      Data.Wallet += amount;
-      TargetData.Wallet -= amount;
+      Data.Wallet += stolenAmount;
+      TargetData.Wallet -= stolenAmount;
       await Data.save();
       await TargetData.save();
 
@@ -84,11 +84,10 @@ module.exports = {
       }, 60000);
 
       return await interaction.reply({
-        content: `You robbed $${amount} from ${target.username}!`,
+        content: `You robbed $${stolenAmount} from ${target.username}!`,
         ephemeral: true,
       });
     } else {
-      // `amount` scales with the victim's wallet; cap so we never take more than the robber has.
       const penalty = Math.min(amount, Data.Wallet);
       Data.Wallet -= penalty;
       TargetData.Wallet += penalty;

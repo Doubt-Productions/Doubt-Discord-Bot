@@ -39,7 +39,7 @@ module.exports = {
             return;
         };
 
-        if (interaction.isModalSubmit) {
+        if (interaction.isModalSubmit()) {
             const component = client.collection.components.modals.get(interaction.customId);
 
             if (!component) return;
