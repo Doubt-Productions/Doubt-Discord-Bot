@@ -1,4 +1,5 @@
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const { log } = require("../../functions");
 const ExtendedClient = require("../../class/ExtendedClient");
 const { ChatInputCommandInteraction } = require("discord.js");
@@ -41,8 +42,8 @@ module.exports = {
 
     try {
       if (command.options?.developers) {
-        const developerIds = config.moderation?.developers;
-        const developerCount = developerIds?.length ?? 0;
+        const developerIds = normalizeIdAllowlist(config.moderation?.developers);
+        const developerCount = developerIds.length;
 
         if (developerCount <= 0) {
           await interaction.reply({
@@ -66,7 +67,7 @@ module.exports = {
       if (command.options?.staffOnly) {
         const member = interaction.member;
 
-        const staffRoleIds = config.moderation?.staffRoles ?? [];
+        const staffRoleIds = normalizeIdAllowlist(config.moderation?.staffRoles);
 
         if (
           !member?.roles?.cache?.some((role) =>

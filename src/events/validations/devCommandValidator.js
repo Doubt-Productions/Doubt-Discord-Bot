@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
