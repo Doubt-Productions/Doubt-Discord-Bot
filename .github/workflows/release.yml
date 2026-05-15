@@ -29,19 +29,14 @@ jobs:
       - name: Check if release needed
         id: check
         run: |
-          git diff HEAD~1 HEAD -- package.json | grep -q '"version"' && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
-
-      - name: Check if tag exists
-        if: steps.changed.outputs.changed == 'true'
-        id: tag_check
-        run: |
-          git fetch --tags
-          # Do not use git rev-parse on the bare tag name: a branch with the same
-          # name would be resolved and incorrectly skip the release.
-          if git show-ref --verify --quiet "refs/tags/${{ steps.version.outputs.tag }}"; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          TAG="${{ steps.version.outputs.tag }}"
+          git fetch --tags --force 2>/dev/null || true
+          # Use refs/tags/ so a branch with the same name cannot be mistaken for the tag.
+          if git show-ref --verify --quiet "refs/tags/${TAG}"; then
+            echo "Tag ${TAG} already exists — skipping release"
+            echo "needed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Tag $TAG does not exist — release needed"
+            echo "Tag ${TAG} does not exist — release needed"
             echo "needed=true" >> "$GITHUB_OUTPUT"
           fi
 
