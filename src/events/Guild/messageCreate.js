@@ -1,5 +1,6 @@
 const { ChannelType, Message } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const { log } = require("../../functions");
 const GuildSchema = require("../../schemas/GuildSchema");
 const ExtendedClient = require("../../class/ExtendedClient");
@@ -45,8 +46,10 @@ module.exports = {
     if (command) {
       try {
         if (command.data?.developers === true) {
-          const developerIds = config.moderation?.developers;
-          const developerCount = developerIds?.length ?? 0;
+          const developerIds = normalizeIdAllowlist(
+            config.moderation?.developers
+          );
+          const developerCount = developerIds.length;
 
           if (developerCount <= 0) {
             await message.reply({
