@@ -1,5 +1,6 @@
 const { EmbedBuilder, Client } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getSelects = require("../../utils/getSelects");
 
@@ -20,7 +21,15 @@ module.exports = async (client, interaction) => {
     if (!selectObject) return;
 
     if (selectObject.devOnly) {
-      if (!config.moderation.developers.includes(interaction.member.id)) {
+      const developerIds = normalizeIdAllowlist(config.moderation?.developers);
+      if (developerIds.length === 0) {
+        const rEmbed = new EmbedBuilder()
+          .setColor(`${mConfig.embedColorError}`)
+          .setDescription(`${mConfig.commandDevOnly}`);
+        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        return;
+      }
+      if (!developerIds.includes(interaction.member.id)) {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);

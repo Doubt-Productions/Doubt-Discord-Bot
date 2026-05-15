@@ -5,13 +5,16 @@
  */
 const { test } = require("node:test");
 const assert = require("node:assert");
+const {
+  normalizeIdAllowlist,
+} = require("../src/utils/normalizeIdAllowlist");
 
 /** Mirrors interactionCreate developer gate decision */
 function developerGateDecision(developersOption, userId, moderationConfig) {
   if (!developersOption) return { action: "allow" };
 
-  const developerIds = moderationConfig?.developers;
-  const developerCount = developerIds?.length ?? 0;
+  const developerIds = normalizeIdAllowlist(moderationConfig?.developers);
+  const developerCount = developerIds.length;
 
   if (developerCount <= 0) {
     return { action: "deny", reason: "misconfigured" };
@@ -56,4 +59,11 @@ test("non-allowlisted user is denied", () => {
 test("non-developer command skips gate", () => {
   const r = developerGateDecision(false, "any", {});
   assert.deepStrictEqual(r, { action: "allow" });
+});
+
+test("developers as a single string is misconfigured, not substring-matched", () => {
+  const r = developerGateDecision(true, "10000000000000000", {
+    developers: "100000000000000001",
+  });
+  assert.deepStrictEqual(r, { action: "deny", reason: "misconfigured" });
 });
