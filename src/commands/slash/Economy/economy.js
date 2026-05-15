@@ -22,9 +22,8 @@ module.exports = {
   run: async (client, interaction) => {
     const { user, guild } = interaction;
 
-    let Data = await ecoSchema.findOne({
-      Guild: guild.id,
-      User: user.id,
+    let Data = await ecoSchema.findFirst({
+      where: { Guild: guild.id, User: user.id },
     });
     const embed = new EmbedBuilder()
       .setColor("Blurple")
@@ -89,9 +88,8 @@ module.exports = {
 
     collector.on("collect", async (i) => {
       if (i.customId === "page1") {
-        const existing = await ecoSchema.findOne({
-          Guild: guild.id,
-          User: user.id,
+        const existing = await ecoSchema.findFirst({
+          where: { Guild: guild.id, User: user.id },
         });
         if (existing) {
           const embedAlready = new EmbedBuilder()
@@ -105,14 +103,14 @@ module.exports = {
           return;
         }
 
-        Data = new ecoSchema({
-          Guild: guild.id,
-          User: user.id,
-          Wallet: 0,
-          Bank: 1000,
+        Data = await ecoSchema.create({
+          data: {
+            Guild: guild.id,
+            User: user.id,
+            Wallet: 0,
+            Bank: 1000,
+          },
         });
-
-        await Data.save();
 
         await i.update({
           embeds: [embed2],
@@ -120,9 +118,8 @@ module.exports = {
         });
       }
       if (i.customId === "page2") {
-        const doc = await ecoSchema.findOne({
-          Guild: guild.id,
-          User: user.id,
+        const doc = await ecoSchema.findFirst({
+          where: { Guild: guild.id, User: user.id },
         });
         if (!doc) {
           const embedNoDelete = new EmbedBuilder()
@@ -136,7 +133,7 @@ module.exports = {
           return;
         }
 
-        await doc.deleteOne();
+        await ecoSchema.delete({ where: { id: doc.id } });
         Data = null;
 
         await i.update({

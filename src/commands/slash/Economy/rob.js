@@ -49,10 +49,9 @@ module.exports = {
         });
       }
 
-      let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
-      let TargetData = await ecoSchema.findOne({
-        User: target.id,
-        Guild: guild.id,
+      let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
+      let TargetData = await ecoSchema.findFirst({
+        where: { User: target.id, Guild: guild.id },
       });
 
       if (!Data) {
@@ -93,8 +92,8 @@ module.exports = {
       if (chance <= 50) {
         Data.Wallet += amount;
         TargetData.Wallet -= amount;
-        await Data.save();
-        await TargetData.save();
+        await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
+        await ecoSchema.update({ where: { id: TargetData.id }, data: { Wallet: TargetData.Wallet } });
 
         setTimeout(() => {
           timeout = timeout.filter((id) => id !== user.id);
@@ -109,8 +108,8 @@ module.exports = {
         const penalty = Math.min(amount, Data.Wallet);
         Data.Wallet -= penalty;
         TargetData.Wallet += penalty;
-        await Data.save();
-        await TargetData.save();
+        await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
+        await ecoSchema.update({ where: { id: TargetData.id }, data: { Wallet: TargetData.Wallet } });
 
         setTimeout(() => {
           timeout = timeout.filter((id) => id !== user.id);
