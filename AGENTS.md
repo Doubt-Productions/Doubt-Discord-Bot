@@ -14,9 +14,8 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
   sleep 3
   sudo docker start mongodb 2>/dev/null || sudo docker run -d --name mongodb -p 27017:27017 mongo:7
   ```
-- **Discord bot token**: Set `DEV_TOKEN` in `.env` for the bot to log in locally. Without it, `client.login()` fails but the Express server still runs.
+- **Discord bot token**: Set `DEV_TOKEN` in `.env` for the bot to log in. Without it, `client.login()` fails but the Express server still runs.
 - **Config files**: `.env` (from `.env.example`) and `src/config.js` (from `src/example.config.js`) must exist. Both are `.gitignore`d.
-- **Environment mode**: `src/example.config.js` currently reads `process.env.PRODUCTION` inconsistently. In local development, leave `PRODUCTION` unset or blank unless you have verified the selected token, guild ID, and MongoDB URI.
 
 ### Common commands
 
