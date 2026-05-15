@@ -1,30 +1,22 @@
 /**
- * Regression: function-style event modules in one folder (e.g. ready/) must
- * share a single listener and run sequentially. Registering one listener per
- * file lets async handlers interleave after their first await, so slash and
- * context-menu registration can race the Discord REST API.
+ * Regression: src/handlers/events.js must register Discord event names from
+ * each module's `event` field and call `eventModule.run` for object exports.
+ * A broken "one listener per folder" loop called `await eventFunction(client,
+ * ...args)` on every file, which throws for `{ event, run }` modules and
+ * registered the wrong event name (e.g. "Guild"), so messageCreate and Guild
+ * interactionCreate never ran.
  */
 const { test } = require("node:test");
 const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
 
-test("events handler batches folder function modules into one sequential listener", () => {
+test("events handler uses per-module registration and .run for object exports", () => {
   const src = fs.readFileSync(
     path.join(__dirname, "../src/handlers/events.js"),
     "utf8"
   );
 
-  assert.ok(
-    src.includes("functionHandlers") &&
-      src.includes("functionHandlers.push") &&
-      src.includes("for (const handler of functionHandlers)"),
-    "expected functionHandlers array and sequential await loop"
-  );
-  assert.ok(
-    src.match(/client\.on\(folderName/g)?.length === 1,
-    "expected exactly one client.on(folderName, ...) for batched function handlers"
-  );
   assert.ok(
     src.includes("typeof eventModule.run === \"function\"") &&
       src.includes("eventModule.event"),
@@ -33,5 +25,9 @@ test("events handler batches folder function modules into one sequential listene
   assert.ok(
     src.includes('folderName === "validations"'),
     "expected validations folder special-case"
+  );
+  assert.ok(
+    src.includes("continue") && src.includes("interactionCreate (validators)"),
+    "expected validations block to register validator chain separately"
   );
 });
