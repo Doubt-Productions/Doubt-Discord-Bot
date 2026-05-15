@@ -4,7 +4,7 @@ This guide documents the behavior verified from source in this repository. Keep 
 
 ## Startup And Configuration
 
-The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.start()`, and then starts the Express sidecar with `server()`. `client.start()` is async but is not awaited by `src/index.js`, so Discord login, command deployment, optional MongoDB connection, optional Top.gg autoposting, and the HTTP listener can initialize concurrently.
+The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.start()`, and then starts the Express sidecar with `server()`. `client.start()` is async but is not awaited by `src/index.js`, so Discord login, command deployment, optional Prisma/MongoDB connection, optional Top.gg autoposting, and the HTTP listener can initialize concurrently.
 
 Required local setup:
 
@@ -12,14 +12,17 @@ Required local setup:
 2. Copy `.env.example` to `.env`.
 3. Copy `src/example.config.js` to `src/config.js`.
 4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
-5. Run `npm run dev` for nodemon or `npm start` for node.
-6. Run `npm test` before opening a PR.
+5. Set `DATABASE_URL` for Prisma CLI commands. The runtime client reads the MongoDB URI from `src/config.js`, so keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata.
+6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
+7. Run `npm run dev` for nodemon or `npm start` for node.
+8. Run `npm test` before opening a PR.
 
 Environment variables used by the code:
 
 - `CLIENT_TOKEN` and `CLIENT_ID`: production Discord bot token and application ID.
 - `DEV_TOKEN` and `DEV_CLIENT_ID`: development Discord bot token and application ID.
 - `MONGODB_URI` and `DEV_MONGODB_URI`: MongoDB connection strings.
+- `DATABASE_URL`: MongoDB connection string used by Prisma CLI commands such as `prisma generate` and `prisma db push`.
 - `GUILD_ID`: support or production guild ID.
 - `DEV_GUILD_ID`: guild used by ready-time slash/context-menu registration.
 - `TOPGG_TOKEN`: optional; enables Top.gg autoposting in `src/functions/index.js`.
@@ -27,11 +30,45 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
-- `handler.mongodb.toggle` controls whether `src/handlers/mongoose.js` connects to MongoDB.
-- MongoDB uses `config.handler.mongodb.uri` and `config.variables.dbName`.
+- `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
+- Prisma runtime queries use `config.handler.mongodb.uri`. `DATABASE_URL` is only read by Prisma CLI tools.
+- `config.variables.dbName` still exists for configuration compatibility, but the verified Prisma startup path does not read it; include the database name in the MongoDB URI instead.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings, but several selectors in `src/example.config.js` compare `process.env.PRODUCTION === true` while MongoDB selectors use truthiness. Verify the generated `src/config.js` values before running a production bot.
+- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+
+## Prisma Persistence
+
+Persistence now runs through Prisma v6 with the MongoDB provider:
+
+- `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `guildschemas`, `chatbots`, and `jtcsetups`.
+- `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with `datasourceUrl: config.handler.mongodb.uri`.
+- Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema` and `src/schemas/GuildSchema.js` exports `prisma.guildSchema`.
+- The legacy `src/handlers/mongoose.js` file remains in the tree, but `ExtendedClient` imports `src/handlers/prisma.js`. Do not add new imports of the Mongoose handler unless Mongoose is intentionally restored as a dependency.
+
+Use Prisma delegate methods instead of Mongoose document methods:
+
+```js
+const ecoSchema = require("../schemas/EcoSchema");
+
+const account = await ecoSchema.findFirst({
+  where: { Guild: guild.id, User: user.id },
+});
+
+if (account) {
+  await ecoSchema.update({
+    where: { id: account.id },
+    data: { Wallet: account.Wallet + 100 },
+  });
+}
+```
+
+Prisma constraints and pitfalls:
+
+- Query filters are nested under `where`, and writes are nested under `data`.
+- Returned records are plain objects. They do not have Mongoose methods such as `save()`, `deleteOne()`, or document-scoped `deleteMany()`.
+- Current models do not define unique compound indexes for guild/user pairs. Existing code usually reads with `findFirst({ where: ... })`, then updates or deletes by the returned `id`.
+- MongoDB is schema-less, so this repo does not use `prisma migrate`. Run `npx prisma generate` after schema edits, and use `npx prisma db push` only when you intentionally need Prisma to sync MongoDB indexes or schema metadata.
 
 ## Command And Component Architecture
 
@@ -115,24 +152,27 @@ Troubleshooting command registration:
 
 ## Economy Notes
 
-Economy data is stored in MongoDB with `src/schemas/EcoSchema.js`:
+Economy data is stored in MongoDB through the `EcoSchema` Prisma model. `src/schemas/EcoSchema.js` exports the `prisma.ecoSchema` delegate, and the model maps to the `ecoschemas` collection:
 
-```js
-{
-  Guild: String,
-  User: String,
-  Bank: Number,
-  Wallet: Number
+```prisma
+model EcoSchema {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  Guild  String?
+  User   String?
+  Bank   Float?
+  Wallet Float?
+
+  @@map("ecoschemas")
 }
 ```
 
 User-facing economy commands live in `src/commands/slash/Economy/**`:
 
-- `/economy`: creates an account with `Wallet: 0` and `Bank: 1000`, or deletes the current user's account with `doc.deleteOne()`.
+- `/economy`: creates an account with `Wallet: 0` and `Bank: 1000`, or deletes the found account with `ecoSchema.delete({ where: { id: doc.id } })`.
 - `/bal`: reports wallet, bank, and total balances.
 - `/deposit amount`: moves money from wallet to bank. `amount` can be a number or `all`.
 - `/withdraw amount`: moves money from bank to wallet. `amount` can be a number or `all`.
-- `/beg`: randomly chooses a positive or negative wallet change. It saves the wallet update only if the user has an account, but still sends the result reply when no account exists.
+- `/beg`: randomly chooses a positive or negative wallet change. It updates `Wallet` only if the user has an account, but still sends the result reply when no account exists.
 - `/rob user`: requires both users to have economy accounts and the robber to have at least `$100`, and it takes a per-user cooldown lock before database reads. The regression tests document the intended success/failure transfer behavior; verify `rob.js` directly before changing runtime behavior because several past bugs involved cooldown races and uncapped fines.
 
 `/rob` workflow and constraints:
@@ -146,17 +186,18 @@ User-facing economy commands live in `src/commands/slash/Economy/**`:
 7. On failure, the robber pays the target `Math.min(amount, Data.Wallet)` so a fine cannot make the robber wallet negative.
 8. After a saved success or failure, the cooldown is released after 60 seconds. Early validation failures and thrown errors release it immediately.
 
-Maintenance pitfalls for `/rob`:
+Maintenance pitfalls for economy commands:
 
 - Keep `try`/`catch` around all awaited work after the cooldown lock, or unexpected errors can leave the user stuck on cooldown.
 - Do not move `timeout.push(user.id)` below an `await`; that reintroduces the race covered by `tests/rob-cooldown-race.test.js`.
-- Because `EcoSchema` has no minimum-value validation, command code must prevent negative balances before calling `save()`.
+- Because `EcoSchema` has no minimum-value validation, command code must prevent negative balances before calling `ecoSchema.update()`.
+- Because there is no unique Prisma constraint for `{ Guild, User }`, account creation still relies on application-level `findFirst` checks.
 - Run `node --check src/commands/slash/Economy/rob.js` or `npm test` after editing this module; a previous bad merge left invalid JavaScript that broke command loading during startup.
 
 Regression tests in `tests/` document important economy invariants:
 
 - `tests/economy-amount-all.test.js`: `all` must match case-insensitively for deposit and withdraw.
-- `tests/economy-account-delete.test.js`: account deletion must delete by user and guild and must not rely on `deleteMany()` on a document.
+- `tests/economy-account-delete.test.js`: documents the old deletion failure mode where code relied on document-shaped `deleteMany()` behavior. Current Prisma code should delete or update through the model delegate.
 - `tests/rob-syntax.test.js`: `/rob` must parse as valid JavaScript before the command loader requires it.
 - `tests/rob-cooldown-race.test.js`: `/rob` must take its per-user cooldown lock before any `await` to avoid overlapping balance saves.
 - `tests/rob-caught-penalty.test.js`, `tests/rob-failure-penalty.test.js`, and `tests/rob-fine-cap.test.js`: a failed robbery fine must not exceed the robber's current wallet.
@@ -166,7 +207,7 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 ## Operational Pitfalls
 
 - The bot requires Discord gateway intents that match the enabled features. `ExtendedClient` currently passes a numeric intent bitfield, so keep Discord Developer Portal settings in sync when changing message, member, or guild-dependent behavior.
-- MongoDB failures are logged and rethrown from `src/handlers/mongoose.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login on a successful connection. Commands that use MongoDB still depend on a valid URI, network, and database credentials when `handler.mongodb.toggle` is true.
+- Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
 - Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
