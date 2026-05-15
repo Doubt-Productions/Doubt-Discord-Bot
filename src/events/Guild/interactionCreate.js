@@ -94,21 +94,24 @@ module.exports = {
 
       if (command.options?.cooldown) {
         const cooldownFunction = () => {
-          let data = cooldown.get(interaction.user.id);
+          const userId = interaction.user.id;
+          const commandName = interaction.commandName;
+          let data = cooldown.get(userId) ?? [];
 
-          data.push(interaction.commandName);
+          data.push(commandName);
 
-          cooldown.set(interaction.user.id, data);
+          cooldown.set(userId, data);
 
           setTimeout(() => {
-            let data = cooldown.get(interaction.user.id);
+            let data = cooldown.get(userId);
+            if (!data) return;
 
-            data = data.filter((v) => v !== interaction.commandName);
+            data = data.filter((v) => v !== commandName);
 
             if (data.length <= 0) {
-              cooldown.delete(interaction.user.id);
+              cooldown.delete(userId);
             } else {
-              cooldown.set(interaction.user.id, data);
+              cooldown.set(userId, data);
             }
           }, command.options?.cooldown);
         };
