@@ -19,8 +19,10 @@ module.exports = async (client, interaction) => {
       commandObject.options?.developers === true;
 
     if (requiresDeveloper) {
-      const developerIds = config.moderation.developers;
-      if (!developerIds?.length) {
+      const developerIds = normalizeIdAllowlist(
+        config.moderation?.developers
+      );
+      if (developerIds.length <= 0) {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(
@@ -40,9 +42,12 @@ module.exports = async (client, interaction) => {
 
     if (commandObject.options?.staffOnly) {
       const member = interaction.member;
+      const staffRoleIds = normalizeIdAllowlist(
+        config.moderation?.staffRoles
+      );
       if (
         !member?.roles?.cache?.some((role) =>
-          config.moderation.staffRoles?.includes(role.id)
+          staffRoleIds.includes(role.id)
         )
       ) {
         await interaction.reply({
