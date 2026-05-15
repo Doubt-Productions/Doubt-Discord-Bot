@@ -88,8 +88,7 @@ module.exports = {
         ephemeral: true,
       });
     } else {
-      // EcoSchema does not enforce non-negative balances; cap penalty to robber's wallet.
-      const penalty = Math.min(stolenAmount, Data.Wallet);
+      const penalty = Math.min(amount, Data.Wallet);
       Data.Wallet -= penalty;
       TargetData.Wallet += penalty;
       await Data.save();
