@@ -44,6 +44,28 @@ module.exports = {
 
     if (command) {
       try {
+        if (command.data?.developers === true) {
+          const developerIds = config.moderation?.developers;
+          const developerCount = developerIds?.length ?? 0;
+
+          if (developerCount <= 0) {
+            await message.reply({
+              content:
+                "This is a developer only command, but unable to execute due to missing user IDs in configuration file.",
+            });
+
+            return;
+          }
+
+          if (!developerIds.includes(message.author.id)) {
+            await message.reply({
+              content: "This is a developer only command.",
+            });
+
+            return;
+          }
+        }
+
         if (
           command.data?.permissions &&
           !message.member.permissions.has(command.data?.permissions)
