@@ -27,22 +27,18 @@ This project is currently a WIP!
 <!--- Installation -->
 ## 🔌 Installation
 ```md
-- Download all the code.
-- Extract the file
-- Open the code in VS Code (Recommended)
-- Run npm i
-- Fill in the .env.example and rename to .env
-- Fill in the example.config.js and rename to config.js
-- Run npm run dev to start the bot with nodemon
+- Install Node.js and npm.
+- Run npm i.
+- Copy .env.example to .env and fill in the Discord and MongoDB values.
+- Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
+- Run npm run dev to start the bot with nodemon, or npm start to run it with node.
+- Run npm test before opening a PR.
 ```
-
-<!--- Import -->
-## 🔗 Import
-
-#### There is no imports for this module.
 
 <!--- Usage -->
 ## 🔍 Usage
 
-### There is no usage for this module.
+This is a Discord bot application, not an importable npm module. It starts from `src/index.js`, logs in with the token selected by `src/config.js`, connects to MongoDB when enabled, registers commands/components/events, and exposes a simple health endpoint on `0.0.0.0:8080`.
+
+Developer and operator notes live in [`docs/engineering-guide.md`](docs/engineering-guide.md). Start there for setup constraints, command deployment, permission gates, economy behavior, and troubleshooting.
 
