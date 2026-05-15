@@ -32,59 +32,70 @@ module.exports = {
         ephemeral: true,
       });
 
-    const target = options.getUser("user");
-    if (target.id === user.id)
-      return await interaction.reply({
-        content: `You can't rob yourself!`,
-        ephemeral: true,
+    // Hold per-user lock before any await. Otherwise two concurrent /rob calls
+    // can both pass the cooldown check, run overlapping saves, and corrupt balances.
+    timeout.push(user.id);
+    const releaseCooldown = () => {
+      timeout = timeout.filter((id) => id !== user.id);
+    };
+
+    try {
+      const target = options.getUser("user");
+      if (target.id === user.id) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `You can't rob yourself!`,
+          ephemeral: true,
+        });
+      }
+
+      let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
+      let TargetData = await ecoSchema.findOne({
+        User: target.id,
+        Guild: guild.id,
       });
 
-    let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
-    let TargetData = await ecoSchema.findOne({
-      User: target.id,
-      Guild: guild.id,
-    });
+      if (!Data) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `You don't have an account!`,
+          ephemeral: true,
+        });
+      }
 
-    if (!Data)
-      return await interaction.reply({
-        content: `You don't have an account!`,
-        ephemeral: true,
-      });
+      if (!TargetData) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `The target doesn't have an account!`,
+          ephemeral: true,
+        });
+      }
 
-    if (!TargetData)
-      return await interaction.reply({
-        content: `The target doesn't have an account!`,
-        ephemeral: true,
-      });
-
-    if (Data.Wallet < 100)
-      return await interaction.reply({
-        content: `You need atleast $100 to rob someone!`,
-        ephemeral: true,
-      });
-
-    if (TargetData.Wallet < 100)
-      return await interaction.reply({
-        content: `The target needs atleast $100 to rob them!`,
-        ephemeral: true,
-      });
+      if (Data.Wallet < 100) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `You need atleast $100 to rob someone!`,
+          ephemeral: true,
+        });
+      }
 
     const chance = Math.floor(Math.random() * 100) + 1;
-    const amount = Math.floor(Math.random() * TargetData.Wallet) + 1;
+    const stolenAmount = Math.floor(Math.random() * TargetData.Wallet) + 1;
 
     if (chance <= 50) {
-      Data.Wallet += amount;
-      TargetData.Wallet -= amount;
+      Data.Wallet += stolenAmount;
+      TargetData.Wallet -= stolenAmount;
       await Data.save();
       await TargetData.save();
 
-      timeout.push(user.id);
-      setTimeout(() => {
-        timeout = timeout.filter((id) => id !== user.id);
-      }, 60000);
+      if (chance <= 50) {
+        Data.Wallet += amount;
+        TargetData.Wallet -= amount;
+        await Data.save();
+        await TargetData.save();
 
       return await interaction.reply({
-        content: `You robbed $${amount} from ${target.username}!`,
+        content: `You robbed $${stolenAmount} from ${target.username}!`,
         ephemeral: true,
       });
     } else {
@@ -94,10 +105,15 @@ module.exports = {
       await Data.save();
       await TargetData.save();
 
-      timeout.push(user.id);
-      setTimeout(() => {
-        timeout = timeout.filter((id) => id !== user.id);
-      }, 60000);
+        return await interaction.reply({
+          content: `You robbed $${amount} from ${target.username}!`,
+          ephemeral: true,
+        });
+      } else {
+        Data.Wallet -= amount;
+        TargetData.Wallet += amount;
+        await Data.save();
+        await TargetData.save();
 
       return await interaction.reply({
         content: `You got caught and paid ${target.username} $${penalty}!`,

@@ -94,13 +94,12 @@ module.exports = {
           User: user.id,
         });
         if (existing) {
+          const embedAlready = new EmbedBuilder()
+            .setColor("Yellow")
+            .setTitle(`Account`)
+            .setDescription(`You already have an economy account.`);
           await i.update({
-            embeds: [
-              new EmbedBuilder()
-                .setColor("Blurple")
-                .setTitle(`Account already exists`)
-                .setDescription(`You already have an economy account.`),
-            ],
+            embeds: [embedAlready],
             components: [],
           });
           return;
@@ -121,24 +120,23 @@ module.exports = {
         });
       }
       if (i.customId === "page2") {
-        const result = await ecoSchema.deleteMany({
-          User: user.id,
+        const doc = await ecoSchema.findOne({
           Guild: guild.id,
+          User: user.id,
         });
-
-        if (result.deletedCount === 0) {
+        if (!doc) {
+          const embedNoDelete = new EmbedBuilder()
+            .setColor("Orange")
+            .setTitle(`Account`)
+            .setDescription(`You do not have an economy account to delete.`);
           await i.update({
-            embeds: [
-              new EmbedBuilder()
-                .setColor("Blurple")
-                .setTitle(`No account`)
-                .setDescription(`You do not have an economy account to delete.`),
-            ],
+            embeds: [embedNoDelete],
             components: [],
           });
           return;
         }
 
+        await doc.deleteOne();
         Data = null;
 
         await i.update({
