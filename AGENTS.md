@@ -4,7 +4,7 @@
 
 ### Overview
 
-This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB (Mongoose) for persistence and supports slash/prefix commands, moderation, economy, leveling, tickets, and more.
+This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB via **Prisma v6** for persistence and supports slash/prefix commands, moderation, economy, leveling, tickets, and more.
 
 ### Prerequisites
 
@@ -25,6 +25,13 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 | Run tests | `npm test` |
 | Start bot (dev) | `npm run dev` (uses nodemon) |
 | Start bot (prod) | `npm start` |
+
+### Prisma notes
+
+- The Prisma schema is at `prisma/schema.prisma`. After schema changes, run `npx prisma generate` to regenerate the client.
+- The Prisma client singleton is in `src/handlers/prisma.js` and reads the MongoDB URI from `config.handler.mongodb.uri`.
+- `DATABASE_URL` in `.env` is used only by `prisma` CLI tools (e.g., `prisma db push`). The runtime client uses the URI from config.
+- MongoDB is schema-less so `prisma migrate` commands do NOT work. Use `prisma db push` to sync indexes.
 
 ### Known issues
 

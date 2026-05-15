@@ -16,6 +16,7 @@ module.exports = {
    */
   run: async (client, interaction) => {
     if (!interaction.isCommand()) return;
+    if (interaction.replied || interaction.deferred) return;
 
 
     if (
@@ -125,8 +126,7 @@ module.exports = {
             cooldownFunction();
           }
         } else {
-          cooldown.set(interaction.user.id, [interaction.commandName]);
-
+          cooldown.set(interaction.user.id, []);
           cooldownFunction();
         }
       }

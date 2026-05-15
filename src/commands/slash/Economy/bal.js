@@ -18,7 +18,7 @@ module.exports = {
   run: async (client, interaction) => {
     const { user, guild } = interaction;
 
-    let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
+    let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
 
     if (!Data)
       return await interaction.reply({

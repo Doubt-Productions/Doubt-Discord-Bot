@@ -20,7 +20,7 @@ module.exports = {
 
         if (config.handler?.mongodb?.toggle) {
             try {
-                const data = (await GuildSchema.findOne({ guild: message.guildId }));
+                const data = (await GuildSchema.findFirst({ where: { guild: message.guildId } }));
 
                 if (data && data?.prefix) prefix = data.prefix;
             } catch {

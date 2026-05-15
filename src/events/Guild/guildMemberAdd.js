@@ -18,7 +18,7 @@ module.exports = {
 
     if (guild.id !== config.handler.guildId) return;
 
-    const data = await welcomeSchema.findOne({ Guild: guild.id });
+    const data = await welcomeSchema.findFirst({ where: { Guild: guild.id } });
     if (!data) return;
 
     const channel = guild.channels.cache.get(data.Channel);

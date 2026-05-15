@@ -4,7 +4,7 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { log } = require("../../../functions");
-const mongoose = require("../../../handlers/mongoose");
+const { connectPrisma } = require("../../../handlers/prisma");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -21,7 +21,7 @@ module.exports = {
   run: async (client, interaction, args) => {
     try {
       await interaction.deferReply();
-      await mongoose();
+      await connectPrisma();
       await interaction.editReply({
         content: "Successfully connected to the database.",
       });
