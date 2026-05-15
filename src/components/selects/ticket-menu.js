@@ -37,22 +37,14 @@ module.exports = {
 
     const result = choices.join("");
 
-    const data = await ticketSchema.findOne({ Guild: interaction.guild.id });
+    const data = await ticketSchema.findFirst({ where: { Guild: interaction.guild.id } });
 
-    const filter = { Guild: interaction.guild.id };
-    const update = { Ticket: result };
-
-    await ticketSchema.updateOne(
-      {
-        Guild: interaction.guild.id,
-      },
-      {
-        Ticket: result,
-      },
-      {
-        new: true,
-      }
-    );
+    if (data) {
+      await ticketSchema.update({
+        where: { id: data.id },
+        data: { Ticket: result },
+      });
+    }
 
     interaction.showModal(modal);
   },

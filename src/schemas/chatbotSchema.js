@@ -1,9 +1,3 @@
-const { model, Schema } = require("mongoose");
+const { prisma } = require("../handlers/prisma");
 
-module.exports = model(
-  "chatbot",
-  new Schema({
-    Guild: String,
-    Channel: String,
-  })
-);
+module.exports = prisma.chatbot;

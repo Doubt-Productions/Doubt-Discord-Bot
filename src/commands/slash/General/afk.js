@@ -35,9 +35,8 @@ module.exports = {
 
     const sub = options.getSubcommand();
 
-    const Data = await afkSchema.findOne({
-      Guild: interaction.guild.id,
-      User: interaction.member.id,
+    const Data = await afkSchema.findFirst({
+      where: { Guild: interaction.guild.id, User: interaction.member.id },
     });
 
     switch (sub) {
@@ -49,10 +48,12 @@ module.exports = {
           interaction.member.displayName || interaction.member.nickname;
 
         await afkSchema.create({
-          Guild: interaction.guild.id,
-          User: interaction.member.id,
-          Message: message,
-          Nickname: nickname,
+          data: {
+            Guild: interaction.guild.id,
+            User: interaction.member.id,
+            Message: message,
+            Nickname: nickname,
+          },
         });
 
         const name = `[AFK] ${nickname}`;
@@ -77,7 +78,7 @@ module.exports = {
 
       case "remove":
         if (!Data) {
-          await interaction.reply({
+          return await interaction.reply({
             content: `You are not afk!`,
             ephemeral: true,
           });
@@ -85,8 +86,7 @@ module.exports = {
 
         const nick = Data.Nickname;
         await afkSchema.deleteMany({
-          Guild: interaction.guild.id,
-          User: interaction.member.id,
+          where: { Guild: interaction.guild.id, User: interaction.member.id },
         });
 
         await interaction.member.setNickname(`${nick}`).catch((err) => {

@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -118,9 +119,9 @@ module.exports = async (client, interaction) => {
 
     await commandObject.run(client, interaction);
   } catch (err) {
-    console.log(
-      `An error occurred while validating chat input commands! ${err}`.red
+    console.error(
+      `An error occurred while validating chat input commands! ${err}`
     );
-    console.log(err);
+    console.error(err);
   }
 };

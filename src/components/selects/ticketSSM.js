@@ -34,8 +34,8 @@ module.exports = {
       .setColor("Blurple")
       .setFooter({ text: `©️ Doubt Productions | Ticket System | ${value}` });
 
-    const ticketData = await ticketSchema.findOne({
-      Guild: interaction.guild.id,
+    const ticketData = await ticketSchema.findFirst({
+      where: { Guild: interaction.guild.id },
     });
 
     switch (value) {
@@ -78,13 +78,14 @@ module.exports = {
           }
 
           if (ticketData) {
-            ticketData.Category = category;
-            ticketData.save();
+            await ticketSchema.update({
+              where: { id: ticketData.id },
+              data: { Category: category },
+            });
           } else {
-            new ticketSchema({
-              Guild: guild.id,
-              Category: category,
-            }).save();
+            await ticketSchema.create({
+              data: { Guild: guild.id, Category: category },
+            });
           }
 
           await i.update({
@@ -140,13 +141,14 @@ module.exports = {
           }
 
           if (ticketData) {
-            ticketData.Channel = channel;
-            ticketData.save();
+            await ticketSchema.update({
+              where: { id: ticketData.id },
+              data: { Channel: channel },
+            });
           } else {
-            new ticketSchema({
-              Guild: guild.id,
-              Channel: channel,
-            }).save();
+            await ticketSchema.create({
+              data: { Guild: guild.id, Channel: channel },
+            });
           }
 
           await i.update({
@@ -200,13 +202,14 @@ module.exports = {
           }
 
           if (ticketData) {
-            ticketData.Role = role;
-            ticketData.save();
+            await ticketSchema.update({
+              where: { id: ticketData.id },
+              data: { Role: role },
+            });
           } else {
-            new ticketSchema({
-              Guild: guild.id,
-              Role: role,
-            }).save();
+            await ticketSchema.create({
+              data: { Guild: guild.id, Role: role },
+            });
           }
 
           await i.update({

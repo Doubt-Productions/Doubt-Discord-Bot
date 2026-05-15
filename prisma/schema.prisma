@@ -1,0 +1,116 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model EcoSchema {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  Guild  String?
+  User   String?
+  Bank   Float?
+  Wallet Float?
+
+  @@map("ecoschemas")
+}
+
+model Users {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  user   String?
+  badges String[]
+
+  @@map("users")
+}
+
+model Badge {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  badgeId   String?  @map("id")
+  name      String?
+  emoji     String?
+  animated  Boolean?
+  emojiId   String?
+  createdAt String?
+
+  @@map("badges")
+}
+
+model Afk {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  User     String?
+  Guild    String?
+  Message  String?
+  Nickname String?
+
+  @@map("afks")
+}
+
+model Xp {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId String
+  userId  String
+  xp      Float  @default(0)
+  level   Float  @default(1)
+
+  @@map("xps")
+}
+
+model Welcome {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  Guild      String?
+  Channel    String?
+  Message    String?
+  Rules      String?
+  MemberRole String?
+  BotRole    String?
+
+  @@map("welcomes")
+}
+
+model Ticket {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  Guild    String?
+  Channel  String?
+  Category String?
+  Ticket   String?
+  Role     String?
+
+  @@map("tickets")
+}
+
+model GuildSchema {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  guild  String?
+  prefix String?
+
+  @@map("guildschemas")
+}
+
+model Chatbot {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  Guild   String?
+  Channel String?
+
+  @@map("chatbots")
+}
+
+type JTCChannel {
+  ChannelID        String
+  OwnerID          String
+  MessageID        String
+  isLocked         Boolean @default(false)
+  participantCount Int?
+  isInvisible      Boolean @default(false)
+}
+
+model JTCSetup {
+  id       String       @id @default(auto()) @map("_id") @db.ObjectId
+  GuildID  String
+  Category String
+  Channel  String
+  Channels JTCChannel[]
+
+  @@map("jtcsetups")
+}

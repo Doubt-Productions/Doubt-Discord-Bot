@@ -21,7 +21,7 @@ module.exports = {
 
     if (config.handler?.mongodb?.toggle) {
       try {
-        const guildData = await GuildSchema.findOne({ guild: message.guildId });
+        const guildData = await GuildSchema.findFirst({ where: { guild: message.guildId } });
 
         if (guildData && guildData?.prefix) prefix = guildData.prefix;
       } catch {
