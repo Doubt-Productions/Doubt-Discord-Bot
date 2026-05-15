@@ -8,7 +8,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 ### Prerequisites
 
-- **MongoDB**: Must be running on `localhost:27017`. In Cloud Agent environments, start via Docker:
+- **MongoDB**: Must be running and reachable by the URI selected in `src/config.js`. For local development, set `DEV_MONGODB_URI=mongodb://127.0.0.1:27017/doubt`. In Cloud Agent environments, start MongoDB via Docker:
   ```
   sudo dockerd &>/tmp/dockerd.log &
   sleep 3
