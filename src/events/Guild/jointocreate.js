@@ -24,7 +24,7 @@ module.exports = {
     const newChannel = newState.channel;
     const oldChannel = oldState.channel;
 
-    const data = await schema.findOne({ Guild: guild.id });
+    const data = await schema.findFirst({ where: { GuildID: guild.id } });
     if (!data) return;
 
     if (data) {
@@ -81,7 +81,7 @@ module.exports = {
         oldChannel.id === jointocreate &&
         (!newChannel || newChannel.id !== jointocreate)
       ) {
-        if (member.length > 0) {
+        if (members && members.length > 0) {
           let RandomID = members[Math.floor(Math.random() * members.length)];
           let randomMember = guild.members.cache.get(RandomID);
           randomMember.voice.setChannel(oldChannel).then((v) => {

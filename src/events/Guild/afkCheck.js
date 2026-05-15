@@ -2,7 +2,7 @@ const afkSchema = require("../../schemas/afkSchema");
 const config = require("../../config");
 const { log } = require("../../functions");
 const ExtendedClient = require("../../class/ExtendedClient");
-const { Message } = require("discord.js");
+const { Message, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   event: "messageCreate",
@@ -15,17 +15,15 @@ module.exports = {
   run: async (client, message) => {
     if (message.author.bot) return;
 
-    const check = await afkSchema.findOne({
-      Guild: message.guildId,
-      User: message.author.id,
+    const check = await afkSchema.findFirst({
+      where: { Guild: message.guildId, User: message.author.id },
     });
 
     if (check) {
       const nick = check.Nickname;
 
       await afkSchema.deleteMany({
-        Guild: message.guildId,
-        User: message.author.id,
+        where: { Guild: message.guildId, User: message.author.id },
       });
 
       await message.member.setNickname(`${nick}`).catch((err) => {
@@ -42,9 +40,8 @@ module.exports = {
       const members = message.mentions.members.first();
       if (!members) return;
 
-      const Data = await afkSchema.findOne({
-        Guild: message.guildId,
-        User: members.id,
+      const Data = await afkSchema.findFirst({
+        where: { Guild: message.guildId, User: members.id },
       });
 
       if (!Data) return;

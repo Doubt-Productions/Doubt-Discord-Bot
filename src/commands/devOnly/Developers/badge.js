@@ -117,10 +117,10 @@ module.exports = {
       emoji = interaction.options.getString("emoji")?.split(/ +/g)[0],
       user = interaction.options.getUser("user-id"),
       userData = user
-        ? (await users.findOne({ user: user?.id })) ||
-          (await users.create({ user: user?.id }))
+        ? (await users.findFirst({ where: { user: user?.id } })) ||
+          (await users.create({ data: { user: user?.id } }))
         : null,
-      badge = await badges.findOne({ id });
+      badge = await badges.findFirst({ where: { badgeId: id } });
 
     if (option === "create") {
       let animated = false;
@@ -132,12 +132,14 @@ module.exports = {
       const emojiId = /\d+/.exec(emoji) + "";
 
       badge = await badges.create({
-        id: randomId(8),
-        name,
-        emoji,
-        animated,
-        emojiId,
-        createdAt: Date.now(),
+        data: {
+          badgeId: randomId(8),
+          name,
+          emoji,
+          animated,
+          emojiId,
+          createdAt: Date.now(),
+        },
       });
 
       interaction.editReply({
@@ -147,7 +149,7 @@ module.exports = {
             fields: [
               {
                 name: "Badge ID",
-                value: badge.id,
+                value: badge.badgeId,
                 inline: true,
               },
               {
@@ -196,15 +198,14 @@ module.exports = {
           ],
         });
 
-      badge = await badges.findOneAndUpdate(
-        { id },
-        {
+      badge = await badges.update({
+        where: { id: badge.id },
+        data: {
           name,
           emoji,
           createdAt: Date.now(),
         },
-        { new: true }
-      );
+      });
 
       interaction.editReply({
         embeds: [
@@ -213,7 +214,7 @@ module.exports = {
             fields: [
               {
                 name: "Badge ID",
-                value: badge.id,
+                value: badge.badgeId,
                 inline: true,
               },
               {
@@ -250,7 +251,7 @@ module.exports = {
           ],
         });
 
-      await badges.findOneAndDelete({ id });
+      await badges.delete({ where: { id: badge.id } });
 
       interaction.editReply({
         embeds: [
@@ -280,7 +281,7 @@ module.exports = {
           ],
         });
 
-      if (userData?.badges?.includes(badge.id))
+      if (userData?.badges?.includes(badge.badgeId))
         return interaction.editReply({
           embeds: [
             {
@@ -290,10 +291,10 @@ module.exports = {
           ],
         });
 
-      await users.findOneAndUpdate(
-        { user: user.id },
-        { $push: { badges: badge.id } }
-      );
+      await users.update({
+        where: { id: userData.id },
+        data: { badges: [...userData.badges, badge.badgeId] },
+      });
 
       interaction.editReply({
         embeds: [
@@ -324,7 +325,7 @@ module.exports = {
           ],
         });
 
-      if (!userData?.badges?.includes(badge.id))
+      if (!userData?.badges?.includes(badge.badgeId))
         return interaction.editReply({
           embeds: [
             {
@@ -334,10 +335,10 @@ module.exports = {
           ],
         });
 
-      await users.findOneAndDelete(
-        { user: user.id },
-        { $pull: { badges: badge.id } }
-      );
+      await users.update({
+        where: { id: userData.id },
+        data: { badges: userData.badges.filter(b => b !== badge.badgeId) },
+      });
 
       interaction.editReply({
         embeds: [
@@ -348,7 +349,7 @@ module.exports = {
         ],
       });
     } else if (option === "list") {
-      const badg = await badges.find();
+      const badg = await badges.findMany();
 
       if (badg.length === 0)
         return interaction.editReply({
@@ -367,7 +368,7 @@ module.exports = {
 
         str += `${
           client.emojis.cache.get(bg?.emoji)?.toString() || bg?.emoji
-        } **${bg?.name}** | \`${bg?.id}\` | Created At: <t:${Math.floor(
+        } **${bg?.name}** | \`${bg?.badgeId}\` | Created At: <t:${Math.floor(
           bg.createdAt / 1000
         )}>\n`;
       }

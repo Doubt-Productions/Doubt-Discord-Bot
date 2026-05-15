@@ -70,7 +70,7 @@ module.exports = {
         const guildId = member.guild.id;
         const userId = member.user.id;
 
-        user = await xp.findOne({ guildId, userId });
+        user = await xp.findFirst({ where: { guildId, userId } });
 
         if (!user) {
           user = {
@@ -103,20 +103,17 @@ module.exports = {
         const guildId2 = member2.guild.id;
         const userId2 = member2.user.id;
 
-        user2 = await xp.findOne({ guildId: guildId2, userId: userId2 });
+        user2 = await xp.findFirst({ where: { guildId: guildId2, userId: userId2 } });
 
         try {
-          await xp
-            .findOneAndUpdate(
-              { guildId: guildId2, userId: userId2 },
-              { level: 1, xp: 0 },
-              { upsert: true, new: true }
-            )
-            .then(() =>
-              interaction.reply({
-                content: `Successfully reset ${member2.displayName}'s rank`,
-              })
-            );
+          if (user2) {
+            await xp.update({ where: { id: user2.id }, data: { level: 1, xp: 0 } });
+          } else {
+            await xp.create({ data: { guildId: guildId2, userId: userId2, level: 1, xp: 0 } });
+          }
+          interaction.reply({
+            content: `Successfully reset ${member2.displayName}'s rank`,
+          });
         } catch (error) {
           log(`${__filename}`, `An error has occurred: ${error}`, "err");
         }
@@ -131,20 +128,17 @@ module.exports = {
         const guildId3 = member3.guild.id;
         const userId3 = member3.user.id;
 
-        user3 = await xp.findOne({ guildId: guildId3, userId: userId3 });
+        user3 = await xp.findFirst({ where: { guildId: guildId3, userId: userId3 } });
 
         try {
-          await xp
-            .findOneAndUpdate(
-              { guildId: guildId3, userId: userId3 },
-              { level: level, xp: 0 },
-              { upsert: true, new: true }
-            )
-            .then(() =>
-              interaction.reply({
-                content: `Successfully set ${member3.displayName}'s rank to ${level}`,
-              })
-            );
+          if (user3) {
+            await xp.update({ where: { id: user3.id }, data: { level: level, xp: 0 } });
+          } else {
+            await xp.create({ data: { guildId: guildId3, userId: userId3, level: level, xp: 0 } });
+          }
+          interaction.reply({
+            content: `Successfully set ${member3.displayName}'s rank to ${level}`,
+          });
         } catch (error) {
           log(`${__filename}`, `An error has occurred: ${error}`, "err");
         }

@@ -20,7 +20,7 @@ module.exports = {
   run: async (client, interaction) => {
     const reason = interaction.fields.getTextInputValue("reason");
 
-    const data = await ticketSchema.findOne({ Guild: interaction.guild.id });
+    const data = await ticketSchema.findFirst({ where: { Guild: interaction.guild.id } });
 
     const posChannel = await interaction.guild.channels.cache.find(
       (c) => c.name === `ticket-${interaction.user.displayName}`
