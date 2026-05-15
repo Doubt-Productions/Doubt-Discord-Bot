@@ -135,10 +135,29 @@ User-facing economy commands live in `src/commands/slash/Economy/**`:
 - `/beg`: randomly chooses a positive or negative wallet change. It saves the wallet update only if the user has an account, but still sends the result reply when no account exists.
 - `/rob user`: requires both users to have economy accounts and the robber to have at least `$100`, and it takes a per-user cooldown lock before database reads. The regression tests document the intended success/failure transfer behavior; verify `rob.js` directly before changing runtime behavior because several past bugs involved cooldown races and uncapped fines.
 
+`/rob` workflow and constraints:
+
+1. The command checks an in-memory per-user cooldown before reading from MongoDB.
+2. It immediately records the robber's user ID in `timeout` before the first `await`; this is the command's only guard against concurrent calls from the same user.
+3. It rejects self-robs, missing robber or target accounts, robber wallets below `$100`, and target wallets below `$100`.
+4. It rolls a 1-100 chance. Values up to `50` are successful robberies.
+5. The transfer or fine amount is rolled from `1..TargetData.Wallet`.
+6. On success, the robber gains the amount and the target loses it.
+7. On failure, the robber pays the target `Math.min(amount, Data.Wallet)` so a fine cannot make the robber wallet negative.
+8. After a saved success or failure, the cooldown is released after 60 seconds. Early validation failures and thrown errors release it immediately.
+
+Maintenance pitfalls for `/rob`:
+
+- Keep `try`/`catch` around all awaited work after the cooldown lock, or unexpected errors can leave the user stuck on cooldown.
+- Do not move `timeout.push(user.id)` below an `await`; that reintroduces the race covered by `tests/rob-cooldown-race.test.js`.
+- Because `EcoSchema` has no minimum-value validation, command code must prevent negative balances before calling `save()`.
+- Run `node --check src/commands/slash/Economy/rob.js` or `npm test` after editing this module; a previous bad merge left invalid JavaScript that broke command loading during startup.
+
 Regression tests in `tests/` document important economy invariants:
 
 - `tests/economy-amount-all.test.js`: `all` must match case-insensitively for deposit and withdraw.
 - `tests/economy-account-delete.test.js`: account deletion must delete by user and guild and must not rely on `deleteMany()` on a document.
+- `tests/rob-syntax.test.js`: `/rob` must parse as valid JavaScript before the command loader requires it.
 - `tests/rob-cooldown-race.test.js`: `/rob` must take its per-user cooldown lock before any `await` to avoid overlapping balance saves.
 - `tests/rob-caught-penalty.test.js`, `tests/rob-failure-penalty.test.js`, and `tests/rob-fine-cap.test.js`: a failed robbery fine must not exceed the robber's current wallet.
 
