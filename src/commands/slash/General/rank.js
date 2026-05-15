@@ -8,6 +8,7 @@ const { Rank } = require("canvacord");
 
 const xp = require("../../../schemas/XpSchema");
 const { log } = require("../../../functions");
+const rankCardPresenceStatus = require("../../../utils/rankCardPresenceStatus");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -62,9 +63,14 @@ module.exports = {
     const sub = interaction.options.getSubcommand();
 
     switch (sub) {
-      case "info":
-        const member =
-          interaction.options.getMember("user") || interaction.member;
+      case "info": {
+        const member = interaction.options.getMember("user");
+        if (!member) {
+          return await interaction.reply({
+            content: "That user is not a member of this server.",
+            ephemeral: true,
+          });
+        }
         let user;
 
         const guildId = member.guild.id;
@@ -84,7 +90,7 @@ module.exports = {
           .setCurrentXP(user.xp)
           .setLevel(user.level)
           .setRank(0, 0, false)
-          .setStatus(member.presence.status)
+          .setStatus(rankCardPresenceStatus(member))
           .setProgressBar("#ffffff", "COLOR")
           .setUsername(member.user.displayName);
 
@@ -94,9 +100,15 @@ module.exports = {
           });
         });
         break;
-      case "reset":
-        const member2 =
-          interaction.options.getMember("user") || interaction.member;
+      }
+      case "reset": {
+        const member2 = interaction.options.getMember("user");
+        if (!member2) {
+          return await interaction.reply({
+            content: "That user is not a member of this server.",
+            ephemeral: true,
+          });
+        }
 
         let user2;
 
@@ -118,9 +130,15 @@ module.exports = {
           log(`${__filename}`, `An error has occurred: ${error}`, "err");
         }
         break;
-      case "set":
-        const member3 =
-          interaction.options.getMember("user") || interaction.member;
+      }
+      case "set": {
+        const member3 = interaction.options.getMember("user");
+        if (!member3) {
+          return await interaction.reply({
+            content: "That user is not a member of this server.",
+            ephemeral: true,
+          });
+        }
         const level = interaction.options.getInteger("level");
 
         let user3;
@@ -143,6 +161,7 @@ module.exports = {
           log(`${__filename}`, `An error has occurred: ${error}`, "err");
         }
         break;
+      }
 
       default:
         break;
