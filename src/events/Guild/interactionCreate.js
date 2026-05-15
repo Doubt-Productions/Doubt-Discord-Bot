@@ -130,7 +130,7 @@ module.exports = {
         }
       }
 
-      command.run(client, interaction);
+      await command.run(client, interaction);
     } catch (error) {
       log(error, "err");
     }
