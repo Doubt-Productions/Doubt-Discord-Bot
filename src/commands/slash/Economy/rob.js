@@ -79,14 +79,16 @@ module.exports = {
         });
       }
 
-    const chance = Math.floor(Math.random() * 100) + 1;
-    const stolenAmount = Math.floor(Math.random() * TargetData.Wallet) + 1;
+      if (TargetData.Wallet < 100) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `The target needs atleast $100 to rob them!`,
+          ephemeral: true,
+        });
+      }
 
-    if (chance <= 50) {
-      Data.Wallet += stolenAmount;
-      TargetData.Wallet -= stolenAmount;
-      await Data.save();
-      await TargetData.save();
+      const chance = Math.floor(Math.random() * 100) + 1;
+      const amount = Math.floor(Math.random() * TargetData.Wallet) + 1;
 
       if (chance <= 50) {
         Data.Wallet += amount;
@@ -94,31 +96,33 @@ module.exports = {
         await Data.save();
         await TargetData.save();
 
-      return await interaction.reply({
-        content: `You robbed $${stolenAmount} from ${target.username}!`,
-        ephemeral: true,
-      });
-    } else {
-      const penalty = Math.min(amount, Data.Wallet);
-      Data.Wallet -= penalty;
-      TargetData.Wallet += penalty;
-      await Data.save();
-      await TargetData.save();
+        setTimeout(() => {
+          timeout = timeout.filter((id) => id !== user.id);
+        }, 60000);
 
         return await interaction.reply({
           content: `You robbed $${amount} from ${target.username}!`,
           ephemeral: true,
         });
       } else {
-        Data.Wallet -= amount;
-        TargetData.Wallet += amount;
+        const penalty = Math.min(amount, Data.Wallet);
+        Data.Wallet -= penalty;
+        TargetData.Wallet += penalty;
         await Data.save();
         await TargetData.save();
 
-      return await interaction.reply({
-        content: `You got caught and paid ${target.username} $${penalty}!`,
-        ephemeral: true,
-      });
+        setTimeout(() => {
+          timeout = timeout.filter((id) => id !== user.id);
+        }, 60000);
+
+        return await interaction.reply({
+          content: `You got caught and paid ${target.username} $${penalty}!`,
+          ephemeral: true,
+        });
+      }
+    } catch (err) {
+      releaseCooldown();
+      throw err;
     }
   },
 };
