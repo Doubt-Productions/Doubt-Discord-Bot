@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getLocalContextMenus = require("../../utils/getLocalContextMenus");
 
@@ -14,7 +15,15 @@ module.exports = async (client, interaction) => {
     if (!menuObject) return;
 
     if (menuObject.devOnly) {
-      if (!config.moderation.developers.includes(interaction.member.id)) {
+      const developerIds = normalizeIdAllowlist(config.moderation?.developers);
+      if (developerIds.length === 0) {
+        const rEmbed = new EmbedBuilder()
+          .setColor(`${mConfig.embedColorError}`)
+          .setDescription(`${mConfig.commandDevOnly}`);
+        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        return;
+      }
+      if (!developerIds.includes(interaction.member.id)) {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);
@@ -62,8 +71,8 @@ module.exports = async (client, interaction) => {
 
     await menuObject.run(client, interaction);
   } catch (err) {
-    console.log(
-      `An error occurred while validating context menu's! ${err}`.red
+    console.error(
+      `An error occurred while validating context menu commands! ${err}`
     );
   }
 };

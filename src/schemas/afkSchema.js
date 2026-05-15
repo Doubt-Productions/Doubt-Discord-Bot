@@ -1,11 +1,3 @@
-const { model, Schema } = require("mongoose");
+const { prisma } = require("../handlers/prisma");
 
-module.exports = model(
-  "afkS",
-  new Schema({
-    User: String,
-    Guild: String,
-    Message: String,
-    Nickname: String,
-  })
-);
+module.exports = prisma.afk;

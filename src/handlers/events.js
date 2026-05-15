@@ -31,11 +31,7 @@ module.exports = (client) => {
         client.on(folderName, async (...args) => {
           await eventModule(client, ...args);
         });
-      } else if (
-        eventModule &&
-        typeof eventModule.run === "function" &&
-        eventModule.event
-      ) {
+      } else if (eventModule && typeof eventModule.run === "function" && eventModule.event) {
         table.addRow(eventModule.event, "Loaded");
         client.on(eventModule.event, async (...args) => {
           await eventModule.run(client, ...args);

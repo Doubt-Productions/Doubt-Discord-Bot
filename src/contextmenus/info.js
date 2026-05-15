@@ -29,14 +29,14 @@ module.exports = {
     }
 
     const u =
-      (await userConfig.findOne({ user: user.id })) ||
-      (await userConfig.create({ user: user.id }));
+      (await userConfig.findFirst({ where: { user: user.id } })) ||
+      (await userConfig.create({ data: { user: user.id } }));
 
     let badges = [];
     let badgeURLs = [];
 
     for (let i = 0; i < u.badges.length; i++) {
-      const bg = await badge.findOne({ id: u.badges[i] });
+      const bg = await badge.findFirst({ where: { badgeId: u.badges[i] } });
 
       if (!bg) continue;
 

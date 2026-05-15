@@ -30,6 +30,43 @@ module.exports = {
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
-   * @param {[]} args
-   */ run: async (client, interaction, args) => {},
+   */
+  run: async (client, interaction) => {
+    const target = interaction.options.getMember("user");
+    const duration = interaction.options.getString("duration");
+    const reason = interaction.options.getString("reason") || "No reason provided.";
+
+    const msDuration = ms(duration);
+    if (!msDuration || msDuration < 5000 || msDuration > 2419200000) {
+      return await interaction.reply({
+        content: "Please provide a valid duration between 5 seconds and 28 days.",
+        ephemeral: true,
+      });
+    }
+
+    if (!target) {
+      return await interaction.reply({
+        content: "The specified user is not in this server.",
+        ephemeral: true,
+      });
+    }
+
+    if (!target.moderatable) {
+      return await interaction.reply({
+        content: "I cannot timeout this user. They may have higher permissions than me.",
+        ephemeral: true,
+      });
+    }
+
+    await target.timeout(msDuration, reason);
+
+    const embed = new EmbedBuilder()
+      .setTitle("User Timed Out")
+      .setDescription(`${target} has been timed out for ${duration}.`)
+      .addFields({ name: "Reason", value: reason })
+      .setColor("Orange")
+      .setTimestamp();
+
+    await interaction.reply({ embeds: [embed] });
+  },
 };

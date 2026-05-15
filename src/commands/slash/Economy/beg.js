@@ -18,14 +18,14 @@ module.exports = {
   run: async (client, interaction) => {
     const { user, guild } = interaction;
 
-    let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
+    let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
 
     let negative = Math.round(Math.random() * -300 - 10);
     let positive = Math.round(Math.random() * 300 + 10);
 
     const posN = [negative, positive];
 
-    const amount = Math.round(Math.random() * posN.length);
+    const amount = Math.floor(Math.random() * posN.length);
     const value = posN[amount];
 
     if (!value)
@@ -36,7 +36,7 @@ module.exports = {
 
     if (Data) {
       Data.Wallet += value;
-      await Data.save();
+      await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
     }
 
     if (value > 0) {
@@ -48,7 +48,7 @@ module.exports = {
         "You won the lottery and got",
       ];
 
-      const posName = Math.round(Math.random() * positiveChoices.length);
+      const posName = Math.floor(Math.random() * positiveChoices.length);
 
       const embed1 = new EmbedBuilder()
         .setColor("Blurple")
@@ -71,7 +71,7 @@ module.exports = {
         "You got mugged and lost",
       ];
 
-      const negName = Math.round(Math.random() * negativeChoices.length - 1);
+      const negName = Math.floor(Math.random() * negativeChoices.length);
 
       const stringV = `${value}`;
 

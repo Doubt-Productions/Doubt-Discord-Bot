@@ -28,11 +28,11 @@ module.exports = {
 
         switch (type) {
             case 'set': {
-                let data = await GuildSchema.findOne({ guild: message.guildId });
+                let data = await GuildSchema.findFirst({ where: { guild: message.guildId } });
 
                 if (!data) {
-                    data = new GuildSchema({
-                        guild: message.guildId
+                    data = await GuildSchema.create({
+                        data: { guild: message.guildId }
                     });
                 }
 
@@ -46,9 +46,10 @@ module.exports = {
                     return;
                 }
 
-                data.prefix = args[1];
-
-                await data.save();
+                await GuildSchema.update({
+                    where: { id: data.id },
+                    data: { prefix: args[1] }
+                });
 
                 await message.reply({
                     content: `The old prefix \`${oldPrefix}\` has been changed to \`${args[1]}\`.`
@@ -58,10 +59,10 @@ module.exports = {
             }
 
             case 'reset': {
-                let data = await GuildSchema.findOne({ guild: message.guildId });
+                let data = await GuildSchema.findFirst({ where: { guild: message.guildId } });
 
                 if (data) {
-                    await GuildSchema.deleteOne({ guild: message.guildId });
+                    await GuildSchema.deleteMany({ where: { guild: message.guildId } });
                 }
 
                 await message.reply({

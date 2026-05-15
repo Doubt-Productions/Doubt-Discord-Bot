@@ -1,10 +1,3 @@
-const { Schema, model } = require("mongoose");
+const { prisma } = require("../handlers/prisma");
 
-const XpSchema = new Schema({
-  guildId: { type: String, required: true },
-  userId: { type: String, required: true },
-  xp: { type: Number, default: 0 },
-  level: { type: Number, default: 1 },
-});
-
-module.exports = model("Xp", XpSchema);
+module.exports = prisma.xp;

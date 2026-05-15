@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
+const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -18,8 +19,10 @@ module.exports = async (client, interaction) => {
       commandObject.options?.developers === true;
 
     if (requiresDeveloper) {
-      const developerIds = config.moderation.developers;
-      if (!developerIds?.length) {
+      const developerIds = normalizeIdAllowlist(
+        config.moderation?.developers
+      );
+      if (developerIds.length <= 0) {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(
@@ -39,9 +42,12 @@ module.exports = async (client, interaction) => {
 
     if (commandObject.options?.staffOnly) {
       const member = interaction.member;
+      const staffRoleIds = normalizeIdAllowlist(
+        config.moderation?.staffRoles
+      );
       if (
         !member?.roles?.cache?.some((role) =>
-          config.moderation.staffRoles?.includes(role.id)
+          staffRoleIds.includes(role.id)
         )
       ) {
         await interaction.reply({
@@ -118,9 +124,9 @@ module.exports = async (client, interaction) => {
 
     await commandObject.run(client, interaction);
   } catch (err) {
-    console.log(
-      `An error occurred while validating chat input commands! ${err}`.red
+    console.error(
+      `An error occurred while validating chat input commands! ${err}`
     );
-    console.log(err);
+    console.error(err);
   }
 };

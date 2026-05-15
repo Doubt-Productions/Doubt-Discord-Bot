@@ -1,10 +1,3 @@
-const { model, Schema } = require("mongoose");
+const { prisma } = require("../handlers/prisma");
 
-let EcoSchema = new Schema({
-  Guild: String,
-  User: String,
-  Bank: Number,
-  Wallet: Number,
-});
-
-module.exports = model("EcoSchema", EcoSchema);
+module.exports = prisma.ecoSchema;

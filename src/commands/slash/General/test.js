@@ -6,7 +6,7 @@ module.exports = {
     .setName('test')
     .setDescription('A test command.')
     .toJSON(),
-  run: async (interaction) => {
+  run: async (client, interaction) => {
     await interaction.reply('This is a test command!');
   },
 };

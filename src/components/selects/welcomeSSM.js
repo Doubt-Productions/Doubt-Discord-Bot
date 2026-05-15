@@ -36,8 +36,8 @@ module.exports = {
 
     const goBackRow = new ActionRowBuilder().addComponents(goBackBtn);
 
-    const data = await welcomeSchema.findOne({
-      Guild: interaction.guildId,
+    const data = await welcomeSchema.findFirst({
+      where: { Guild: interaction.guildId },
     });
 
     switch (value) {
@@ -70,10 +70,12 @@ module.exports = {
             const channel = i.values[0];
 
             if (!data) {
-              await new welcomeSchema({
-                Guild: interaction.guildId,
-                Channel: channel,
-              }).save();
+              await welcomeSchema.create({
+                data: {
+                  Guild: interaction.guildId,
+                  Channel: channel,
+                },
+              });
 
               embed.setDescription(
                 `The welcome channel has been set to <#${channel}>! You can continue the setup by pressing \`Go back\``
@@ -84,14 +86,10 @@ module.exports = {
                 components: [goBackRow],
               });
             } else {
-              await welcomeSchema.findOneAndUpdate(
-                {
-                  Guild: interaction.guildId,
-                },
-                {
-                  Channel: channel,
-                }
-              );
+              await welcomeSchema.update({
+                where: { id: data.id },
+                data: { Channel: channel },
+              });
 
               embed.setDescription(
                 `The welcome channel has been set to <#${channel}>! You can continue the setup by pressing \`Go back\``
@@ -163,24 +161,22 @@ module.exports = {
                 );
 
                 if (!data) {
-                  await new welcomeSchema({
-                    Guild: interaction.guildId,
-                    Message: msg.content,
-                  }).save();
+                  await welcomeSchema.create({
+                    data: {
+                      Guild: interaction.guildId,
+                      Message: msg.content,
+                    },
+                  });
 
                   await i.update({
                     embeds: [embed],
                     components: [goBackRow],
                   });
                 } else {
-                  await welcomeSchema.findOneAndUpdate(
-                    {
-                      Guild: interaction.guildId,
-                    },
-                    {
-                      Message: msg.content,
-                    }
-                  );
+                  await welcomeSchema.update({
+                    where: { id: data.id },
+                    data: { Message: msg.content },
+                  });
 
                   await i.update({
                     embeds: [embed],
@@ -227,10 +223,12 @@ module.exports = {
             const rulesChannel = i.values[0];
 
             if (!data) {
-              await new welcomeSchema({
-                Guild: interaction.guildId,
-                Rules: rulesChannel,
-              }).save();
+              await welcomeSchema.create({
+                data: {
+                  Guild: interaction.guildId,
+                  Rules: rulesChannel,
+                },
+              });
 
               embed.setDescription(
                 `The rules channel has been set to <#${rulesChannel}>! You can continue the setup by pressing \`Go back\``
@@ -241,14 +239,10 @@ module.exports = {
                 components: [goBackRow],
               });
             } else {
-              await welcomeSchema.findOneAndUpdate(
-                {
-                  Guild: interaction.guildId,
-                },
-                {
-                  Rules: rulesChannel,
-                }
-              );
+              await welcomeSchema.update({
+                where: { id: data.id },
+                data: { Rules: rulesChannel },
+              });
 
               embed.setDescription(
                 `The rules channel has been set to <#${rulesChannel}>! You can continue the setup by pressing \`Go back\``
@@ -287,10 +281,12 @@ module.exports = {
             const memberRole = i.values[0];
 
             if (!data) {
-              await new welcomeSchema({
-                Guild: interaction.guildId,
-                MemberRole: memberRole,
-              }).save();
+              await welcomeSchema.create({
+                data: {
+                  Guild: interaction.guildId,
+                  MemberRole: memberRole,
+                },
+              });
 
               embed.setDescription(
                 `The member role has been set to <@&${memberRole}>! You can continue the setup by pressing \`Go back\``
@@ -301,14 +297,10 @@ module.exports = {
                 components: [goBackRow],
               });
             } else {
-              await welcomeSchema.findOneAndUpdate(
-                {
-                  Guild: interaction.guildId,
-                },
-                {
-                  MemberRole: memberRole,
-                }
-              );
+              await welcomeSchema.update({
+                where: { id: data.id },
+                data: { MemberRole: memberRole },
+              });
 
               embed.setDescription(
                 `The member role has been set to <@&${memberRole}>! You can continue the setup by pressing \`Go back\``
@@ -347,10 +339,12 @@ module.exports = {
             const botRole = i.values[0];
 
             if (!data) {
-              await new welcomeSchema({
-                Guild: interaction.guildId,
-                BotRole: botRole,
-              }).save();
+              await welcomeSchema.create({
+                data: {
+                  Guild: interaction.guildId,
+                  BotRole: botRole,
+                },
+              });
 
               embed.setDescription(
                 `The member role has been set to <@&${botRole}>! You can continue the setup by pressing \`Go back\``
@@ -361,14 +355,10 @@ module.exports = {
                 components: [goBackRow],
               });
             } else {
-              await welcomeSchema.findOneAndUpdate(
-                {
-                  Guild: interaction.guildId,
-                },
-                {
-                  BotRole: botRole,
-                }
-              );
+              await welcomeSchema.update({
+                where: { id: data.id },
+                data: { BotRole: botRole },
+              });
 
               embed.setDescription(
                 `The member role has been set to <@&${botRole}>! You can continue the setup by pressing \`Go back\``

@@ -9,7 +9,7 @@ const config = require("../config");
 const commands = require("../handlers/commands");
 const events = require("../handlers/events");
 const deploy = require("../handlers/deploy");
-const mongoose = require("../handlers/mongoose");
+const { connectPrisma } = require("../handlers/prisma");
 const components = require("../handlers/components");
 const pjson = require("../../package.json");
 const { log, topgg } = require("../functions");
@@ -56,7 +56,7 @@ module.exports = class extends Client {
     events(this);
     components(this);
     if (config.handler.mongodb.toggle)
-      mongoose().catch((err) => log(err, "err"));
+      connectPrisma().catch((err) => log(err, "err"));
     
     await this.login(config.client.token);
     

@@ -25,7 +25,7 @@ module.exports = {
     const { user, guild, options } = interaction;
 
     const amount = options.getString("amount");
-    let Data = await ecoSchema.findOne({ User: user.id, Guild: guild.id });
+    let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
     if (amount.startsWith("-"))
       return await interaction.reply({
         content: "You can't withdraw negative money!",
@@ -47,7 +47,7 @@ module.exports = {
 
       Data.Bank += Data.Wallet;
       Data.Wallet = 0;
-      await Data.save();
+      await ecoSchema.update({ where: { id: Data.id }, data: { Bank: Data.Bank, Wallet: Data.Wallet } });
 
       return await interaction.reply({
         content: `You deposited all your money!`,
@@ -71,7 +71,7 @@ module.exports = {
       Data.Bank += parseInt(Converted);
       Data.Wallet -= parseInt(Converted);
       Data.Wallet = Math.abs(Data.Wallet);
-      await Data.save();
+      await ecoSchema.update({ where: { id: Data.id }, data: { Bank: Data.Bank, Wallet: Data.Wallet } });
 
       const embed = new EmbedBuilder()
         .setColor("Blurple")
