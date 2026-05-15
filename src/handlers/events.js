@@ -23,20 +23,28 @@ module.exports = (client) => {
       continue;
     }
 
+    const functionHandlers = [];
+
     for (const eventFile of eventFiles) {
       const eventModule = require(eventFile);
 
       if (typeof eventModule === "function") {
-        table.addRow(folderName, "Loaded");
-        client.on(folderName, async (...args) => {
-          await eventModule(client, ...args);
-        });
+        functionHandlers.push(eventModule);
       } else if (eventModule && typeof eventModule.run === "function" && eventModule.event) {
         table.addRow(eventModule.event, "Loaded");
         client.on(eventModule.event, async (...args) => {
           await eventModule.run(client, ...args);
         });
       }
+    }
+
+    if (functionHandlers.length > 0) {
+      table.addRow(folderName, "Loaded");
+      client.on(folderName, async (...args) => {
+        for (const handler of functionHandlers) {
+          await handler(client, ...args);
+        }
+      });
     }
   }
 
