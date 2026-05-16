@@ -43,7 +43,7 @@ module.exports = {
 };
 ```
 
-The command is automatically loaded at startup and registered on `DEV_GUILD_ID`.
+The command is automatically loaded at startup and registered on `process.env.DEV_GUILD_ID`, the ready-time public command sync guild.
 
 ### Adding a Developer Command
 
@@ -165,6 +165,8 @@ const myModel = require("../../../schemas/myModel");
 const data = await myModel.findFirst({ where: { guildId: guild.id } });
 ```
 
+Do not add new code against `src/handlers/mongoose.js`. Runtime persistence uses the Prisma singleton in `src/handlers/prisma.js`, and schema files should re-export Prisma delegates.
+
 ## Testing
 
 ### Running Tests
@@ -205,6 +207,9 @@ test("my feature works correctly", () => {
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` modules on declared Discord event names |
+| `interaction-cooldown.test.js` | Guild backup slash-command cooldown behavior |
+| `rank-card-presence-status.test.js` | Rank card presence/status rendering fallback |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
@@ -250,6 +255,10 @@ await ecoSchema.delete({ where: { id: data.id } });
 // Delete many
 await ecoSchema.deleteMany({ where: { User: userId, Guild: guildId } });
 ```
+
+### Gateway Intents
+
+`src/class/ExtendedClient.js` currently passes Discord gateway intents as the numeric bitfield `53575423`. When a feature needs different gateway events, decode or replace that mask deliberately and keep the Discord Developer Portal privileged intent settings in sync. Features that read message content, member data, or presence data require both code-level intents and portal-level enablement.
 
 ### Error Handling
 

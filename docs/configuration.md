@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production; see toggle caveat below for development | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not `"true"` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not `"true"` |
+| `DEV_GUILD_ID` | Guild ID where ready-time slash commands and context menus are synced | Always |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | When `config.handler.mongodb.uri` selects the development URI |
 
 ### Production Variables
 
@@ -34,18 +34,16 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The token, client ID, and `handler.guildId` selectors in `src/example.config.js` compare `process.env.PRODUCTION === "true"`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION unset/false  ->  DEV_TOKEN, DEV_CLIENT_ID, handler.guildId=DEV_GUILD_ID
+PRODUCTION=true   ->  CLIENT_TOKEN, CLIENT_ID, handler.guildId=GUILD_ID
 ```
 
-The guild ID for command registration:
-```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
-```
+Ready-time slash command and context menu registration always read `process.env.DEV_GUILD_ID` directly in `src/events/ready/registerCommands.js` and `src/events/ready/registerContextMenus.js`. In production, set `DEV_GUILD_ID` to the guild where those application commands should sync, even if the name is development-oriented.
+
+The MongoDB URI and `variables.dbName` selectors in `src/example.config.js` use `process.env.PRODUCTION` truthiness. Because environment values are strings, `PRODUCTION=false` still selects `MONGODB_URI` in an unmodified local `src/config.js`. Before starting the bot, verify `handler.mongodb.uri` resolves to the URI you intend; for local development, either leave `PRODUCTION` unset/empty or adjust your ignored `src/config.js` to compare against `"true"`.
 
 ---
 

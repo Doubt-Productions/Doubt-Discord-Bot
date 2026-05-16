@@ -105,6 +105,10 @@ These handle non-interaction events:
 
 The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
 
+### Interaction Listener Order
+
+`src/handlers/events.js` registers the `validations/` listener before the `{ event: "interactionCreate", run }` modules in `src/events/Guild/`. For chat-input commands, the validator path loads the local command and calls `run()` directly. If that path replies or defers, the Guild backup router returns early and does not apply its separate `options.cooldown` map. For buttons, selects, modals, and context menus, the same replied/deferred guard prevents backup component routing from running after a validator has handled the interaction.
+
 ## Component System
 
 ### Component Loading (`src/handlers/components.js`)
@@ -126,14 +130,16 @@ Components are routed by `customId` matching. Some components are handled by the
 
 ## Context Menus
 
-Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type` (2 for User, 3 for Message). Registered at ready time via `src/events/ready/registerContextMenus.js` on `DEV_GUILD_ID`.
+Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type` (2 for User, 3 for Message). Registered at ready time via `src/events/ready/registerContextMenus.js` on `process.env.DEV_GUILD_ID`.
 
 ## Command Deployment
 
 Two deployment paths exist:
 
-1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
+1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `process.env.DEV_GUILD_ID`
 2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+
+Because slash/context registration reads `process.env.DEV_GUILD_ID` directly, production operators still need that variable set to the guild where public application commands should sync. Developer commands use `config.handler.guildId`, which selects `GUILD_ID` only when `PRODUCTION === "true"` in the copied config file.
 
 ## Database Layer
 

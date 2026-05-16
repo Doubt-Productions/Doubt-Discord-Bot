@@ -4,7 +4,7 @@ Complete reference for all bot commands organized by type and category.
 
 ## Slash Commands
 
-Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
+Slash commands are registered per-guild on `process.env.DEV_GUILD_ID` at startup. This variable is used in every environment for ready-time public command sync, so set it to the guild where these commands should be created or updated.
 
 ### Economy
 
