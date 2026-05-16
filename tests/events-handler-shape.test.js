@@ -18,6 +18,11 @@ test("events handler uses per-module registration and .run for object exports", 
   );
 
   assert.ok(
+    src.includes("aName === \"validations\"") &&
+      src.includes("bName === \"validations\""),
+    "expected validations folder to load first so interaction validators run before Guild/interactionCreate (avoids double command.run)"
+  );
+  assert.ok(
     src.includes("typeof eventModule.run === \"function\"") &&
       src.includes("eventModule.event"),
     "expected object-module branch with eventModule.run and eventModule.event"
