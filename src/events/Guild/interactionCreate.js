@@ -133,8 +133,6 @@ module.exports = {
           cooldownFunction();
         }
       }
-
-      await command.run(client, interaction);
     } catch (error) {
       log(error, "err");
     }

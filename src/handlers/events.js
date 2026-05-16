@@ -15,6 +15,10 @@ module.exports = (client) => {
     if (folderName === "validations") {
       table.addRow("interactionCreate (validators)", "Loaded");
       client.on("interactionCreate", async (...args) => {
+        const [interaction] = args;
+        if (interaction?.replied || interaction?.deferred) {
+          return;
+        }
         for (const eventFile of eventFiles) {
           const eventFunction = require(eventFile);
           await eventFunction(client, ...args);
