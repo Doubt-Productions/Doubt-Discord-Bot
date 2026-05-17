@@ -22,13 +22,13 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). This repository does not define an npm `postinstall` hook, so generate the Prisma client explicitly after installing dependencies:
 
 ```bash
 npx prisma generate
 ```
+
+Run `npx prisma generate` again whenever `prisma/schema.prisma` changes. The Prisma CLI reads `DATABASE_URL` from `.env`, while the running bot reads its MongoDB URI from `src/config.js`, so keep both values pointed at the same development database.
 
 ## Step 3: Configure Environment Variables
 
