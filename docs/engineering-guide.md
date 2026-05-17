@@ -161,19 +161,20 @@ Troubleshooting command registration:
 
 ## GitHub Release Automation
 
-`.github/workflows/release.yml` publishes GitHub Releases from `main` when `package.json` changes the top-level `version` field.
+`.github/workflows/release.yml` publishes GitHub Releases from pushes to `main` when the tag for the current `package.json` version does not already exist.
 
 Release workflow behavior:
 
 1. A push to `main` starts the `Release` workflow.
 2. The workflow reads `package.json` with Node and derives the release tag as `v<version>`, for example `v1.2.1`.
-3. It checks only the latest pushed commit range, `HEAD~1..HEAD`, for a `package.json` line containing `"version"`.
-4. If the version changed, it fetches tags and skips the release when the derived tag already exists.
+3. Because checkout uses `fetch-depth: 0`, tags are available locally before the workflow checks whether the derived tag already exists.
+4. If the tag already exists, the workflow skips setup, dependency installation, tests, changelog generation, and release creation.
 5. If the tag is new, it sets up Node.js `22`, installs dependencies with `npm ci || npm install`, runs `npm test`, generates a changelog from commits since the most recent version-sorted tag, and creates a non-draft, non-prerelease GitHub Release with `softprops/action-gh-release`.
 
 Release operator notes:
 
 - Bump `package.json` in the commit that lands on `main` when you want a release. The workflow does not create or commit version bumps.
+- A push to `main` with the same `package.json` version as an existing `v<version>` tag is safe; it exits before installing dependencies or running tests.
 - The workflow creates a Git tag through the GitHub Release action; do not pre-create the same `v<version>` tag unless you intend the workflow to skip release creation.
 - The workflow publishes a GitHub Release only. It does not publish an npm package, build Docker images, deploy the bot, or update Discord commands.
 - `contents: write` permission is required so the workflow token can create the release and tag.
