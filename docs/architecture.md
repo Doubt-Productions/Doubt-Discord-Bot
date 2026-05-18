@@ -62,13 +62,15 @@ Only active when `config.handler.commands.prefix` is `true`.
 
 ### Event Registration (`src/handlers/events.js`)
 
-The event handler scans `src/events/` subdirectories:
+The event handler scans direct subdirectories under `src/events/` and supports two module shapes:
 
 | Folder | Registration Strategy |
 |--------|----------------------|
-| `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
-| `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+| `validations/` | Registered as one `interactionCreate` listener that awaits each validator file in sequence |
+| `ready/` | Function exports are grouped under the folder name, so ready files run from one `ready` listener |
+| `Guild/` | Object exports with `{ event, run }` register one listener per module using the declared Discord event name |
+
+Function exports in any non-`validations` folder are grouped by folder name. Object exports must include both `event` and a callable `run` function, and the loader invokes `eventModule.run(client, ...args)`.
 
 ### Interaction Validation Pipeline
 
@@ -103,7 +105,7 @@ These handle non-interaction events:
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators. Keep `tests/events-handler-shape.test.js` updated when changing the loader because it protects the object-module registration path.
 
 ## Component System
 

@@ -138,11 +138,14 @@ Command execution contracts:
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contracts:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` scans only direct subdirectories under `src/events`.
+- `src/events/validations/**` is special-cased into a single `interactionCreate` listener. Each validator file must export a callable function, and validators are awaited sequentially in filesystem order.
+- Function exports in other folders are grouped under one listener named after the folder. This is how `src/events/ready/**` files run on the Discord `ready` event.
+- Object exports with `event` and callable `run` fields are registered individually with `client.on(eventModule.event, ...)`. This is how `src/events/Guild/messageCreate.js`, `src/events/Guild/interactionCreate.js`, `src/events/Guild/components.js`, and other Guild handlers attach to real Discord event names.
+- Object-module handlers receive `client` as the first argument, followed by the Discord event arguments. For example, `messageCreate.js` runs as `eventModule.run(client, message)`.
+- Keep `tests/events-handler-shape.test.js` updated when changing the loader; it guards against registering the folder name `Guild` or calling object exports as bare functions.
 
 ## Command Deployment
 
