@@ -95,8 +95,8 @@ module.exports = {
           .setUsername(member.user.displayName);
 
         await rank.build({}).then((data) => {
-          interaction.reply({
-            files: [new AttachmentBuilder(data, { name: "rank.png" }).build()],
+          return interaction.reply({
+            files: [new AttachmentBuilder(data, { name: "rank.png" })],
           });
         });
         break;
