@@ -202,7 +202,10 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader registration for validation functions and `{ event, run }` object exports |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping and safe expiry behavior |
+| `rank-card-presence-status.test.js` | Rank-card presence status mapping for canvacord compatibility |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
