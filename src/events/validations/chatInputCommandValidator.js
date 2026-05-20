@@ -1,6 +1,9 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
+const {
+  enforceApplicationCommandCooldown,
+} = require("../../utils/applicationCommandCooldown");
 const mConfig = require("../../messageConfig.json");
 const getLocalCommands = require("../../utils/getLocalCommands");
 
@@ -13,6 +16,66 @@ module.exports = async (client, interaction) => {
       (cmd) => cmd.data.name === interaction.commandName
     );
     if (!commandObject) return;
+
+    if (commandObject.options?.developers) {
+      const developerIds = normalizeIdAllowlist(config.moderation?.developers);
+      const developerCount = developerIds.length;
+
+      if (developerCount <= 0) {
+        await interaction.reply({
+          content: `This is a developer only command, but unable to execute due to missing user IDs in configuration file.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      if (!developerIds.includes(interaction.user.id)) {
+        await interaction.reply({
+          content: `This is a developer only command.`,
+          ephemeral: true,
+        });
+        return;
+      }
+    }
+
+    if (commandObject.options?.staffOnly) {
+      const member = interaction.member;
+      const staffRoleIds = normalizeIdAllowlist(config.moderation?.staffRoles);
+
+      if (
+        !member?.roles?.cache?.some((role) =>
+          staffRoleIds.includes(role.id)
+        )
+      ) {
+        await interaction.reply({
+          content: `This is a staff only command.`,
+          ephemeral: true,
+        });
+        return;
+      }
+    }
+
+    if (
+      commandObject.options?.nsfw &&
+      interaction.inGuild() &&
+      interaction.channel &&
+      !interaction.channel.nsfw
+    ) {
+      await interaction.reply({
+        content: "The current channel is not an NSFW channel.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (
+      !(await enforceApplicationCommandCooldown(
+        interaction,
+        commandObject.options?.cooldown
+      ))
+    ) {
+      return;
+    }
 
     if (commandObject.devOnly) {
       const developerIds = normalizeIdAllowlist(config.moderation?.developers);
