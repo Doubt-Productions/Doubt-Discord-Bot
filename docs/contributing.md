@@ -211,6 +211,9 @@ test("my feature works correctly", () => {
 | `rob-caught-penalty.test.js` | Failed robbery penalty is capped at wallet |
 | `rob-failure-penalty.test.js` | Failed rob transfer amount is capped |
 | `rob-fine-cap.test.js` | Fine cannot exceed robber's wallet |
+| `events-handler-shape.test.js` | Event loader supports validation chains and `{ event, run }` object handlers |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping avoids duplicate first entries and safe expiry races |
+| `rank-card-presence-status.test.js` | Rank card presence normalization returns canvacord-compatible statuses |
 
 ## Code Conventions
 

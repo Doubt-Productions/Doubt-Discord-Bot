@@ -67,8 +67,10 @@ The event handler scans `src/events/` subdirectories:
 | Folder | Registration Strategy |
 |--------|----------------------|
 | `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
-| `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+| `ready/` | Function exports are grouped under the folder name and run sequentially on `ready` |
+| `Guild/` | `{ event, run }` object exports are registered individually under their declared `event` property |
+
+Outside `validations/`, the loader supports both shapes: callable modules are grouped under the folder name, while object modules with `event` and `run` attach to the declared Discord event.
 
 ### Interaction Validation Pipeline
 
