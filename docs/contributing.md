@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate
 npm run dev                  # Start with nodemon
 ```
 
@@ -203,6 +204,9 @@ test("my feature works correctly", () => {
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `events-handler-shape.test.js` | Event loader registration for validator functions and `{ event, run }` Guild modules |
+| `interaction-cooldown.test.js` | Per-user, per-command cooldown behavior in the Guild interaction backup handler |
+| `rank-card-presence-status.test.js` | Discord presence status normalization for Canvacord rank cards |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |

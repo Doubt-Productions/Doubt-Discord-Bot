@@ -125,8 +125,8 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
-2. When a user joins the hub channel, a temporary voice channel is created
+1. The `voiceStateUpdate` handler reads the guild's JTC record from the `jtcsetups` collection
+2. When a user joins the configured hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
 5. When the owner leaves:
@@ -135,7 +135,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and tracked temporary channels. The `/setup` command currently shows Join-to-Create as a future option and does not expose it in the initial setup select menu, so the runtime handler only works for guilds that already have valid JTC data.
 
 ---
 
@@ -145,9 +145,11 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP for a server member
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
+
+There is no passive XP accrual path in the current source; rank data is created or changed by the `info`, `reset`, and `set` subcommands.
 
 ### Rank Cards
 
