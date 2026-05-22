@@ -103,7 +103,7 @@ These handle non-interaction events:
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to skip interactions that another listener has already acknowledged. Listener order comes from the folder order returned by `getAllFiles()`, so do not rely on the Guild handlers always running after validators.
 
 ## Component System
 

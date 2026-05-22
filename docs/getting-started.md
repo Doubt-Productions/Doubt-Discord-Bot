@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). This repository does not define a `postinstall` hook, so generate the Prisma client explicitly after installing dependencies or changing `prisma/schema.prisma`.
 
 ```bash
 npx prisma generate
@@ -40,10 +38,11 @@ cp .env.example .env
 
 Fill in the required values. See [Configuration](configuration.md) for details on each variable.
 
-At minimum for development, you need:
+At minimum for development, fill these values and either remove/comment the template's `PRODUCTION=false` line or update `src/config.js` as noted below:
 
 ```env
-PRODUCTION=false
+# Leave PRODUCTION unset with the current template, or update src/config.js so
+# handler.mongodb.uri uses process.env.PRODUCTION === "true".
 DEV_TOKEN=your_discord_bot_token
 DEV_CLIENT_ID=your_discord_app_id
 DEV_GUILD_ID=your_test_server_id
@@ -139,6 +138,7 @@ You should see:
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
 - Verify the connection string format includes the database name
+- With the current `src/example.config.js`, `PRODUCTION=false` still makes `handler.mongodb.uri` use `MONGODB_URI` because non-empty strings are truthy. Leave `PRODUCTION` unset for local development or change that URI selection to compare against `"true"`.
 
 ### Channel editing errors every 30 minutes
 
