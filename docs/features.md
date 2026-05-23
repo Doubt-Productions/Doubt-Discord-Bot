@@ -139,13 +139,13 @@ JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, 
 
 ---
 
-## Rank / XP System
+## Rank / XP Data
 
-Per-guild leveling system with visual rank cards.
+Per-guild rank data with visual rank cards. The current source exposes commands to view, reset, and set rank data; it does not include a message listener that automatically grants XP.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,10 +156,11 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized to `offline` when Discord presence data is missing, `invisible`, or unsupported by `canvacord`
 
 ### Data Storage
 
-XP data is stored per user per guild in the `xps` collection with `guildId`, `userId`, `xp`, and `level` fields.
+XP data is stored per user per guild in the `xps` collection with `guildId`, `userId`, `xp`, and `level` fields. `/rank info` renders default level `1` and XP `0` when no row exists; `/rank reset` and `/rank set` create or update rows.
 
 ---
 

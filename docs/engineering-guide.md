@@ -134,15 +134,17 @@ Command execution contracts:
 - The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
 - Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
 - The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Keep the `interactionCreate` listener-ordering note below in mind before depending on `options.cooldown` in production.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contract:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` special-cases `src/events/validations/**` as a single sequential `interactionCreate` validator chain.
+- Function exports in other direct event folders are grouped under the folder name. `src/events/ready/**` therefore registers one `ready` listener that runs each ready handler in file-system order.
+- Object exports with both `event` and `run` register individually on `eventModule.event` and call `eventModule.run(client, ...args)`. Guild handlers such as `messageCreate`, `guildMemberAdd`, `voiceStateUpdate`, and backup `interactionCreate` routing use this contract.
+- When adding a new object-style event module, export both fields: `module.exports = { event: "messageCreate", run: async (client, message) => { ... } }`.
+- Multiple `interactionCreate` listeners are registered. Node's event emitter does not await one async listener before invoking the next, so the backup Guild interaction handlers should keep their `interaction.replied || interaction.deferred` guards and command code should avoid relying on listener order for correctness.
 
 ## Command Deployment
 
@@ -233,10 +235,20 @@ Regression tests in `tests/` document important economy invariants:
 
 When changing economy code, prefer adding or updating focused `node:test` regression tests in `tests/` before adjusting command behavior.
 
+## Rank Notes
+
+Rank data is stored through the `XpSchema` Prisma model in the `xps` collection. The current rank command is an operator-facing data and card workflow, not an automatic message-XP accrual system:
+
+- `/rank info <user>` requires an explicit guild member option. When no database row exists, it renders a rank card with level `1` and XP `0` without creating a row.
+- `/rank reset <user>` creates or updates the user's guild row to level `1` and XP `0`.
+- `/rank set <user> <level>` creates or updates the user's guild row with the requested level and XP `0`.
+- Rank cards call `canvacord` `Rank#setStatus`. `src/utils/rankCardPresenceStatus.js` maps missing, `null`, `invisible`, and unknown Discord presence values to `offline` so card generation does not throw when the bot lacks usable presence data.
+- There is no verified event handler that increments XP from messages in the current source tree. If automatic leveling is added, document the trigger, cooldown, XP formula, and write path here.
+
 ## Operational Pitfalls
 
 - The bot requires Discord gateway intents that match the enabled features. `ExtendedClient` currently passes a numeric intent bitfield, so keep Discord Developer Portal settings in sync when changing message, member, or guild-dependent behavior.
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; keep that object-style handler aligned with the event loader contract above.
