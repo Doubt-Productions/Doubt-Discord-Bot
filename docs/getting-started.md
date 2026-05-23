@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). `package.json` does not define a `postinstall` hook, so generate the Prisma client after installing dependencies and after every `prisma/schema.prisma` change:
 
 ```bash
 npx prisma generate
@@ -48,8 +46,11 @@ DEV_TOKEN=your_discord_bot_token
 DEV_CLIENT_ID=your_discord_app_id
 DEV_GUILD_ID=your_test_server_id
 DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
+MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
+
+`src/example.config.js` currently selects `DEV_TOKEN` and `DEV_CLIENT_ID` only when `PRODUCTION !== "true"`, but it selects the MongoDB URI with JavaScript truthiness. Because `.env` values are strings, `PRODUCTION=false` still makes the runtime use `MONGODB_URI`. For local development, set `MONGODB_URI` to the same local URI or adjust your generated `src/config.js` before starting the bot.
 
 ## Step 4: Configure the Bot
 
@@ -90,7 +91,7 @@ Edit `src/config.js` to set:
 docker run -d --name mongodb -p 27017:27017 mongo:7
 ```
 
-Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
+Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` and, unless you have adjusted the copied `src/config.js`, set `MONGODB_URI` to the same local URI in your `.env`.
 
 ### Option B: MongoDB Atlas
 
@@ -105,6 +106,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 ```bash
 npm run dev
 ```
+
+`npm run dev` expects `nodemon` to be available on your PATH. If it is not installed, use `npm start` or install `nodemon` for your development environment.
 
 ### Production mode:
 

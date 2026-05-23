@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
+| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls token, client ID, and guild ID selection |
 | `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
 | `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | Only when the generated `src/config.js` sees `process.env.PRODUCTION` as unset or falsy |
 
 ### Production Variables
 
@@ -34,18 +34,20 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag controls token, client ID, and guild ID selection with a strict string comparison:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
+PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, GUILD_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI selection in `src/example.config.js` is different:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+uri: process.env.PRODUCTION ? process.env.MONGODB_URI : process.env.DEV_MONGODB_URI
 ```
+
+Because environment variables are strings, `PRODUCTION=false` is still truthy and the runtime uses `MONGODB_URI`. For local development, either set `MONGODB_URI` to your development MongoDB connection string too, leave `PRODUCTION` unset, or update your copied `src/config.js` to compare `process.env.PRODUCTION === "true"` before running the bot.
 
 ---
 
@@ -106,6 +108,9 @@ Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by de
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
+
+#### `handler.mongodb.uri`
+Runtime Prisma queries use this value, not `DATABASE_URL`. Keep it aligned with `DATABASE_URL` when running Prisma CLI commands such as `npx prisma generate` or `npx prisma db push`.
 
 #### `variables.channels.botGuilds` / `botUsers`
 The bot renames these channels every 30 minutes to display current guild and user counts. If these IDs are empty or invalid, the bot will log non-fatal errors periodically. Set to valid voice channel IDs in your support guild, or leave empty and ignore the errors.
