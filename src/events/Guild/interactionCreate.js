@@ -134,7 +134,9 @@ module.exports = {
         }
       }
 
-      await command.run(client, interaction);
+      // Application commands are executed once by the validations/interactionCreate
+      // chain (see src/events/validations). Calling command.run here would run every
+      // slash/context command twice after per-module event registration was restored.
     } catch (error) {
       log(error, "err");
     }
