@@ -92,7 +92,7 @@ Each validator:
 
 ### Guild Event Handlers
 
-These handle non-interaction events:
+These modules export `{ event, run }` and are registered on the Discord event named by each file's `event` property:
 
 | File | Event | Purpose |
 |------|-------|---------|
@@ -100,10 +100,10 @@ These handle non-interaction events:
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
-| `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
-| `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
+| `interactionCreate.js` | `interactionCreate` | Collection-backed slash and developer command router with `options.cooldown` support |
+| `components.js` | `interactionCreate` | Collection-backed component router for buttons, selects, and modals |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) so they skip interactions that a previous listener already answered. The validator command path does not currently include that guard, so changes to interaction listener registration should be tested for double execution and `InteractionAlreadyReplied` errors.
 
 ## Component System
 
@@ -176,6 +176,7 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `getButtons.js` / `getSelects.js` / `getModals.js` | Load component modules |
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
+| `rankCardPresenceStatus.js` | Normalize Discord presence values for canvacord rank cards |
 | `buttonPagination.js` | Alternative pagination helper |
 | `join-to-create/generateEmbed.js` | JTC status embed builder |
 | `join-to-create/generateRow.js` | JTC dashboard button row |

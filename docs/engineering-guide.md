@@ -134,15 +134,17 @@ Command execution contracts:
 - The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
 - Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
 - The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- The validator path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. The Guild slash-command handler is a separate `interactionCreate` listener, guards on `interaction.replied || interaction.deferred`, and is the only generic path that enforces `options.cooldown`.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader behavior:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` scans each direct folder under `src/events`.
+- `validations` is a special case: all files are registered as a sequential `interactionCreate` validator chain.
+- Function exports in other direct folders are grouped under the folder name, which is how `src/events/ready/**` registers ready-time handlers.
+- Object exports with `{ event, run }` are registered on `eventModule.event` and invoke `eventModule.run(client, ...args)`. This is how `src/events/Guild/messageCreate.js`, `components.js`, `interactionCreate.js`, `guildMemberAdd.js`, `jointocreate.js`, and `afkCheck.js` bind to their Discord events.
+- Because multiple listeners can be registered for `interactionCreate`, listener order and reply/defer guards matter. The Guild command and component routers skip already-replied interactions, but the current validator command path does not check `interaction.replied` or `interaction.deferred` before calling `run()`.
 
 ## Command Deployment
 
@@ -161,14 +163,14 @@ Troubleshooting command registration:
 
 ## GitHub Release Automation
 
-`.github/workflows/release.yml` publishes GitHub Releases from `main` when `package.json` changes the top-level `version` field.
+`.github/workflows/release.yml` publishes GitHub Releases from `main` when the derived `v<package.json version>` tag does not already exist.
 
 Release workflow behavior:
 
 1. A push to `main` starts the `Release` workflow.
 2. The workflow reads `package.json` with Node and derives the release tag as `v<version>`, for example `v1.2.1`.
-3. It checks only the latest pushed commit range, `HEAD~1..HEAD`, for a `package.json` line containing `"version"`.
-4. If the version changed, it fetches tags and skips the release when the derived tag already exists.
+3. It checks whether that exact Git tag already exists. There is no commit-range or package-diff gate.
+4. If the tag exists, the workflow skips release creation.
 5. If the tag is new, it sets up Node.js `22`, installs dependencies with `npm ci || npm install`, runs `npm test`, generates a changelog from commits since the most recent version-sorted tag, and creates a non-draft, non-prerelease GitHub Release with `softprops/action-gh-release`.
 
 Release operator notes:
@@ -239,4 +241,5 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- Prefix command support depends on both `config.handler.commands.prefix` and the `messageCreate` handler in `src/events/Guild/messageCreate.js`.
+- Rank-card presence badges depend on Discord presence data. `src/utils/rankCardPresenceStatus.js` maps missing, unknown, and `invisible` statuses to `offline` so canvacord receives only supported status values.

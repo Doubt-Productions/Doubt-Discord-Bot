@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). The current `package.json` does not define a `postinstall` hook, so generate the Prisma client explicitly after dependency install and whenever `prisma/schema.prisma` changes:
 
 ```bash
 npx prisma generate
@@ -106,6 +104,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 npm run dev
 ```
 
+`npm run dev` executes `nodemon .`. `nodemon` is not listed in this repo's dependencies, so install it in your development environment or run `npx nodemon .` if the script cannot find it.
+
 ### Production mode:
 
 ```bash
@@ -133,6 +133,7 @@ You should see:
 - Verify `DEV_GUILD_ID` matches your test server ID
 - Check that the bot has the `applications.commands` scope
 - Wait a few seconds after startup for command registration
+- If command replies appear in logs as already acknowledged, check the interaction routing notes in [Architecture](architecture.md); command validators and Guild interaction handlers are separate `interactionCreate` listeners.
 
 ### MongoDB connection fails
 
@@ -147,3 +148,7 @@ The bot tries to rename `botGuilds` and `botUsers` channels periodically. If the
 ### Prefix commands don't work
 
 Prefix commands are disabled by default. In `src/config.js`, set `handler.commands.prefix` to `true` to enable them.
+
+### Rank cards always show offline
+
+`/rank info` reads `member.presence.status` for the canvacord rank-card badge. If the bot does not receive presence data, or Discord reports an unsupported value such as `invisible`, the card intentionally falls back to `offline`. Verify the **Presence Intent** is enabled in the Discord Developer Portal and that the bot was restarted after changing privileged intents.
