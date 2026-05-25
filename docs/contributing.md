@@ -203,8 +203,11 @@ test("my feature works correctly", () => {
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` object exports by declared event name |
+| `interaction-cooldown.test.js` | Guild slash-command cooldown bookkeeping and safe expiry |
+| `rank-card-presence-status.test.js` | `/rank` card presence values are normalized for canvacord |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Account deletion does not rely on document-shaped `deleteMany()` |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

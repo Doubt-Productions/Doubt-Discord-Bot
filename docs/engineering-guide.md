@@ -134,15 +134,17 @@ Command execution contracts:
 - The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
 - Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
 - The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Because validators run before the Guild fallback handlers, do not rely on `options.cooldown` unless the command is known to execute through `src/events/Guild/interactionCreate.js`.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contracts:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` scans each direct folder under `src/events`.
+- `src/events/validations/**` is special-cased into one sequential `interactionCreate` validator chain. Each validator file exports a callable function and receives `(client, ...args)`.
+- Other function exports are grouped by folder name. Files under `src/events/ready/**` export functions, so they run sequentially from one `ready` listener.
+- Object exports with `{ event, run }` register their own listener on `eventModule.event` and execute `eventModule.run(client, ...args)`. Files under `src/events/Guild/**` use this shape for `messageCreate`, `guildMemberAdd`, `voiceStateUpdate`, and fallback `interactionCreate` handlers.
+- The object-export behavior is covered by `tests/events-handler-shape.test.js`; update that regression test when changing the loader contract.
 
 ## Command Deployment
 
@@ -239,4 +241,4 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`, which is registered through the event loader's `{ event, run }` object-export path.
