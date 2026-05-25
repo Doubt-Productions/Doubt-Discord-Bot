@@ -1,11 +1,12 @@
 const { REST, Routes } = require("discord.js");
 const { log } = require("../functions");
 const config = require("../config");
-const ExtendedClient = require("../class/ExtendedClient");
 
 /**
+ * Bulk-registers developer-only guild commands (replaces the guild command list).
+ * Slash commands from `registerCommands` must run after this on startup.
  *
- * @param {ExtendedClient} client
+ * @param {import("../class/ExtendedClient")} client
  */
 module.exports = async (client) => {
   const rest = new REST({ version: "10" }).setToken(config.client.token);
