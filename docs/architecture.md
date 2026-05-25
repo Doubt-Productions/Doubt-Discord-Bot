@@ -130,10 +130,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing menus and deletes menus marked `deleted` on `DEV_GUILD_ID`; it does not edit existing menu definitions
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
 ## Database Layer
 
