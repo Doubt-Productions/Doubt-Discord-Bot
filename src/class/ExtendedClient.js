@@ -8,7 +8,6 @@ const {
 const config = require("../config");
 const commands = require("../handlers/commands");
 const events = require("../handlers/events");
-const deploy = require("../handlers/deploy");
 const { connectPrisma } = require("../handlers/prisma");
 const components = require("../handlers/components");
 const pjson = require("../../package.json");
@@ -59,8 +58,6 @@ module.exports = class extends Client {
       connectPrisma().catch((err) => log(err, "err"));
     
     await this.login(config.client.token);
-    
-    deploy(this);
 
     if (process.env.TOPGG_TOKEN) await topgg(this);
 

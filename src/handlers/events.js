@@ -9,7 +9,9 @@ module.exports = (client) => {
   const table = new ascii().setHeading("Event", "Status");
 
   for (const eventFolder of eventFolders) {
-    const eventFiles = getAllFiles(eventFolder);
+    const eventFiles = getAllFiles(eventFolder).sort((a, b) =>
+      path.basename(a).localeCompare(path.basename(b))
+    );
     const folderName = eventFolder.replace(/\\/g, "/").split("/").pop();
 
     if (folderName === "validations") {
