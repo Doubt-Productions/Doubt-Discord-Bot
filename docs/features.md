@@ -123,31 +123,44 @@ AFK is automatically cleared when the user sends a message. Alternatively:
 
 Temporary voice channels that are created when a user joins a hub channel.
 
+### Current Status
+
+The runtime handler exists, but `/setup` does not currently expose self-service JTC configuration. The setup embed lists Join-to-Create as future work, and the JTC option is not present in the setup select menu. The `voiceStateUpdate` handler only activates in guilds that already have a `jtcsetups` record.
+
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
-2. When a user joins the hub channel, a temporary voice channel is created
-3. The channel is named after the user (e.g., `🔊 | Username`)
-4. The user gets Manage Channels permission on their channel
-5. When the owner leaves:
+When a `jtcsetups` record exists:
+
+1. The handler reads the configured hub voice channel ID from `Channel`.
+2. When a user joins that hub channel, a temporary voice channel is created in the hub channel's current parent category.
+3. The channel is named after the user (for example, `🔊 | Username`).
+4. The user gets `Connect` and `Manage Channels` permission on their channel.
+5. The user is briefly denied reconnecting to the hub channel, then moved into the temporary channel.
+6. When the owner leaves:
    - If others remain, ownership transfers to a random member
    - If empty, the channel is automatically deleted
 
+### Limitations
+
+- Temporary channel ownership is tracked in process memory, not persisted in the `Channels` array. A bot restart loses ownership state for already-created temporary channels.
+- The current Prisma schema does not define a persisted `UserLimit` field, so user limits are not a documented JTC configuration option.
+- Dashboard helpers under `src/utils/join-to-create/` are present, but the current voice handler does not post or update dashboard messages.
+
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the guild ID, hub channel ID, category field, and a `Channels` embedded array. The current handler uses `GuildID` and `Channel`; it creates temporary channels under the hub channel's parent category rather than reading `Category`.
 
 ---
 
 ## Rank / XP System
 
-Per-guild leveling system with visual rank cards.
+Per-guild rank-card display and manual rank management backed by the `xps` collection. The current code does not award XP automatically from messages or other events.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
-- **`/rank set <user> <level>`** — Manually set a user's level
+- **`/rank set <user> <level>`** — Manually set a user's level and reset XP to `0`
 
 ### Rank Cards
 
@@ -156,6 +169,15 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized to `offline` when Discord presence is unavailable or unsupported by `canvacord`
+
+If the bot does not have Guild Presences enabled, rank cards commonly show users as offline even when they are online.
+
+### Constraints
+
+- `/rank info` requires a server member option; it does not default to the command user.
+- If no XP row exists, `/rank info` renders an in-memory default of level `1` and XP `0` without creating a database record.
+- `/rank reset` and `/rank set` create or update the target user's XP row, but the command module does not currently define admin-only permission metadata.
 
 ### Data Storage
 

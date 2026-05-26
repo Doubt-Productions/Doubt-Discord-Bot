@@ -196,9 +196,9 @@ Join-to-Create voice channel configuration — one per guild.
 |-------|------|-------------|
 | `id` | ObjectId | Auto-generated primary key |
 | `GuildID` | String | Discord guild ID (required) |
-| `Category` | String | Parent category for voice channels (required) |
+| `Category` | String | Configured category field (required by schema; the current handler creates channels under the hub channel's parent) |
 | `Channel` | String | Hub voice channel ID (required) |
-| `Channels` | JTCChannel[] | Array of active temporary channels |
+| `Channels` | JTCChannel[] | Embedded temporary-channel records defined by the schema; the current handler does not update this array |
 
 **JTCChannel (embedded type):**
 
@@ -214,6 +214,12 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+**Runtime notes:**
+
+- `/setup` does not currently expose a Join-to-Create option, even though partial component code exists. The runtime handler only runs when a `jtcsetups` record already exists.
+- Temporary channel ownership is tracked in an in-memory `Collection` in `src/events/Guild/jointocreate.js`, so ownership state is lost on process restart.
+- The handler reads `GuildID` and `Channel` from Prisma. It also references `UserLimit`, but `UserLimit` is not part of the current Prisma model, so it is not a documented configuration field.
 
 ## Schema Files
 
