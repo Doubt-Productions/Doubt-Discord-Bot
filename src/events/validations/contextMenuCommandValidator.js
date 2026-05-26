@@ -69,7 +69,7 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await menuObject.run(client, interaction);
+    /** Command execution is handled only by Guild/interactionCreate.js to avoid duplicate runs and listener-order races. */
   } catch (err) {
     console.error(
       `An error occurred while validating context menu commands! ${err}`
