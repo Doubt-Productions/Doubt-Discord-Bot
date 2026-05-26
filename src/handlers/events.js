@@ -4,7 +4,16 @@ const ascii = require("ascii-table");
 const { default: chalk } = require("chalk");
 
 module.exports = (client) => {
-  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
+  const rawEventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
+  /** Validators must register (and run) before Guild handlers on interactionCreate — otherwise slash/context commands can race or run twice. */
+  const eventFolders = [
+    ...rawEventFolders.filter(
+      (p) => p.replace(/\\/g, "/").split("/").pop() === "validations"
+    ),
+    ...rawEventFolders.filter(
+      (p) => p.replace(/\\/g, "/").split("/").pop() !== "validations"
+    ),
+  ];
 
   const table = new ascii().setHeading("Event", "Status");
 

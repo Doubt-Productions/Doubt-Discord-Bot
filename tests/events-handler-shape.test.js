@@ -30,4 +30,10 @@ test("events handler uses per-module registration and .run for object exports", 
     src.includes("continue") && src.includes("interactionCreate (validators)"),
     "expected validations block to register validator chain separately"
   );
+  assert.ok(
+    src.includes("rawEventFolders") &&
+      src.includes('pop() === "validations"') &&
+      src.includes('pop() !== "validations"'),
+    "expected validations event folder to register before other folders (interaction ordering)"
+  );
 });
