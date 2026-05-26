@@ -203,6 +203,9 @@ test("my feature works correctly", () => {
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` object exports under their declared Discord event |
+| `interaction-cooldown.test.js` | Backup slash-command cooldown bookkeeping stores one command entry and expires safely |
+| `rank-card-presence-status.test.js` | Rank card presence normalization falls back to `offline` for null or unsupported statuses |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |

@@ -29,10 +29,16 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): server member to display |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
-| `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
+| `/rank set <user> <level>` | Set a user's level and reset XP to `0` | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
+
+**Rank Notes:**
+- The current code renders rank cards and lets users write rank records manually; it does not grant XP automatically from messages or events.
+- `/rank info` shows level `1` and XP `0` when the target has no database row, without creating one.
+- Presence on rank cards falls back to `offline` when Discord presence is unavailable or unsupported.
+- The rank command module does not currently define admin-only permission metadata for `reset` or `set`.
 
 ### Information
 
@@ -72,6 +78,8 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
+
+The `/setup` embed also mentions Join-to-Create as future work. JTC is not currently exposed in the setup select menu, so there is no self-service JTC setup path through this command.
 
 ---
 
