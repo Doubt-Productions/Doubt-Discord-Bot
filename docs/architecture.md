@@ -62,13 +62,14 @@ Only active when `config.handler.commands.prefix` is `true`.
 
 ### Event Registration (`src/handlers/events.js`)
 
-The event handler scans `src/events/` subdirectories:
+The event handler scans direct subdirectories of `src/events/` and supports two module shapes:
 
-| Folder | Registration Strategy |
-|--------|----------------------|
-| `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
-| `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+| Export shape | Registration strategy | Common folders |
+|--------------|-----------------------|----------------|
+| Function export | Grouped into one listener named after the folder, then awaited sequentially | `ready/` |
+| `{ event, run }` object export | Registered as one listener for the module's declared `event`, then calls `run(client, ...args)` | `Guild/` |
+
+The `validations/` folder is a special case. Its function exports are registered as a single `interactionCreate` validation chain instead of a listener named `validations`.
 
 ### Interaction Validation Pipeline
 
@@ -103,7 +104,7 @@ These handle non-interaction events:
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) and act as fallback routers for interactions that have not already received a response. Keep the validator chain and Guild fallback handlers in sync when changing interaction behavior, because they are separate `interactionCreate` listeners.
 
 ## Component System
 
