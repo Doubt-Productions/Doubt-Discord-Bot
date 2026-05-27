@@ -94,10 +94,9 @@ module.exports = {
           .setProgressBar("#ffffff", "COLOR")
           .setUsername(member.user.displayName);
 
-        await rank.build({}).then((data) => {
-          interaction.reply({
-            files: [new AttachmentBuilder(data, { name: "rank.png" }).build()],
-          });
+        const imageBuffer = await rank.build({});
+        await interaction.reply({
+          files: [new AttachmentBuilder(imageBuffer, { name: "rank.png" })],
         });
         break;
       }
@@ -123,7 +122,7 @@ module.exports = {
           } else {
             await xp.create({ data: { guildId: guildId2, userId: userId2, level: 1, xp: 0 } });
           }
-          interaction.reply({
+          await interaction.reply({
             content: `Successfully reset ${member2.displayName}'s rank`,
           });
         } catch (error) {
@@ -154,7 +153,7 @@ module.exports = {
           } else {
             await xp.create({ data: { guildId: guildId3, userId: userId3, level: level, xp: 0 } });
           }
-          interaction.reply({
+          await interaction.reply({
             content: `Successfully set ${member3.displayName}'s rank to ${level}`,
           });
         } catch (error) {
