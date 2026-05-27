@@ -202,6 +202,7 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader keeps validator chains separate and registers `{ event, run }` modules by Discord event name |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
