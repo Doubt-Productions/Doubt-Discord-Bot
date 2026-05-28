@@ -120,8 +120,10 @@ Permission and safety gates are split across validators in `src/events/validatio
 
 - Regular slash commands use `chatInputCommandValidator.js` and `src/utils/getLocalCommands.js`.
 - Developer-only slash commands use `devCommandValidator.js` and `src/utils/getLocalDevCommands.js`.
+- Validators reload matching command/component/context-menu modules from disk through the `src/utils/get*` helpers. The Guild backup routers use the already-populated `client.collection` maps.
 - `devOnly: true` or `options.developers: true`: user must be listed in `config.moderation.developers`. Regular slash/context/component validators compare against `interaction.member.id`; the developer-command validator compares against `interaction.user.id`.
-- Missing or empty `config.moderation.developers`: developer-only commands in `devCommandValidator.js` are denied as misconfigured.
+- Developer and staff allowlists are normalized by `src/utils/normalizeIdAllowlist.js`; non-array values become empty arrays instead of using string `.includes()` semantics. A malformed single ID string denies access rather than allowing substring matches.
+- Missing or empty `config.moderation.developers`: developer-only slash and prefix commands are denied as misconfigured.
 - `options.staffOnly: true`: enforced by `devCommandValidator.js`; the member must have one of `config.moderation.staffRoles`.
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.
 - `testMode: true`: command must run in `config.handler.guildId`.
@@ -137,12 +139,14 @@ Command execution contracts:
 - The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
+- Prefix commands marked `data.developers: true` are gated against `config.moderation.developers` after allowlist normalization. Prefix commands only run when `config.handler.commands.prefix` is true.
 
-Event loader caveat:
+Event loader notes:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` treats `src/events/validations` as a special sequential `interactionCreate` listener and awaits every validator file in that folder.
+- Function exports in other direct event folders are grouped under the folder name. This is why `src/events/ready/*.js` files register under the Discord `ready` event.
+- Object exports shaped as `{ event, run }` register under `eventModule.event` and call `eventModule.run(client, ...args)`. `src/events/Guild/*.js` uses this shape for `messageCreate`, `guildMemberAdd`, `voiceStateUpdate`, and backup `interactionCreate` handlers.
+- `tests/events-handler-shape.test.js` protects this contract so a future loader change does not accidentally register Guild handlers as a literal `Guild` event.
 
 ## Command Deployment
 
@@ -167,14 +171,15 @@ Release workflow behavior:
 
 1. A push to `main` starts the `Release` workflow.
 2. The workflow reads `package.json` with Node and derives the release tag as `v<version>`, for example `v1.2.1`.
-3. It checks only the latest pushed commit range, `HEAD~1..HEAD`, for a `package.json` line containing `"version"`.
-4. If the version changed, it fetches tags and skips the release when the derived tag already exists.
+3. It checks whether the derived tag already exists. There is no commit-range diff that verifies the latest push changed the `version` line.
+4. If the tag exists, release creation is skipped.
 5. If the tag is new, it sets up Node.js `22`, installs dependencies with `npm ci || npm install`, runs `npm test`, generates a changelog from commits since the most recent version-sorted tag, and creates a non-draft, non-prerelease GitHub Release with `softprops/action-gh-release`.
 
 Release operator notes:
 
 - Bump `package.json` in the commit that lands on `main` when you want a release. The workflow does not create or commit version bumps.
 - The workflow creates a Git tag through the GitHub Release action; do not pre-create the same `v<version>` tag unless you intend the workflow to skip release creation.
+- Any push to `main` can create a release if `package.json` contains a version whose `v<version>` tag does not exist yet, even when the current push did not edit `package.json`.
 - The workflow publishes a GitHub Release only. It does not publish an npm package, build Docker images, deploy the bot, or update Discord commands.
 - `contents: write` permission is required so the workflow token can create the release and tag.
 - Release creation is gated by `npm test`; keep tests passing before merging a version bump.
@@ -239,4 +244,4 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- `handler.commands.slash`, `handler.commands.user`, and `handler.commands.message` are enforced by the Guild backup `interactionCreate` router only. The primary validators in `src/events/validations/**` do not read those toggles.

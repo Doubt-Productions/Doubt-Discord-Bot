@@ -86,7 +86,7 @@ interactionCreate
 
 Each validator:
 1. Checks if the interaction matches its type (e.g., `isChatInputCommand()`)
-2. Finds the matching command/component from local files
+2. Finds the matching command/component/context menu from local files with the `src/utils/get*` helpers
 3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
 
@@ -104,6 +104,8 @@ These handle non-interaction events:
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
 The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+
+The Guild interaction router is also where `handler.commands.slash`, `handler.commands.user`, `handler.commands.message`, and slash `options.cooldown` are checked. The primary validators run first and do not currently read those toggles or cooldown metadata.
 
 ## Component System
 
@@ -130,10 +132,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing context menu commands and deletes menus marked `deleted` on `DEV_GUILD_ID`; it does not edit existing context menu definitions
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
 ## Database Layer
 

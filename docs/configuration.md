@@ -41,11 +41,16 @@ PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
 
+Implementation detail: token and client ID selection compare `PRODUCTION` to the string `"true"`, but MongoDB URI selection uses JavaScript truthiness. If `.env` contains `PRODUCTION=false`, that non-empty string still selects `MONGODB_URI` for `handler.mongodb.uri`. Verify generated `src/config.js` before running locally.
+
 The guild ID for command registration:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+Ready-time slash commands       →  DEV_GUILD_ID
+Ready-time context menu commands →  DEV_GUILD_ID
+Developer command deployment     →  config.handler.guildId
 ```
+
+`GUILD_ID` is still used as `variables.supportServerId` and as the default `handler.guildId` value in `src/example.config.js`, but the ready-time slash/context-menu registration files read `DEV_GUILD_ID` directly.
 
 ---
 
@@ -96,13 +101,16 @@ module.exports = {
 ### Key Configuration Notes
 
 #### `moderation.developers`
-Array of Discord user ID strings. Users listed here can use developer-only commands (`/eval`, `/deploy`, `/badge`, etc.). If this array is empty or missing, all developer commands are blocked with a configuration error message.
+Array of Discord user ID strings. Users listed here can use developer-only slash and prefix commands (`/eval`, `/deploy`, `/badge`, `?eval`, etc.). The validators normalize this field with `src/utils/normalizeIdAllowlist.js`; if it is missing or accidentally configured as a single string instead of an array, developer-only commands are denied with a configuration error instead of doing string substring checks.
 
 #### `moderation.staffRoles`
-Array of Discord role ID strings. Members with any of these roles can use staff-only commands.
+Array of Discord role ID strings. Members with any of these roles can use staff-only developer commands. Like developer IDs, this must be an array; malformed values normalize to an empty list.
 
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
+
+#### `handler.commands.slash` / `user` / `message`
+These toggles are checked by the backup Guild interaction router in `src/events/Guild/interactionCreate.js`. The primary validator pipeline in `src/events/validations/**` loads matching commands and context menus from disk and does not currently read these flags, so do not rely on them as a global disable switch for slash or context menu interactions.
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
@@ -113,3 +121,7 @@ The bot renames these channels every 30 minutes to display current guild and use
 ### Per-Guild Prefix
 
 Each guild can set a custom prefix with `?prefix set <new_prefix>`. Custom prefixes are stored in the `guildschemas` MongoDB collection. If no custom prefix is set, the default from `handler.prefix` is used.
+
+### Message Text Configuration
+
+`src/messageConfig.json` stores reusable embed colors and validation error strings used by the interaction validators, such as developer-only, test-mode, user-permission, bot-permission, button, and select-menu errors. The file contains a `commandPremiumOnly` message, but no current validator enforces premium-only commands.

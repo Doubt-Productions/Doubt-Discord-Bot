@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): target server member |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -73,6 +73,8 @@ The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
 
+Join-to-Create is shown in the setup embed as a future feature, but the current select menu does not include a JTC option.
+
 ---
 
 ## Context Menu Commands
@@ -112,7 +114,7 @@ These commands are deployed only to the support/dev guild (`config.handler.guild
 | `/deploy` | Re-deploy developer commands to the guild | developers |
 | `/eval <code>` | Evaluate JavaScript code | developers |
 | `/simjoin` | Simulate a member joining (fires `guildMemberAdd`) | developers |
-| `/simleave` | Simulate a member leaving (fires `guildMemberRemove`) | developers |
+| `/simleave` | Emit a `guildMemberRemove` event for a member object | developers |
 | `/listguilds` | List all guilds the bot is in (paginated) | developers |
 | `/badge create <name> <emoji>` | Create a new badge | developers |
 | `/badge edit <id> [name] [emoji]` | Edit a badge | developers |
