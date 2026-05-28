@@ -6,6 +6,7 @@ const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
+  if (interaction.replied || interaction.deferred) return;
   const localCommands = getLocalDevCommands();
 
   try {

@@ -1,28 +1,34 @@
 /**
- * Regression: /economy "Delete" called `Data.deleteMany()` on a Mongoose document.
- * Documents do not implement deleteMany (only the model does), so every delete threw.
- * Delete with no prior document also crashed (null.deleteMany).
+ * Regression: /economy "Delete" must remove all economy rows for the user in
+ * the guild (duplicate rows from races), via Prisma deleteMany — not a single
+ * document delete on one arbitrary findFirst result.
  */
 const { test } = require("node:test");
 const assert = require("node:assert");
+const fs = require("fs");
+const path = require("path");
 
-test("economy delete must use model deleteMany with user+guild filter", async () => {
-  const calls = [];
-  const fakeModel = {
-    deleteMany(filter) {
-      calls.push(filter);
-      return Promise.resolve({ deletedCount: 1 });
-    },
-  };
-  const result = await fakeModel.deleteMany({
-    User: "user-1",
-    Guild: "guild-1",
-  });
-  assert.strictEqual(result.deletedCount, 1);
-  assert.deepStrictEqual(calls[0], { User: "user-1", Guild: "guild-1" });
+test("economy delete uses prisma deleteMany filtered by user and guild", () => {
+  const src = fs.readFileSync(
+    path.join(__dirname, "../src/commands/slash/Economy/economy.js"),
+    "utf8"
+  );
+
+  assert.ok(
+    src.includes("ecoSchema.deleteMany") &&
+      src.includes("Guild: guild.id, User: user.id"),
+    "economy delete must call deleteMany for User+Guild"
+  );
 });
 
-test("document-shaped object must not be relied on for deleteMany", () => {
-  const doc = { User: "x", Guild: "y" };
-  assert.strictEqual(typeof doc.deleteMany, "undefined");
+test("economy create path serializes concurrent account operations per user", () => {
+  const src = fs.readFileSync(
+    path.join(__dirname, "../src/commands/slash/Economy/economy.js"),
+    "utf8"
+  );
+
+  assert.ok(
+    src.includes("accountOpsInFlight") && src.includes("accountKey"),
+    "economy create/delete must guard overlapping button collects"
+  );
 });

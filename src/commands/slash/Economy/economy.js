@@ -10,6 +10,8 @@ const {
 const ExtendedClient = require("../../../class/ExtendedClient");
 const ecoSchema = require("../../../schemas/EcoSchema");
 
+const accountOpsInFlight = new Set();
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("economy")
@@ -87,59 +89,77 @@ module.exports = {
     });
 
     collector.on("collect", async (i) => {
+      const accountKey = `${guild.id}:${user.id}`;
+
       if (i.customId === "page1") {
-        const existing = await ecoSchema.findFirst({
-          where: { Guild: guild.id, User: user.id },
-        });
-        if (existing) {
-          const embedAlready = new EmbedBuilder()
-            .setColor("Yellow")
-            .setTitle(`Account`)
-            .setDescription(`You already have an economy account.`);
+        if (accountOpsInFlight.has(accountKey)) return;
+        accountOpsInFlight.add(accountKey);
+
+        try {
+          const existing = await ecoSchema.findFirst({
+            where: { Guild: guild.id, User: user.id },
+          });
+          if (existing) {
+            const embedAlready = new EmbedBuilder()
+              .setColor("Yellow")
+              .setTitle(`Account`)
+              .setDescription(`You already have an economy account.`);
+            await i.update({
+              embeds: [embedAlready],
+              components: [],
+            });
+            return;
+          }
+
+          Data = await ecoSchema.create({
+            data: {
+              Guild: guild.id,
+              User: user.id,
+              Wallet: 0,
+              Bank: 1000,
+            },
+          });
+
           await i.update({
-            embeds: [embedAlready],
+            embeds: [embed2],
             components: [],
           });
-          return;
+        } finally {
+          accountOpsInFlight.delete(accountKey);
         }
-
-        Data = await ecoSchema.create({
-          data: {
-            Guild: guild.id,
-            User: user.id,
-            Wallet: 0,
-            Bank: 1000,
-          },
-        });
-
-        await i.update({
-          embeds: [embed2],
-          components: [],
-        });
       }
       if (i.customId === "page2") {
-        const doc = await ecoSchema.findFirst({
-          where: { Guild: guild.id, User: user.id },
-        });
-        if (!doc) {
-          const embedNoDelete = new EmbedBuilder()
-            .setColor("Orange")
-            .setTitle(`Account`)
-            .setDescription(`You do not have an economy account to delete.`);
+        if (accountOpsInFlight.has(accountKey)) return;
+        accountOpsInFlight.add(accountKey);
+
+        try {
+          const existing = await ecoSchema.findFirst({
+            where: { Guild: guild.id, User: user.id },
+          });
+          if (!existing) {
+            const embedNoDelete = new EmbedBuilder()
+              .setColor("Orange")
+              .setTitle(`Account`)
+              .setDescription(`You do not have an economy account to delete.`);
+            await i.update({
+              embeds: [embedNoDelete],
+              components: [],
+            });
+            return;
+          }
+
+          await ecoSchema.deleteMany({
+            where: { Guild: guild.id, User: user.id },
+          });
+          Data = null;
+
           await i.update({
-            embeds: [embedNoDelete],
+            embeds: [embed3],
             components: [],
           });
-          return;
+        } finally {
+          accountOpsInFlight.delete(accountKey);
         }
-
-        await ecoSchema.delete({ where: { id: doc.id } });
-        Data = null;
-
-        await i.update({
-          embeds: [embed3],
-          components: [],
-        });
       }
     });
   },
