@@ -125,7 +125,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. A `jtcsetups` document exists for the guild with a hub voice channel ID
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -135,7 +135,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+The current `/setup` menu displays Join-to-Create as a future feature and does not create JTC configuration. Until a setup flow is added, JTC only runs when a `jtcsetups` record already exists in MongoDB. The Prisma model stores `GuildID`, `Category`, `Channel`, and active `Channels`; the runtime hub lookup uses `Channel`.
 
 ---
 
@@ -145,9 +145,9 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
-- **`/rank reset <user>`** — Reset a user's XP and level to defaults
-- **`/rank set <user> <level>`** — Manually set a user's level
+- **`/rank info <user>`** — View a rank card showing current level and XP for a server member
+- **`/rank reset <user>`** — Reset a user's XP and level to defaults; creates a default XP row if one does not exist
+- **`/rank set <user> <level>`** — Manually set a user's level; creates an XP row if one does not exist
 
 ### Rank Cards
 
@@ -156,6 +156,7 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status when available. If Discord does not provide a presence, or the status is missing/unknown, the rank card uses `offline` so `canvacord` receives a supported value.
 
 ### Data Storage
 

@@ -10,6 +10,7 @@ See [Getting Started](getting-started.md) for full setup instructions. Quick sta
 git clone https://github.com/Doubt-Productions/Doubt-Discord-Bot.git
 cd Doubt-Discord-Bot
 npm install
+npx prisma generate
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
 npm run dev                  # Start with nodemon
@@ -20,7 +21,7 @@ npm run dev                  # Start with nodemon
 | Script | Command | Description |
 |--------|---------|-------------|
 | `npm start` | `node .` | Start the bot |
-| `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
+| `npm run dev` | `nodemon .` | Start with auto-restart on file changes; requires `nodemon` to be available in your environment |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
 
 ## Code Structure
@@ -202,7 +203,10 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader keeps validator chaining and `{ event, run }` object handler registration |
+| `interaction-cooldown.test.js` | Guild backup interaction cooldown bookkeeping |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `rank-card-presence-status.test.js` | Rank card presence normalization for missing or unsupported statuses |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
