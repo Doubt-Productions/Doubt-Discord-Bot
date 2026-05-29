@@ -80,7 +80,7 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await buttonObject.run(client, interaction);
+    // Component execution: Guild/components.js (after validators).
   } catch (err) {
     console.log(chalk.red(`An error occurred! ${err}`));
   }
