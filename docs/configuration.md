@@ -37,9 +37,11 @@ Copy `.env.example` to `.env` and fill in the values.
 The `PRODUCTION` flag controls which set of credentials the bot uses:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID
+PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID
 ```
+
+MongoDB URI selection has one extra pitfall in `src/example.config.js`: `handler.mongodb.uri` checks `process.env.PRODUCTION` by truthiness instead of comparing to `"true"`. Because `.env` values are strings, `PRODUCTION=false` still selects `MONGODB_URI`. For local development, either set `MONGODB_URI` to the same value as `DEV_MONGODB_URI` or update the generated `src/config.js` selector before running the bot.
 
 The guild ID for command registration:
 ```
@@ -106,6 +108,8 @@ Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by de
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
+
+The runtime Prisma client reads `handler.mongodb.uri` from `src/config.js`. `DATABASE_URL` is only for Prisma CLI commands such as `npx prisma generate` and `npx prisma db push`.
 
 #### `variables.channels.botGuilds` / `botUsers`
 The bot renames these channels every 30 minutes to display current guild and user counts. If these IDs are empty or invalid, the bot will log non-fatal errors periodically. Set to valid voice channel IDs in your support guild, or leave empty and ignore the errors.
