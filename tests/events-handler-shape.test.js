@@ -23,11 +23,20 @@ test("events handler uses per-module registration and .run for object exports", 
     "expected object-module branch with eventModule.run and eventModule.event"
   );
   assert.ok(
-    src.includes('folderName === "validations"'),
+    /(?:folderName|name) === "validations"/.test(src),
     "expected validations folder special-case"
   );
   assert.ok(
     src.includes("continue") && src.includes("interactionCreate (validators)"),
     "expected validations block to register validator chain separately"
+  );
+  assert.ok(
+    src.includes('aName === "validations"') && src.includes("eventFolders.sort"),
+    "expected validations folder to register before Guild handlers"
+  );
+  assert.ok(
+    src.includes("interactionCreateHandlers") &&
+      src.includes("interactionCreate (Guild)"),
+    "expected Guild interactionCreate modules to share one sequential listener"
   );
 });

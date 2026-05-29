@@ -69,7 +69,7 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await modalObject.run(client, interaction);
+    // Component execution: Guild/components.js (after validators).
   } catch (err) {
     console.error(
       `An error occurred while validating modal commands! ${err}`

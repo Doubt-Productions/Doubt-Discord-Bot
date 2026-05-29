@@ -122,7 +122,7 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await commandObject.run(client, interaction);
+    // Dev slash execution: Guild/interactionCreate.js (after validators).
   } catch (err) {
     console.error(
       `An error occurred while validating chat input commands! ${err}`
