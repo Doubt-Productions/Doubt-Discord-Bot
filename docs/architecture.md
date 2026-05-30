@@ -124,6 +124,11 @@ Each component exports `{ customId, run }`.
 
 Components are routed by `customId` matching. Some components are handled by the validator pipeline, while others use inline collectors (e.g., economy buttons `page1`/`page2`, help `help-menu`).
 
+Partial wiring to know about:
+
+- `src/components/selects/ticket-menu.js` handles a public ticket select menu with `customId: "ticket"`, but current setup code does not post a message containing that menu.
+- `src/components/selects/setupSSM.js` can render a JTC setup select menu with `customId: "jtcSSM"` through the Go Back path, but there is no matching `jtcSSM` component handler in `src/components/`.
+
 ## Context Menus
 
 Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type` (2 for User, 3 for Message). Registered at ready time via `src/events/ready/registerContextMenus.js` on `DEV_GUILD_ID`.
@@ -177,5 +182,5 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
 | `buttonPagination.js` | Alternative pagination helper |
-| `join-to-create/generateEmbed.js` | JTC status embed builder |
-| `join-to-create/generateRow.js` | JTC dashboard button row |
+| `join-to-create/generateEmbed.js` | JTC status embed builder; utility exists, but the dashboard flow is not currently wired |
+| `join-to-create/generateRow.js` | JTC dashboard button row; matching dashboard button handlers are not currently present |

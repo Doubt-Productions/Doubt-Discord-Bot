@@ -21,11 +21,11 @@ Doubt is a feature-rich Discord bot offering:
 
 - **Moderation** — kick, ban, unban, timeout, automod rules
 - **Economy System** — wallet/bank accounts, begging, deposits, withdrawals, robbery
-- **Ticket System** — configurable support tickets with HTML transcripts
+- **Ticket System** — setup records and ticket components with HTML transcripts; panel posting is not wired automatically
 - **Welcome System** — customizable join messages and auto-roles
 - **AFK System** — automatic AFK status with mention notifications
-- **Join-to-Create** — temporary voice channels
-- **Rank/XP System** — per-guild leveling with rank cards
+- **Join-to-Create** — temporary voice channel handler; setup is not fully wired
+- **Rank/XP System** — per-guild rank records with rank cards; no passive XP event is currently implemented
 - **Utility** — embeds, user info, server info, translation, avatars
 - **Developer Tools** — eval, deploy, badge management, simulated joins/leaves
 
