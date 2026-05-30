@@ -80,7 +80,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await buttonObject.run(client, interaction);
   } catch (err) {
     console.log(chalk.red(`An error occurred! ${err}`));
   }
