@@ -25,6 +25,8 @@ The economy system provides a virtual currency system for server members.
   - 60-second cooldown between attempts
 - **`/economy`** → **Delete** — Permanently delete your account
 
+`/beg` only updates `Wallet` when the member already has an economy account. If no account exists, the command can still send a gain/loss embed, but no balance is saved.
+
 ### Data Storage
 
 Economy data is stored in the `ecoschemas` MongoDB collection with fields for Guild, User, Bank, and Wallet.
@@ -33,26 +35,30 @@ Economy data is stored in the `ecoschemas` MongoDB collection with fields for Gu
 
 ## Ticket System
 
-A configurable support ticket system with HTML transcripts.
+A partially wired support ticket system with HTML transcripts.
 
 ### Setup
 
 1. Run `/setup` in your server
 2. Select **Ticket** from the setup menu
 3. Configure:
-   - **Category** — the channel category where tickets are created
-   - **Channel** — the channel where the ticket panel is posted
-   - **Role** — the support role that gets access to tickets
+   - **Category** — stored as the intended ticket category
+   - **Channel** — stored as the intended ticket panel channel
+   - **Role** — support role that gets access to tickets
+
+The setup wizard stores these values in MongoDB, but current source does not post a ticket panel into the configured channel. The `ticket` select-menu handler exists for a panel with `customId: "ticket"`, so operators need a separate message/component producer before members can open tickets through Discord.
 
 ### How It Works
 
-1. Members select a ticket type from the panel select menu
+1. Members select a ticket type from a select menu with `customId: "ticket"`
 2. A modal appears asking for a reason/description
-3. A private channel is created named `ticket-<username>`
+3. A private channel is created named `ticket-<displayName>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
+
+Current implementation detail: `src/components/modals/ticket-modal.js` uses the stored `Channel` value as the parent category when creating a ticket channel. Keep this in mind when testing ticket setup, because the stored `Category` field is not used by that modal today.
 
 ---
 
@@ -82,6 +88,10 @@ Automated welcome messages and role assignment for new members.
 ### Limitations
 
 The welcome system currently only fires for the support guild (`config.handler.guildId`). It checks `guild.id === config.handler.guildId` before sending welcome messages.
+
+Placeholder replacement is case-sensitive. The join handler replaces lowercase `{user}`, `{rules}`, and `{server}`; uppercase values shown by the setup UI are stored literally and are not replaced.
+
+Auto-role assignment requires both `MemberRole` and `BotRole` to resolve. If either configured role is missing, the welcome message can still send, but no member or bot role is assigned.
 
 ---
 
@@ -121,12 +131,12 @@ AFK is automatically cleared when the user sends a message. Alternatively:
 
 ## Join-to-Create (JTC)
 
-Temporary voice channels that are created when a user joins a hub channel.
+Temporary voice channels that are created when a user joins a hub channel. The runtime `voiceStateUpdate` handler exists, but the setup path is not fully wired.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
-2. When a user joins the hub channel, a temporary voice channel is created
+1. A `jtcsetups` database record must already exist for the guild and hub channel
+2. When a user joins the configured hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
 5. When the owner leaves:
@@ -135,19 +145,21 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels. `/setup` currently shows Join-to-Create as "added at a later date" and does not expose the JTC option on its initial menu. A Go Back path can render a JTC select menu, but there is no `jtcSSM` component handler in `src/components/`, so the wizard cannot create or update JTC records today.
 
 ---
 
 ## Rank / XP System
 
-Per-guild leveling system with visual rank cards.
+Per-guild rank storage with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
+
+There is no passive XP-earning event in the current source. Rank records are read by `/rank info` and created or changed by `/rank reset` and `/rank set`.
 
 ### Rank Cards
 
@@ -156,6 +168,7 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized for canvacord. Missing, unknown, or invisible presence is displayed as `offline`, so accurate online/idle/DND display depends on the Presence Intent and Discord cache state.
 
 ### Data Storage
 

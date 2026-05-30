@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production; unset or empty is safest for development with the current template | Always — controls several generated `config.js` values |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not exactly `"true"` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not exactly `"true"` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | When the generated MongoDB URI logic resolves to development |
 
 ### Production Variables
 
@@ -34,17 +34,27 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+`src/example.config.js` does not apply `PRODUCTION` consistently:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+Token/client ID/guild ID: process.env.PRODUCTION === "true"
+MongoDB URI/dbName:       process.env.PRODUCTION truthiness
 ```
 
-The guild ID for command registration:
+Practical effects:
+
+- `PRODUCTION=true` selects `CLIENT_TOKEN`, `CLIENT_ID`, `GUILD_ID`, and `MONGODB_URI`.
+- `PRODUCTION=false` as a string selects `DEV_TOKEN` and `DEV_CLIENT_ID`, but still selects `MONGODB_URI` for `handler.mongodb.uri` because non-empty strings are truthy.
+- For development, either leave `PRODUCTION` unset/empty before generating `src/config.js`, or edit `src/config.js` so `handler.mongodb.uri` points at `DEV_MONGODB_URI`.
+- `DATABASE_URL` is only for Prisma CLI commands. It does not override the runtime Prisma client, which uses `config.handler.mongodb.uri`.
+
+Guild selection also has multiple paths:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+Ready-time slash commands:        DEV_GUILD_ID
+Ready-time context menu commands: DEV_GUILD_ID
+Developer command deployment:     config.handler.guildId
+Welcome guildMemberAdd handler:   config.handler.guildId
 ```
 
 ---
@@ -103,6 +113,9 @@ Array of Discord role ID strings. Members with any of these roles can use staff-
 
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
+
+#### `handler.guildId`
+Guild ID used by developer command deployment and by support-guild-only runtime features such as welcome messages. This is separate from `DEV_GUILD_ID`, which is used by ready-time slash and context-menu registration.
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.

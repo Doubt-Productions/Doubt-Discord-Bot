@@ -204,7 +204,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Economy account deletion avoids legacy Mongoose document assumptions |
+| `events-handler-shape.test.js` | Event loader supports function exports and `{ event, run }` modules |
+| `interaction-cooldown.test.js` | Guild slash-command cooldown map behavior |
+| `rank-card-presence-status.test.js` | Rank card presence normalization for canvacord |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

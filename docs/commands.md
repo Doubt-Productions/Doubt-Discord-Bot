@@ -10,11 +10,11 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 
 | Command | Description | Options |
 |---------|-------------|---------|
-| `/economy` | Create or delete your economy account | Interactive buttons: Create (starts with $1000 in bank) or Delete |
+| `/economy` | Create or delete your economy account | Interactive buttons: Create (starts with $1000 in bank) or Delete. Button collector runs for 60 seconds. |
 | `/bal` | Check your wallet, bank, and total balance | — |
 | `/deposit <amount>` | Move money from wallet to bank | `amount` (required): number or `all` |
 | `/withdraw <amount>` | Move money from bank to wallet | `amount` (required): number or `all` |
-| `/beg` | Beg for money (random gain or loss) | — |
+| `/beg` | Beg for money (random gain or loss) | Updates wallet only when an economy account exists; without an account, it can still send a result embed but saves nothing. |
 | `/rob <user>` | Attempt to rob another user | `user` (required): target user. Requires $100 minimum in wallet. 50% success chance. 60-second cooldown. |
 
 **Economy Notes:**
@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): target server member |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -72,6 +72,12 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
+
+Current setup limitations:
+- `/setup` has no command-level permission gate in the command module, so restrict command visibility through Discord permissions if only admins should use it.
+- Join-to-Create is shown as a future feature in the initial setup embed and is not available from that first menu.
+- The Go Back view still mentions `/setup-welcome`, `/setup-ticket`, and `/setup-jointocreate`, but those commands do not exist in this repository.
+- Ticket setup stores category/channel/role values, but current code does not post a ticket panel automatically.
 
 ---
 

@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). There is no `postinstall` hook in `package.json`, so generate the Prisma client explicitly after installing dependencies:
 
 ```bash
 npx prisma generate
@@ -43,13 +41,16 @@ Fill in the required values. See [Configuration](configuration.md) for details o
 At minimum for development, you need:
 
 ```env
-PRODUCTION=false
+# Leave PRODUCTION unset/empty for the safest local MongoDB selection,
+# or verify src/config.js points at DEV_MONGODB_URI after copying it.
 DEV_TOKEN=your_discord_bot_token
 DEV_CLIENT_ID=your_discord_app_id
 DEV_GUILD_ID=your_test_server_id
 DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
+
+If you keep `PRODUCTION=false`, note that `src/example.config.js` treats that non-empty string as truthy for `handler.mongodb.uri`. After copying `src/example.config.js` to `src/config.js`, verify that the runtime MongoDB URI is the development URI you intend.
 
 ## Step 4: Configure the Bot
 
@@ -106,6 +107,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 npm run dev
 ```
 
+`npm run dev` uses `nodemon`, which is not listed in `package.json`. If it is not installed in your environment, either install it for local development or use `npm start`.
+
 ### Production mode:
 
 ```bash
@@ -139,6 +142,7 @@ You should see:
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
 - Verify the connection string format includes the database name
+- If local development connects to the wrong database, inspect `src/config.js`: `PRODUCTION=false` in `.env` can still select `MONGODB_URI` for the runtime Prisma client.
 
 ### Channel editing errors every 30 minutes
 

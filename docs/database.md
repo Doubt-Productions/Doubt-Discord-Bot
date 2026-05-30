@@ -4,9 +4,11 @@ Doubt uses **MongoDB** as its database, accessed through **Prisma v6**. The Pris
 
 ## Connection
 
-The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag).
+The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` in `src/config.js`).
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
+
+`src/example.config.js` currently uses `process.env.PRODUCTION` truthiness for the MongoDB URI selection. Because environment variables are strings, `PRODUCTION=false` still selects `MONGODB_URI` unless the generated `src/config.js` is adjusted or `PRODUCTION` is unset/empty.
 
 ## Prisma CLI
 
@@ -154,6 +156,12 @@ Ticket system configuration — one per guild.
 
 **Used by:** Setup wizard (ticketSSM), ticket menu, ticket modal
 
+Operational notes:
+
+- Setup writes `Category`, `Channel`, and `Role`, but no current command or setup handler posts the public ticket panel into `Channel`.
+- `ticket-menu.js` stores the selected ticket type in the guild-level `Ticket` field before showing the modal.
+- `ticket-modal.js` currently uses `Channel` as the new ticket channel's parent. The stored `Category` field is not read by that modal today.
+
 ---
 
 ### GuildSchema
@@ -164,7 +172,7 @@ Per-guild settings (currently prefix only).
 |-------|------|-------------|
 | `id` | ObjectId | Auto-generated primary key |
 | `guild` | String? | Discord guild ID |
-| `prefix` | String? | Custom command prefix |
+| `prefix` | String? | Per-guild prefix for prefix commands |
 
 **Collection:** `guildschemas`
 
@@ -184,7 +192,7 @@ Chatbot channel configuration — one per guild.
 
 **Collection:** `chatbots`
 
-**Used by:** Currently imported but not actively used in any command.
+**Used by:** Currently imported by `/setup` but not actively used by any command, event, or message handler. There is no chatbot setup flow in this source tree.
 
 ---
 
@@ -214,6 +222,12 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+Operational notes:
+
+- The runtime handler reads `GuildID`, `Channel`, and `Channels`, and it creates temporary voice channels when a member joins the configured hub channel.
+- The setup wizard does not currently create or update `jtcsetups` records. `/setup` omits JTC from the initial select menu, and there is no `jtcSSM` component handler.
+- `jointocreate.js` reads `data.UserLimit`, but `UserLimit` is not defined in the Prisma `JTCSetup` model.
 
 ## Schema Files
 
