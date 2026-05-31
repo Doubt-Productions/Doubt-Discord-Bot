@@ -12,8 +12,11 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate
 npm run dev                  # Start with nodemon
 ```
+
+`npm run dev` expects `nodemon` to be available, but this repo does not declare it in `package.json`. Use `npm start` or `npx nodemon .` if your environment does not provide a global `nodemon`.
 
 ## Project Scripts
 
@@ -203,6 +206,9 @@ test("my feature works correctly", () => {
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `events-handler-shape.test.js` | Event loader contract for `{ event, run }` modules and validation chain |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping and safe expiry behavior |
+| `rank-card-presence-status.test.js` | Rank-card presence normalization for canvacord |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |

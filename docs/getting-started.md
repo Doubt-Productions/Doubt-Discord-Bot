@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs runtime dependencies and the Prisma CLI (dev dependency). There is no `postinstall` hook in `package.json`, so generate the Prisma client explicitly after installing dependencies or changing `prisma/schema.prisma`:
 
 ```bash
 npx prisma generate
@@ -106,6 +104,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 npm run dev
 ```
 
+`npm run dev` runs `nodemon .`, but `nodemon` is not listed in `package.json`. Install it globally or use `npx nodemon .` if the command is unavailable in your local environment.
+
 ### Production mode:
 
 ```bash
@@ -139,6 +139,7 @@ You should see:
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
 - Verify the connection string format includes the database name
+- Check the generated `src/config.js` before starting: `src/example.config.js` uses `process.env.PRODUCTION` truthiness for the MongoDB URI, so the string `PRODUCTION=false` still selects `MONGODB_URI`. Leave `PRODUCTION` unset or adjust `src/config.js` locally if you need `DEV_MONGODB_URI`.
 
 ### Channel editing errors every 30 minutes
 

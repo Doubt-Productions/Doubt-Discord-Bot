@@ -67,8 +67,10 @@ The event handler scans `src/events/` subdirectories:
 | Folder | Registration Strategy |
 |--------|----------------------|
 | `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
+| `ready/` | Function exports are grouped under the `ready` event and run sequentially |
 | `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+
+Object exports must provide both `event` and `run`. Function exports in other direct event folders are grouped under the folder name. This is covered by `tests/events-handler-shape.test.js` so regressions do not silently register non-Discord event names such as `Guild`.
 
 ### Interaction Validation Pipeline
 
@@ -103,7 +105,7 @@ These handle non-interaction events:
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators. The validators do not contain the same guard, so be careful when changing listener registration order or command execution timing.
 
 ## Component System
 
@@ -130,10 +132,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
 2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+3. **Context menus** — `src/events/ready/registerContextMenus.js` registers missing user/message context menus on `DEV_GUILD_ID` and deletes menus whose local module is marked `deleted`
 
 ## Database Layer
 
