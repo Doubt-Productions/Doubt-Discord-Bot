@@ -40,19 +40,26 @@ A configurable support ticket system with HTML transcripts.
 1. Run `/setup` in your server
 2. Select **Ticket** from the setup menu
 3. Configure:
-   - **Category** — the channel category where tickets are created
-   - **Channel** — the channel where the ticket panel is posted
+   - **Category** — stored category selection for tickets
+   - **Channel** — stored text channel selection for the ticket panel
    - **Role** — the support role that gets access to tickets
+
+This setup stores values in the `tickets` collection. It does not currently create or send the public ticket panel message; a message with a select menu using custom ID `ticket` is still needed for members to open tickets.
 
 ### How It Works
 
-1. Members select a ticket type from the panel select menu
+1. Members select a ticket type from a panel select menu
 2. A modal appears asking for a reason/description
 3. A private channel is created named `ticket-<username>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
+
+### Current Constraints
+
+- `src/components/modals/ticket-modal.js` uses the stored `Channel` value as the parent when creating the private ticket channel, while the stored `Category` value is not used by the modal.
+- Open-ticket detection looks for an existing channel named `ticket-<displayName>`, so display-name changes or duplicate display names can affect duplicate-ticket checks.
 
 ---
 
@@ -125,7 +132,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. A `jtcsetups` record provides the guild ID and hub voice channel ID
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -135,7 +142,9 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels. The current `/setup` command does not expose a Join-to-Create option, and there is no loaded `jtcSSM` select handler, so runtime records must already exist before the `voiceStateUpdate` handler can create temporary channels.
+
+The in-memory owner-to-channel map in `src/events/Guild/jointocreate.js` is rebuilt from live voice events only; it is not restored from MongoDB after a bot restart.
 
 ---
 
@@ -145,7 +154,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -160,6 +169,8 @@ Rank cards are generated using the `canvacord` library and display:
 ### Data Storage
 
 XP data is stored per user per guild in the `xps` collection with `guildId`, `userId`, `xp`, and `level` fields.
+
+There is currently no passive message XP award path in `src/events/Guild/messageCreate.js`; rank data is viewed, reset, or set through the `/rank` command.
 
 ---
 

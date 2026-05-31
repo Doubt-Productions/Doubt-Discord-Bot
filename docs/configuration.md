@@ -34,18 +34,28 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+Most production switches compare `PRODUCTION` to the exact string `"true"`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  ->  DEV_TOKEN, DEV_CLIENT_ID
+PRODUCTION=true   ->  CLIENT_TOKEN, CLIENT_ID
 ```
 
 The guild ID for command registration:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION=false  ->  DEV_GUILD_ID
+PRODUCTION=true   ->  GUILD_ID
 ```
+
+MongoDB URI selection in `src/example.config.js` is different:
+
+```js
+uri: process.env.PRODUCTION
+  ? process.env.MONGODB_URI
+  : process.env.DEV_MONGODB_URI
+```
+
+Because environment variables are strings, `PRODUCTION=false` is still truthy and selects `MONGODB_URI`. For local development, either leave `PRODUCTION` unset, set both MongoDB URI variables to the intended database, or adjust the copied `src/config.js` to compare `process.env.PRODUCTION === "true"`.
 
 ---
 
@@ -106,6 +116,8 @@ Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by de
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
+
+Runtime database access uses `handler.mongodb.uri` from `src/config.js`. `DATABASE_URL` is only consumed by Prisma CLI commands such as `npx prisma generate` and `npx prisma db push`, so keep both values aligned when changing environments.
 
 #### `variables.channels.botGuilds` / `botUsers`
 The bot renames these channels every 30 minutes to display current guild and user counts. If these IDs are empty or invalid, the bot will log non-fatal errors periodically. Set to valid voice channel IDs in your support guild, or leave empty and ignore the errors.

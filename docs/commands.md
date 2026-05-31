@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): must be a member of the server |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -73,6 +73,8 @@ The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
 
+The `/setup` embed mentions Join-to-Create, and `setupSSM.js` still contains a `jtc` branch, but `src/commands/slash/Management/setup.js` does not expose the JTC select-menu option and there is no loaded `jtcSSM` handler in `src/components/selects/`.
+
 ---
 
 ## Context Menu Commands
@@ -90,7 +92,7 @@ Right-click a user or message to access these commands.
 
 ## Prefix Commands
 
-Prefix commands use `?` by default (configurable per-guild). They are **disabled by default** — set `handler.commands.prefix: true` in `config.js` to enable.
+Prefix commands use `?` by default (configurable per-guild). They are **disabled by default** — set `handler.commands.prefix: true` in `config.js` to enable. The prefix router runs from the `messageCreate` Guild event handler.
 
 | Command | Aliases | Description | Permissions |
 |---------|---------|-------------|-------------|

@@ -154,6 +154,8 @@ Ticket system configuration — one per guild.
 
 **Used by:** Setup wizard (ticketSSM), ticket menu, ticket modal
 
+Runtime note: `ticketSSM` stores both `Channel` and `Category`, but `ticket-modal.js` currently uses `Channel` as the parent when creating the private ticket channel and does not read `Category`.
+
 ---
 
 ### GuildSchema
@@ -214,6 +216,8 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+Runtime note: `jointocreate.js` reads `GuildID` and `Channel` to detect hub joins, creates temporary voice channels under the joined hub channel's parent, and keeps ownership state in an in-memory `Collection`. It does not rebuild that in-memory map from the embedded `Channels` array after restart.
 
 ## Schema Files
 
