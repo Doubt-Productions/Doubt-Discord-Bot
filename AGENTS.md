@@ -41,4 +41,5 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 ### Testing notes
 
 - Tests are pure unit tests using Node's built-in test runner (`node --test`). They do not require MongoDB, Discord, or any external service. `tests/rob-module-loads.test.js` runs `node --check` on `rob.js` so a syntax regression fails CI without installing `discord.js`.
+- Event loading, slash cooldown bookkeeping, and rank-card presence normalization are covered by `tests/events-handler-shape.test.js`, `tests/interaction-cooldown.test.js`, and `tests/rank-card-presence-status.test.js`.
 - The health-check endpoint at `http://localhost:8080/` can be used to verify the Express server is running.

@@ -145,7 +145,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +156,9 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized so missing, unknown, or `invisible` presence renders as `offline`
+
+`/rank info` requires a guild member target. If the selected user is not currently a member of the server, the command replies ephemerally and does not build a card.
 
 ### Data Storage
 

@@ -4,7 +4,7 @@ This guide walks you through setting up Doubt for local development.
 
 ## Prerequisites
 
-- **Node.js** v16.11 or higher (v18+ LTS recommended)
+- **Node.js** v22 recommended (matches the release workflow)
 - **npm** (included with Node.js)
 - **MongoDB** — either a local instance, Docker container, or [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
 - **Discord Application** — create one at the [Discord Developer Portal](https://discord.com/developers/applications)
@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). There is no `postinstall` hook, so generate the Prisma client after installing dependencies:
 
 ```bash
 npx prisma generate
@@ -106,6 +104,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 npm run dev
 ```
 
+`npm run dev` calls `nodemon .`. If `nodemon` is not installed in your environment, install it globally or run the bot with `npm start`.
+
 ### Production mode:
 
 ```bash
@@ -139,6 +139,7 @@ You should see:
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
 - Verify the connection string format includes the database name
+- Check the generated `src/config.js`: `PRODUCTION=false` is a non-empty string, and the current MongoDB URI selection treats any non-empty `PRODUCTION` value as production. If needed, set `handler.mongodb.uri` explicitly to your development URI.
 
 ### Channel editing errors every 30 minutes
 

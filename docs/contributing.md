@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate
 npm run dev                  # Start with nodemon
 ```
 
@@ -204,7 +205,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Account deletion avoids document-shaped `deleteMany()` regressions |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` object exports by declared event name |
+| `interaction-cooldown.test.js` | Slash cooldown map bookkeeping and expiry safety |
+| `rank-card-presence-status.test.js` | Rank-card presence values stay compatible with canvacord |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
@@ -278,3 +282,4 @@ log("Error occurred", "err");        // Red [ERROR]
 3. Add regression tests for bug fixes when practical
 4. Keep commits focused and descriptive
 5. Update documentation if adding new features or changing behavior
+6. For releases, bump `package.json` before merging to `main`; the release workflow creates a GitHub Release only when the matching `v<version>` tag does not already exist

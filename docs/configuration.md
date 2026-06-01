@@ -34,17 +34,20 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag is read from strings in `src/example.config.js`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID
+PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI selection is different: `handler.mongodb.uri` checks `process.env.PRODUCTION` for truthiness, not equality with `"true"`. In a generated `src/config.js`, the literal string `PRODUCTION=false` still selects `MONGODB_URI`. Verify the generated URI before starting the bot.
+
+Ready-time slash command and context menu registration always use `DEV_GUILD_ID`, regardless of `PRODUCTION`. Developer-only command deployment uses `config.handler.guildId`, which defaults to `GUILD_ID` only when `PRODUCTION === "true"`.
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+regular slash/context commands  →  DEV_GUILD_ID
+developer commands              →  config.handler.guildId
 ```
 
 ---
@@ -98,8 +101,12 @@ module.exports = {
 #### `moderation.developers`
 Array of Discord user ID strings. Users listed here can use developer-only commands (`/eval`, `/deploy`, `/badge`, etc.). If this array is empty or missing, all developer commands are blocked with a configuration error message.
 
+This must be an array. Runtime validators call `normalizeIdAllowlist()`, so a single string value is treated as misconfigured instead of being matched with `String.prototype.includes()`.
+
 #### `moderation.staffRoles`
 Array of Discord role ID strings. Members with any of these roles can use staff-only commands.
+
+This must also be an array. A single string value is treated as an empty allowlist.
 
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
