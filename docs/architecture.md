@@ -66,9 +66,11 @@ The event handler scans `src/events/` subdirectories:
 
 | Folder | Registration Strategy |
 |--------|----------------------|
-| `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
-| `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+| `validations/` | Function exports are awaited sequentially under one `interactionCreate` listener |
+| `ready/` | Function exports are awaited sequentially under one `ready` listener |
+| `Guild/` | `{ event, run }` object exports register separate listeners under their declared `event` property |
+
+Callable handlers in a folder share one listener and run in file-list order. Object exports use `eventModule.event` and call `eventModule.run(client, ...args)`, which is covered by `tests/events-handler-shape.test.js`.
 
 ### Interaction Validation Pipeline
 
@@ -89,6 +91,8 @@ Each validator:
 2. Finds the matching command/component from local files
 3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
+
+The Guild folder also registers backup `interactionCreate` handlers. The slash backup router in `src/events/Guild/interactionCreate.js` first skips work if a previous handler already replied or deferred, then applies `command.options.cooldown` before command execution. The validator path in `src/events/validations/chatInputCommandValidator.js` executes chat-input commands directly and does not use that cooldown map.
 
 ### Guild Event Handlers
 
@@ -130,10 +134,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing user/message context menus and deletes menus marked `deleted` on `DEV_GUILD_ID`
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
 ## Database Layer
 

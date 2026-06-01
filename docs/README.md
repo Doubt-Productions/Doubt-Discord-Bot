@@ -13,6 +13,7 @@ Welcome to the official documentation for **Doubt**, an advanced multi-purpose D
 | [Database](database.md) | Prisma schema, models, and data layer |
 | [Architecture](architecture.md) | Codebase structure, event pipeline, and handler system |
 | [Engineering Guide](engineering-guide.md) | Detailed runtime behavior and operational notes |
+| [Release & CI](engineering-guide.md#github-release-automation) | GitHub Release workflow, test gate, and release constraints |
 | [Contributing](contributing.md) | Developer setup, coding conventions, and testing |
 
 ## Quick Overview
@@ -33,7 +34,7 @@ Doubt is a feature-rich Discord bot offering:
 
 | Component | Technology |
 |-----------|------------|
-| Runtime | Node.js (v16.11+) |
+| Runtime | Node.js 22 recommended |
 | Bot Framework | discord.js v14 |
 | Database | MongoDB (via Prisma v6) |
 | HTTP Server | Express (health-check on port 8080) |
