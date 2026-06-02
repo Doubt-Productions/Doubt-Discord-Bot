@@ -66,13 +66,14 @@ The event handler scans `src/events/` subdirectories:
 
 | Folder | Registration Strategy |
 |--------|----------------------|
-| `validations/` | All files registered under `interactionCreate` as a validation chain |
-| `ready/` | Files export functions, registered under `ready` event |
+| `validations/` | Function exports run sequentially inside one `interactionCreate` listener |
+| `ready/` | Function exports are grouped under the `ready` event |
 | `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
+| Any other direct folder | Function exports are grouped under an event named after the folder; object exports use their own `event` property |
 
 ### Interaction Validation Pipeline
 
-When an `interactionCreate` event fires, **all** validators run in sequence:
+When the `validations/` listener receives an `interactionCreate` event, **all** validators run in sequence and each validator returns early when the interaction type does not apply:
 
 ```
 interactionCreate
@@ -90,9 +91,11 @@ Each validator:
 3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
 
+The Guild folder also registers object-style `interactionCreate` handlers. New interaction routers should either target a non-overlapping interaction type or guard on `interaction.replied || interaction.deferred` before sending a response, because Discord allows only one initial reply per interaction.
+
 ### Guild Event Handlers
 
-These handle non-interaction events:
+These object-style handlers cover guild messages, members, voice state updates, and fallback interaction routing:
 
 | File | Event | Purpose |
 |------|-------|---------|
@@ -103,7 +106,7 @@ These handle non-interaction events:
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double replies when another interaction listener has already handled the event.
 
 ## Component System
 

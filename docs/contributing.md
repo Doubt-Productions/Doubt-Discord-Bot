@@ -147,6 +147,46 @@ module.exports = {
 };
 ```
 
+### Adding an Event Handler
+
+Use the export shape that matches the folder contract in `src/handlers/events.js`.
+
+Ready-time handlers in `src/events/ready/` export a function. The loader groups function exports by folder name, so these functions run on Discord's `ready` event:
+
+```js
+module.exports = async (client) => {
+  console.log(`Logged in as ${client.user.tag}`);
+};
+```
+
+Guild event handlers in `src/events/Guild/` export an object with a Discord event name and a `run` function:
+
+```js
+module.exports = {
+  event: "messageCreate",
+  run: async (client, message) => {
+    if (message.author.bot) return;
+    // Handle the message.
+  },
+};
+```
+
+Interaction validators in `src/events/validations/` export a function. The loader registers one `interactionCreate` listener for the folder and awaits each validator sequentially:
+
+```js
+module.exports = async (client, interaction) => {
+  if (!interaction.isButton()) return;
+  // Validate and route the button interaction.
+};
+```
+
+Event handler constraints:
+
+- Keep event folders directly under `src/events`; the loader does not recurse into nested event folders.
+- Use `{ event, run }` for Discord events whose name does not match the folder name.
+- Add `interaction.replied || interaction.deferred` guards to fallback `interactionCreate` routers unless the handler owns a non-overlapping interaction type.
+- Run `npm test` after changing the event loader. `tests/events-handler-shape.test.js` verifies object-style handler registration and the `validations` special-case.
+
 ### Adding a Database Model
 
 1. Add the model to `prisma/schema.prisma`
@@ -200,11 +240,14 @@ test("my feature works correctly", () => {
 
 | Test File | What It Tests |
 |-----------|---------------|
-| `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
+| `dev-command-gate.test.js` | Developer command `options.developers` and staff-role gate detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
-| `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `events-handler-shape.test.js` | Event loader supports `{ event, run }` modules and the validations listener |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping records once and expiry is safe |
+| `prefix-developer-gate.test.js` | Prefix developer-only commands enforce the developer allowlist |
+| `rank-card-presence-status.test.js` | Rank cards map missing or invisible presence to canvacord-safe statuses |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
