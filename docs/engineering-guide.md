@@ -134,15 +134,19 @@ Command execution contracts:
 - The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
 - Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
 - The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- The active chat-input path may be handled by the Guild `interactionCreate` router or by the validation chain, depending on listener registration order. The Guild router applies `command.options.cooldown`; `src/events/validations/chatInputCommandValidator.js` does not.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contract:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` scans only the direct child folders under `src/events`.
+- Files in `src/events/validations` must export functions. The loader registers one `interactionCreate` listener for that folder, then awaits each validator sequentially with `eventFunction(client, ...args)`.
+- Function exports in other event folders are grouped under the folder name. This is how `src/events/ready/**` handlers run on Discord's `ready` event.
+- Object exports with `{ event, run }` are registered individually on `event`, then invoked as `eventModule.run(client, ...args)`. This is how `src/events/Guild/messageCreate.js`, `guildMemberAdd.js`, `jointocreate.js`, `interactionCreate.js`, and `components.js` attach to Discord events.
+- The Guild folder contains two `interactionCreate` object handlers in addition to the validations listener. Keep `interaction.replied || interaction.deferred` guards on any fallback interaction router, and add equivalent guards to new `interactionCreate` handlers unless they own a completely separate interaction type.
+- Do not rely on a nested subfolder under `src/events`; the loader does not recurse into event folders.
+- Run `npm test` after editing `src/handlers/events.js`. `tests/events-handler-shape.test.js` covers object-style module registration and the `validations` special-case.
 
 ## Command Deployment
 
