@@ -96,7 +96,7 @@ module.exports = {
 
         await rank.build({}).then((data) => {
           interaction.reply({
-            files: [new AttachmentBuilder(data, { name: "rank.png" }).build()],
+            files: [new AttachmentBuilder(data, { name: "rank.png" })],
           });
         });
         break;

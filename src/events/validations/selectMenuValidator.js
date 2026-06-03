@@ -85,7 +85,7 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await selectObject.run(client, interaction);
+    // Component execution: Guild/components.js (after validators).
   } catch (err) {
     console.error(`An error occurred while validating select menus! ${err}`);
   }
