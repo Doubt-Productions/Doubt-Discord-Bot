@@ -10,6 +10,7 @@ See [Getting Started](getting-started.md) for full setup instructions. Quick sta
 git clone https://github.com/Doubt-Productions/Doubt-Discord-Bot.git
 cd Doubt-Discord-Bot
 npm install
+npx prisma generate          # Required after install and schema edits
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
 npm run dev                  # Start with nodemon
@@ -204,7 +205,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Old document-shaped `deleteMany()` failure mode; current code should delete through a Prisma delegate |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` modules by declared event and keeps validators separate |
+| `interaction-cooldown.test.js` | Backup slash cooldown bookkeeping and safe expiry behavior |
+| `rank-card-presence-status.test.js` | Rank-card presence fallback for missing/unsupported statuses |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

@@ -41,17 +41,19 @@ A configurable support ticket system with HTML transcripts.
 2. Select **Ticket** from the setup menu
 3. Configure:
    - **Category** — the channel category where tickets are created
-   - **Channel** — the channel where the ticket panel is posted
+   - **Channel** — stored as the intended ticket panel channel
    - **Role** — the support role that gets access to tickets
+
+The setup wizard stores the category, channel, and support role in MongoDB, but it does not currently post a ticket panel for you. The ticket flow starts from a select menu with custom ID `ticket`; if you add or rebuild the panel manually, route selections through `src/components/selects/ticket-menu.js`.
 
 ### How It Works
 
-1. Members select a ticket type from the panel select menu
+1. Members select a ticket type from a panel select menu with custom ID `ticket`
 2. A modal appears asking for a reason/description
 3. A private channel is created named `ticket-<username>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
 
 ---
@@ -125,8 +127,8 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
-2. When a user joins the hub channel, a temporary voice channel is created
+1. A `JTCSetup` record must exist for the guild with a hub channel ID
+2. When a user joins the configured hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
 5. When the owner leaves:
@@ -135,7 +137,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels. The runtime `voiceStateUpdate` handler exists, but `/setup` currently labels Join-to-Create as "added at a later date" and does not expose the JTC option in its select menu. There is also no `jtcSSM` component handler in `src/components/selects`, so treat JTC setup as manual/WIP until the setup UI is completed.
 
 ---
 
@@ -145,7 +147,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +158,9 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status when Discord provides cached presence data
+
+The `user` option is required for `/rank info`; it does not default to the caller. Presence values are normalized through `src/utils/rankCardPresenceStatus.js`: supported statuses pass through, while missing presence and unsupported statuses such as `invisible` render as `offline` so canvacord does not throw.
 
 ### Data Storage
 
