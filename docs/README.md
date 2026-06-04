@@ -24,7 +24,7 @@ Doubt is a feature-rich Discord bot offering:
 - **Ticket System** — configurable support tickets with HTML transcripts
 - **Welcome System** — customizable join messages and auto-roles
 - **AFK System** — automatic AFK status with mention notifications
-- **Join-to-Create** — temporary voice channels
+- **Join-to-Create** — temporary voice-channel runtime handler; setup UI is still WIP
 - **Rank/XP System** — per-guild leveling with rank cards
 - **Utility** — embeds, user info, server info, translation, avatars
 - **Developer Tools** — eval, deploy, badge management, simulated joins/leaves
@@ -69,7 +69,7 @@ doubt/
 │   ├── example.config.js  # Configuration template
 │   ├── index.js           # Entry point
 │   └── server.js          # Express health-check server
-├── tests/                 # Unit tests (Node.js test runner)
+├── tests/                 # Unit/regression tests (Node.js test runner)
 ├── .env.example           # Environment variable template
 └── package.json           # Dependencies and scripts
 ```

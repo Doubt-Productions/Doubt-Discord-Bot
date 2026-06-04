@@ -22,6 +22,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 | Task | Command |
 |------|---------|
 | Install deps | `npm install` |
+| Generate Prisma client | `npx prisma generate` |
 | Run tests | `npm test` |
 | Start bot (dev) | `npm run dev` (uses nodemon) |
 | Start bot (prod) | `npm start` |

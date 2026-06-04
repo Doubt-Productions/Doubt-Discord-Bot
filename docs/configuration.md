@@ -10,7 +10,7 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
+| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls token/client ID selection; see URI caveat below |
 | `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
 | `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
@@ -34,18 +34,21 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag controls the token and Discord application ID with an explicit string comparison:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID
+PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID
 ```
 
-The guild ID for command registration:
+Guild IDs have different runtime roles:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+DEV_GUILD_ID       → regular slash and context-menu registration at ready time
+handler.guildId    → developer command deployment, welcome guild check, stat channels
+supportServerId    → mirrors GUILD_ID in the template
 ```
+
+MongoDB URI selection is less strict in `src/example.config.js`: `handler.mongodb.uri` uses `process.env.PRODUCTION` truthiness. Because environment variables are strings, `PRODUCTION=false` still selects `MONGODB_URI` unless you adjust the generated `src/config.js`. Verify the final `handler.mongodb.uri` value before running the bot locally.
 
 ---
 
@@ -103,6 +106,9 @@ Array of Discord role ID strings. Members with any of these roles can use staff-
 
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
+
+#### `handler.guildId`
+Selected from `GUILD_ID` or `DEV_GUILD_ID` by the template and used by developer-command deployment plus guild-scoped features such as welcome events and 30-minute stat channel updates. Regular slash commands and context menus are registered on `process.env.DEV_GUILD_ID` by `src/events/ready/registerCommands.js` and `src/events/ready/registerContextMenus.js`.
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
