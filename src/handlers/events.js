@@ -7,19 +7,15 @@ module.exports = (client) => {
   const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
 
   const table = new ascii().setHeading("Event", "Status");
+  let validationEventFiles = null;
+  const interactionCreateHandlers = [];
 
   for (const eventFolder of eventFolders) {
     const eventFiles = getAllFiles(eventFolder);
     const folderName = eventFolder.replace(/\\/g, "/").split("/").pop();
 
     if (folderName === "validations") {
-      table.addRow("interactionCreate (validators)", "Loaded");
-      client.on("interactionCreate", async (...args) => {
-        for (const eventFile of eventFiles) {
-          const eventFunction = require(eventFile);
-          await eventFunction(client, ...args);
-        }
-      });
+      validationEventFiles = eventFiles;
       continue;
     }
 
@@ -30,7 +26,16 @@ module.exports = (client) => {
 
       if (typeof eventModule === "function") {
         functionHandlers.push(eventModule);
-      } else if (eventModule && typeof eventModule.run === "function" && eventModule.event) {
+      } else if (
+        eventModule &&
+        typeof eventModule.run === "function" &&
+        eventModule.event
+      ) {
+        if (eventModule.event === "interactionCreate") {
+          interactionCreateHandlers.push(eventModule);
+          continue;
+        }
+
         table.addRow(eventModule.event, "Loaded");
         client.on(eventModule.event, async (...args) => {
           await eventModule.run(client, ...args);
@@ -46,6 +51,22 @@ module.exports = (client) => {
         }
       });
     }
+  }
+
+  if (validationEventFiles || interactionCreateHandlers.length > 0) {
+    table.addRow("interactionCreate", "Loaded");
+    client.on("interactionCreate", async (...args) => {
+      if (validationEventFiles) {
+        for (const eventFile of validationEventFiles) {
+          const eventFunction = require(eventFile);
+          await eventFunction(client, ...args);
+        }
+      }
+
+      for (const eventModule of interactionCreateHandlers) {
+        await eventModule.run(client, ...args);
+      }
+    });
   }
 
   console.log(chalk.green(table.toString()));
