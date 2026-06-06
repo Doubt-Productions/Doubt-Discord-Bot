@@ -1,11 +1,15 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
+const {
+  enforceApplicationCommandCooldown,
+} = require("../../utils/applicationCommandCooldown");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
+  if (interaction.replied || interaction.deferred) return;
   const localCommands = getLocalDevCommands();
 
   try {
@@ -120,6 +124,15 @@ module.exports = async (client, interaction) => {
         await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
+    }
+
+    if (
+      !(await enforceApplicationCommandCooldown(
+        interaction,
+        commandObject.options?.cooldown
+      ))
+    ) {
+      return;
     }
 
     await commandObject.run(client, interaction);
