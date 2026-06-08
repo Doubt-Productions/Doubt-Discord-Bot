@@ -41,17 +41,19 @@ A configurable support ticket system with HTML transcripts.
 2. Select **Ticket** from the setup menu
 3. Configure:
    - **Category** — the channel category where tickets are created
-   - **Channel** — the channel where the ticket panel is posted
+   - **Channel** — stored as the ticket panel channel ID
    - **Role** — the support role that gets access to tickets
+
+The setup flow stores these values in MongoDB. It does not currently post a ticket panel for you; operators still need to provide a message with a select menu using the `ticket` custom ID before members can open tickets through `ticket-menu.js`.
 
 ### How It Works
 
-1. Members select a ticket type from the panel select menu
+1. Members select a ticket type from a `ticket` select menu
 2. A modal appears asking for a reason/description
 3. A private channel is created named `ticket-<username>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
 
 ---
@@ -125,7 +127,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. A `JTCSetup` record exists for the guild with a hub voice channel
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -137,6 +139,8 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
 
+The runtime `voiceStateUpdate` handler exists, but `/setup` does not expose Join-to-Create today. The setup command shows JTC as a future feature and its select-menu option is commented out, so current operators need a pre-existing database record or a future setup flow before the handler can run.
+
 ---
 
 ## Rank / XP System
@@ -145,7 +149,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP for a guild member
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +160,9 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status dot (`online`, `idle`, `dnd`, `offline`, or `streaming`)
+
+If the bot cannot see a member presence, or Discord reports an unsupported status such as `invisible`, the rank card uses `offline` so `canvacord` does not throw. Enable Presence Intent in the Discord Developer Portal if you expect live status dots.
 
 ### Data Storage
 

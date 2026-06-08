@@ -10,10 +10,10 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
+| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls selected token/client ID/guild ID, with MongoDB URI caveat below |
 | `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
 | `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
+| `DEV_GUILD_ID` | Guild ID for ready-time slash and context-menu registration | Always |
 | `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
 
 ### Production Variables
@@ -34,18 +34,24 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag is read in `src/example.config.js`, but not every value is selected the same way:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
+PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, GUILD_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI selection uses JavaScript truthiness instead of comparing to `"true"`:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION unset or empty  →  DEV_MONGODB_URI
+PRODUCTION=false           →  MONGODB_URI because the string "false" is truthy
+PRODUCTION=true            →  MONGODB_URI
 ```
+
+Verify the generated `src/config.js` before starting the bot. For local development with `PRODUCTION=false`, either keep `MONGODB_URI` pointed at a safe development database or adjust `src/config.js` after copying the template.
+
+Ready-time slash and context-menu registration always uses `DEV_GUILD_ID` in `src/events/ready/registerCommands.js` and `src/events/ready/registerContextMenus.js`. `GUILD_ID` feeds `config.handler.guildId`, which is used by developer-command deployment and support-guild features such as stats and welcome handling.
 
 ---
 

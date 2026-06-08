@@ -215,6 +215,8 @@ Join-to-Create voice channel configuration — one per guild.
 
 **Used by:** `voiceStateUpdate` event handler
 
+**Operational note:** `src/events/Guild/jointocreate.js` reads `data.UserLimit` and passes it to Discord as the temporary voice channel `userLimit`, but `UserLimit` is not defined in `prisma/schema.prisma`. With the current schema, operators should expect the created channel to use Discord's default user limit unless the schema and setup flow are extended.
+
 ## Schema Files
 
 The schema files in `src/schemas/` are thin re-exports of Prisma model delegates:
