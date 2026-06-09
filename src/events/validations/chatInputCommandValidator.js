@@ -6,6 +6,8 @@ const getLocalCommands = require("../../utils/getLocalCommands");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
+  if (interaction.replied || interaction.deferred) return;
+  if (config.handler.commands.slash === false) return;
   const localCommands = getLocalCommands();
 
   try {
