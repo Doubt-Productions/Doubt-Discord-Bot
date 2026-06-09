@@ -145,7 +145,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP for a required server member
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +156,9 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized through `src/utils/rankCardPresenceStatus.js`
+
+If no XP row exists for the target user, `/rank info` renders an in-memory default of level `1` and XP `0`; it does not create the row. Discord presence can be `null` when the bot lacks presence data, and unsupported statuses such as `invisible` are rendered as `offline` so `canvacord` receives a supported value.
 
 ### Data Storage
 
