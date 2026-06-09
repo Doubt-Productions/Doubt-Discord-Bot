@@ -6,6 +6,19 @@ const getLocalContextMenus = require("../../utils/getLocalContextMenus");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isContextMenuCommand()) return;
+  if (interaction.replied || interaction.deferred) return;
+  if (
+    interaction.isUserContextMenuCommand() &&
+    config.handler.commands.user === false
+  ) {
+    return;
+  }
+  if (
+    interaction.isMessageContextMenuCommand() &&
+    config.handler.commands.message === false
+  ) {
+    return;
+  }
   const localContextMenus = getLocalContextMenus();
 
   try {
