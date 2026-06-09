@@ -23,6 +23,17 @@ npm run dev                  # Start with nodemon
 | `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
 
+## Releases
+
+GitHub Releases are automated by `.github/workflows/release.yml` on pushes to `main`:
+
+1. The workflow reads the top-level `version` from `package.json`.
+2. It derives the tag as `v<version>`.
+3. It skips release creation when that tag already exists.
+4. When the tag is new, it installs dependencies, runs `npm test`, generates a changelog from the previous version-sorted tag to `HEAD`, and creates the GitHub Release.
+
+To cut a release, bump `package.json` before merging to `main`. The workflow does not create version bumps, does not inspect the latest commit for a version-line diff, and does not publish npm packages, Docker images, or Discord command updates.
+
 ## Code Structure
 
 ### Adding a Slash Command
@@ -204,7 +215,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Account deletion uses Prisma delegate deletes instead of document-shaped methods |
+| `events-handler-shape.test.js` | Event loader registers validation functions, ready functions, and Guild `{ event, run }` modules correctly |
+| `interaction-cooldown.test.js` | Guild backup slash-command cooldown bookkeeping is per user and command |
+| `rank-card-presence-status.test.js` | Rank-card presence values are normalized for `canvacord` |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
