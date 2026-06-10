@@ -12,6 +12,8 @@ const getSelects = require("../../utils/getSelects");
  */
 module.exports = async (client, interaction) => {
   if (!interaction.isAnySelectMenu()) return;
+  if (interaction.replied || interaction.deferred) return;
+
   const selects = getSelects();
 
   try {

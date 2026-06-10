@@ -70,7 +70,6 @@ module.exports = {
 
       Data.Bank += parseInt(Converted);
       Data.Wallet -= parseInt(Converted);
-      Data.Wallet = Math.abs(Data.Wallet);
       await ecoSchema.update({ where: { id: Data.id }, data: { Bank: Data.Bank, Wallet: Data.Wallet } });
 
       const embed = new EmbedBuilder()

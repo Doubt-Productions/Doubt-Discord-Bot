@@ -1,58 +1,14 @@
-const config = require('../../config');
-const { log } = require('../../functions');
 const ExtendedClient = require('../../class/ExtendedClient');
 
 module.exports = {
     event: 'interactionCreate',
     /**
-     * 
-     * @param {ExtendedClient} client 
-     * @param {import('discord.js').Interaction} interaction 
-     * @returns 
+     * Button/select/modal execution lives in src/events/validations/.
+     * This module intentionally does not run components — registering both
+     * this handler and the validator chain caused every component to run twice.
+     *
+     * @param {ExtendedClient} client
+     * @param {import('discord.js').Interaction} interaction
      */
-    run: (client, interaction) => {
-        if (interaction.replied || interaction.deferred) return;
-
-        if (interaction.isButton()) {
-            const component = client.collection.components.buttons.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        };
-
-        if (interaction.isAnySelectMenu()) {
-            const component = client.collection.components.selects.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        };
-
-        if (interaction.isModalSubmit()) {
-            const component = client.collection.components.modals.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        }
-    },
+    run: async (_client, _interaction) => {},
 };
