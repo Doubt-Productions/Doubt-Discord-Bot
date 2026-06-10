@@ -7,6 +7,8 @@ const chalk = require("chalk");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isButton()) return;
+  if (interaction.replied || interaction.deferred) return;
+
   const buttons = getButtons();
 
   try {

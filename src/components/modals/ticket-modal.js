@@ -22,6 +22,13 @@ module.exports = {
 
     const data = await ticketSchema.findFirst({ where: { Guild: interaction.guild.id } });
 
+    if (!data?.Category) {
+      return await interaction.reply({
+        content: `Ticket system is not configured. Ask an admin to set a ticket category via \`/setup\`.`,
+        ephemeral: true,
+      });
+    }
+
     const posChannel = await interaction.guild.channels.cache.find(
       (c) => c.name === `ticket-${interaction.user.displayName}`
     );
@@ -31,7 +38,7 @@ module.exports = {
         ephemeral: true,
       });
 
-    const category = data.Channel;
+    const category = data.Category;
 
     const embed = new EmbedBuilder()
       .setColor(`Blurple`)
