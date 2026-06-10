@@ -12,8 +12,11 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate            # Required after install/schema changes
 npm run dev                  # Start with nodemon
 ```
+
+`npm run dev` expects `nodemon` to be available, but this repo does not list `nodemon` in `package.json`. Use `npm start` or install/run nodemon explicitly if the script is unavailable.
 
 ## Project Scripts
 
@@ -204,7 +207,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Documents the old document-scoped `deleteMany()` failure mode; current code deletes through the Prisma delegate |
+| `events-handler-shape.test.js` | Event loader supports `{ event, run }` modules and the separate validation chain |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping avoids duplicate entries and safe expiry errors |
+| `rank-card-presence-status.test.js` | Rank card presence normalization maps unsupported statuses to `offline` |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

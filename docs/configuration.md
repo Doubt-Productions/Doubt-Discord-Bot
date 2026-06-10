@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
+| `PRODUCTION` | Set to `true` for production, `false` for development | Always - controls token/client/guild selection; see MongoDB caveat below |
 | `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
 | `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_GUILD_ID` | Guild ID for ready-time slash and context-menu registration | Always |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | Runtime only when `PRODUCTION` is unset/empty in the current template |
 
 ### Production Variables
 
@@ -34,18 +34,32 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag controls most selected credentials with an exact string comparison:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  ->  DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
+PRODUCTION=true   ->  CLIENT_TOKEN, CLIENT_ID, GUILD_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI selection in `src/example.config.js` is different:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION unset/empty  ->  DEV_MONGODB_URI
+PRODUCTION=false        ->  MONGODB_URI
+PRODUCTION=true         ->  MONGODB_URI
 ```
+
+That happens because `handler.mongodb.uri` checks `process.env.PRODUCTION` for truthiness instead of comparing to `"true"`. If your `.env` contains `PRODUCTION=false`, verify the generated `src/config.js` before starting the bot or change the URI expression locally.
+
+The guild ID for command deployment is split by code path:
+
+```
+Ready-time slash commands      ->  DEV_GUILD_ID
+Ready-time context menus       ->  DEV_GUILD_ID
+Developer command deployment   ->  config.handler.guildId
+```
+
+`config.handler.guildId` comes from `src/example.config.js` and follows the exact `PRODUCTION === "true"` check, so developer commands deploy to `GUILD_ID` only when `PRODUCTION=true`.
 
 ---
 
