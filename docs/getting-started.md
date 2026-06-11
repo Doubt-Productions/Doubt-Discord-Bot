@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs runtime dependencies and the Prisma CLI dev dependency. There is no `postinstall` hook in `package.json`, so generate the Prisma client explicitly after install and after schema changes:
 
 ```bash
 npx prisma generate
@@ -43,13 +41,15 @@ Fill in the required values. See [Configuration](configuration.md) for details o
 At minimum for development, you need:
 
 ```env
-PRODUCTION=false
+# Leave PRODUCTION unset or empty for local development.
 DEV_TOKEN=your_discord_bot_token
 DEV_CLIENT_ID=your_discord_app_id
 DEV_GUILD_ID=your_test_server_id
 DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
+
+Note: `src/example.config.js` handles `PRODUCTION` inconsistently. Token and client ID checks require the string `"true"`, but MongoDB URI selection uses truthiness, so `PRODUCTION=false` still selects `MONGODB_URI` after you copy the template. Leave it unset for local development or verify `handler.mongodb.uri` in `src/config.js` before starting the bot.
 
 ## Step 4: Configure the Bot
 
@@ -106,6 +106,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 npm run dev
 ```
 
+`npm run dev` shells out to `nodemon .`. `nodemon` is not listed in this repository's dependencies, so install it globally or use `npm start` if your environment does not already provide it.
+
 ### Production mode:
 
 ```bash
@@ -147,3 +149,7 @@ The bot tries to rename `botGuilds` and `botUsers` channels periodically. If the
 ### Prefix commands don't work
 
 Prefix commands are disabled by default. In `src/config.js`, set `handler.commands.prefix` to `true` to enable them.
+
+### Prisma client is missing
+
+Run `npx prisma generate`. The generated client is required by the Prisma delegate re-exports in `src/schemas/**`, but dependency installation does not generate it automatically.

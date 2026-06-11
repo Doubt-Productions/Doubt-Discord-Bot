@@ -24,7 +24,7 @@ Doubt is a feature-rich Discord bot offering:
 - **Ticket System** — configurable support tickets with HTML transcripts
 - **Welcome System** — customizable join messages and auto-roles
 - **AFK System** — automatic AFK status with mention notifications
-- **Join-to-Create** — temporary voice channels
+- **Join-to-Create** — temporary voice channels when existing setup data is present; `/setup` does not expose a complete JTC configuration path yet
 - **Rank/XP System** — per-guild leveling with rank cards
 - **Utility** — embeds, user info, server info, translation, avatars
 - **Developer Tools** — eval, deploy, badge management, simulated joins/leaves

@@ -130,10 +130,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing context menus and deletes menus marked `deleted` on `DEV_GUILD_ID`; it does not edit existing menu definitions
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
 ## Database Layer
 
@@ -177,5 +178,5 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
 | `buttonPagination.js` | Alternative pagination helper |
-| `join-to-create/generateEmbed.js` | JTC status embed builder |
-| `join-to-create/generateRow.js` | JTC dashboard button row |
+| `join-to-create/generateEmbed.js` | JTC status embed builder; currently not referenced by the runtime setup or voice handlers |
+| `join-to-create/generateRow.js` | JTC dashboard button row; currently not referenced by the runtime setup or voice handlers |

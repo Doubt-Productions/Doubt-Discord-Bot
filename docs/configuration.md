@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production; leave unset or empty for development because `false` is still truthy for MongoDB URI selection | Always — controls token/client/guild selection, with MongoDB caveat below |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not `"true"` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not `"true"` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is unset or empty in generated config |
 
 ### Production Variables
 
@@ -34,17 +34,27 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+For token, client ID, and `handler.guildId`, `PRODUCTION` controls which set of credentials the bot uses:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=true        → CLIENT_TOKEN, CLIENT_ID, GUILD_ID
+anything else/unset    → DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
 ```
 
-The guild ID for command registration:
+There are two important constraints in the current source:
+
+- Token, client ID, and `handler.guildId` selection compare `process.env.PRODUCTION === "true"`.
+- MongoDB URI and `variables.dbName` selection use `process.env.PRODUCTION` truthiness. Environment variables are strings, so `PRODUCTION=false` is still truthy for those fields and selects `MONGODB_URI` plus `production`.
+
+For local development, leave `PRODUCTION` unset or empty when generating `src/config.js`, or verify `handler.mongodb.uri` after copying `src/example.config.js`.
+
+Guild ID usage is split by deployment path:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+Ready-time slash commands   → DEV_GUILD_ID
+Ready-time context menus    → DEV_GUILD_ID
+Developer command deploy    → config.handler.guildId
+config.handler.guildId      → GUILD_ID only when PRODUCTION === "true"; otherwise DEV_GUILD_ID
 ```
 
 ---

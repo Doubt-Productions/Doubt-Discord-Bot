@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate          # Required after install or schema changes
 npm run dev                  # Start with nodemon
 ```
 
@@ -20,7 +21,7 @@ npm run dev                  # Start with nodemon
 | Script | Command | Description |
 |--------|---------|-------------|
 | `npm start` | `node .` | Start the bot |
-| `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
+| `npm run dev` | `nodemon .` | Start with auto-restart on file changes; requires `nodemon` to be available in the environment |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
 
 ## Code Structure
@@ -204,7 +205,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Account deletion uses Prisma delegate deletes instead of Mongoose document methods |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` modules and validation chains correctly |
+| `interaction-cooldown.test.js` | Backup slash-command cooldown map stores per-user, per-command state and expires safely |
+| `rank-card-presence-status.test.js` | Rank-card presence values normalize missing or unsupported statuses to canvacord-safe values |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
