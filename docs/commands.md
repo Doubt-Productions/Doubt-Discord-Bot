@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): server member to display |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -72,6 +72,8 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
+
+The setup embed mentions Join-to-Create as future work, but the initial select menu currently exposes only Welcome and Ticket. A later "Go Back" component includes a JTC option whose handler path is incomplete, so do not treat JTC as configurable through `/setup` yet.
 
 ---
 

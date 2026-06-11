@@ -44,6 +44,8 @@ A configurable support ticket system with HTML transcripts.
    - **Channel** — the channel where the ticket panel is posted
    - **Role** — the support role that gets access to tickets
 
+The setup flow stores those values in MongoDB, but it does not currently post a ticket panel automatically. Operators still need an existing message/component flow that uses the `ticket` select menu custom ID.
+
 ### How It Works
 
 1. Members select a ticket type from the panel select menu
@@ -51,8 +53,13 @@ A configurable support ticket system with HTML transcripts.
 3. A private channel is created named `ticket-<username>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
+
+Runtime constraints:
+
+- `ticket-modal.js` currently uses the configured `Channel` value as the new ticket channel parent. Although setup also stores `Category`, verify the selected channel/category behavior before relying on ticket placement in production.
+- The close handler does not look up the original ticket creator; it sends the transcript to `interaction.member`.
 
 ---
 
@@ -125,7 +132,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. Existing `jtcsetups` data identifies the hub voice channel
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -137,6 +144,12 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
 
+Current limitations:
+
+- `/setup` advertises Join-to-Create as future work, and the top-level setup select menu does not expose the JTC option.
+- `setupSSM.js` contains an unused `jtc` branch, but there is no `jtcSSM` select handler under `src/components/selects`.
+- The voice handler reads `data.UserLimit`, but the `JTCSetup` Prisma model does not define a `UserLimit` field. Treat any user-limit behavior as unwired until the schema and setup path are completed.
+
 ---
 
 ## Rank / XP System
@@ -145,7 +158,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +169,7 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized for canvacord compatibility. Missing presence, unsupported statuses, and `invisible` are shown as `offline`.
 
 ### Data Storage
 
