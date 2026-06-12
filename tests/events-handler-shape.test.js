@@ -30,4 +30,8 @@ test("events handler uses per-module registration and .run for object exports", 
     src.includes("continue") && src.includes("interactionCreate (validators)"),
     "expected validations block to register validator chain separately"
   );
+  assert.ok(
+    src.includes("interactionCreateFollowups"),
+    "expected Guild interactionCreate handlers to chain after validators"
+  );
 });
