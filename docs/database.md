@@ -4,7 +4,7 @@ Doubt uses **MongoDB** as its database, accessed through **Prisma v6**. The Pris
 
 ## Connection
 
-The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag).
+The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri`; current `src/example.config.js` selects `MONGODB_URI` whenever `process.env.PRODUCTION` is a non-empty string, including `PRODUCTION=false`, and selects `DEV_MONGODB_URI` only when `PRODUCTION` is unset or empty.
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
 
@@ -145,7 +145,7 @@ Ticket system configuration — one per guild.
 |-------|------|-------------|
 | `id` | ObjectId | Auto-generated primary key |
 | `Guild` | String? | Discord guild ID |
-| `Channel` | String? | Ticket panel channel ID |
+| `Channel` | String? | Stored ticket channel setting; current ticket modal code reads this field as the new ticket channel parent |
 | `Category` | String? | Category for ticket channels |
 | `Ticket` | String? | Current ticket type/subject |
 | `Role` | String? | Support role with ticket access |
@@ -153,6 +153,8 @@ Ticket system configuration — one per guild.
 **Collection:** `tickets`
 
 **Used by:** Setup wizard (ticketSSM), ticket menu, ticket modal
+
+The setup wizard does not currently auto-post a ticket panel. Verify `src/components/modals/ticket-modal.js` before changing the meaning of `Channel` or `Category`.
 
 ---
 
@@ -214,6 +216,8 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+`src/events/Guild/jointocreate.js` reads `data.UserLimit`, but the Prisma model does not define a `UserLimit` field yet.
 
 ## Schema Files
 
