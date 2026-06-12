@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate          # Required after install/schema edits
 npm run dev                  # Start with nodemon
 ```
 
@@ -20,12 +21,14 @@ npm run dev                  # Start with nodemon
 | Script | Command | Description |
 |--------|---------|-------------|
 | `npm start` | `node .` | Start the bot |
-| `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
+| `npm run dev` | `nodemon .` | Start with auto-restart on file changes; requires `nodemon` in the environment |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
 
 ## Code Structure
 
 ### Adding a Slash Command
+
+`command.example.txt` has a scaffold you can copy when adding command modules.
 
 Create a new file in `src/commands/slash/<Category>/`:
 
@@ -87,6 +90,8 @@ module.exports = {
 Remember: prefix commands are disabled by default (`config.handler.commands.prefix`).
 
 ### Adding a Component Handler
+
+`component.example.txt` has a compact component scaffold. Component handlers are loaded by `customId`.
 
 #### Button
 
@@ -202,7 +207,10 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader support for validators, function handlers, and `{ event, run }` modules |
+| `interaction-cooldown.test.js` | Guild backup interaction cooldown behavior |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `rank-card-presence-status.test.js` | Rank-card presence status normalization for canvacord |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
@@ -226,6 +234,21 @@ Prefix commands use:
 
 ```js
 run: async (client, message, args) => { ... }
+```
+
+### Event Handler Shape
+
+`event.example.txt` documents the event scaffold style. The current loader does not read the example file's `once` field; handlers are registered with `client.on`. The loader supports two shapes:
+
+```js
+// Function exports are grouped under the folder name as the Discord event name.
+module.exports = async (client, ...args) => {};
+
+// Object exports are registered using the explicit event property.
+module.exports = {
+  event: "messageCreate",
+  run: async (client, message) => {},
+};
 ```
 
 ### Database Access
