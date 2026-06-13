@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required) |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
