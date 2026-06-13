@@ -1,58 +1,14 @@
-const config = require('../../config');
-const { log } = require('../../functions');
 const ExtendedClient = require('../../class/ExtendedClient');
 
 module.exports = {
     event: 'interactionCreate',
     /**
-     * 
-     * @param {ExtendedClient} client 
-     * @param {import('discord.js').Interaction} interaction 
-     * @returns 
+     * Buttons, select menus, and modals are validated and executed only by the
+     * `src/events/validations/` interactionCreate chain. Running components here
+     * as well duplicated execution.
+     *
+     * @param {ExtendedClient} client
+     * @param {import('discord.js').Interaction} interaction
      */
-    run: (client, interaction) => {
-        if (interaction.replied || interaction.deferred) return;
-
-        if (interaction.isButton()) {
-            const component = client.collection.components.buttons.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        };
-
-        if (interaction.isAnySelectMenu()) {
-            const component = client.collection.components.selects.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        };
-
-        if (interaction.isModalSubmit()) {
-            const component = client.collection.components.modals.get(interaction.customId);
-
-            if (!component) return;
-
-            try {
-                component.run(client, interaction);
-            } catch (error) {
-                log(error, 'error');
-            }
-
-            return;
-        }
-    },
+    run: async () => {},
 };
