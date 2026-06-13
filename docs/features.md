@@ -145,7 +145,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP for the selected member
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
