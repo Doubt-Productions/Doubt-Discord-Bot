@@ -4,7 +4,7 @@ Doubt uses **MongoDB** as its database, accessed through **Prisma v6**. The Pris
 
 ## Connection
 
-The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag).
+The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri`; in the config template, that value comes from `DEV_MONGODB_URI` only when `PRODUCTION` is unset or empty, and from `MONGODB_URI` when `PRODUCTION` is any non-empty string.
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
 

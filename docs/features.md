@@ -40,9 +40,11 @@ A configurable support ticket system with HTML transcripts.
 1. Run `/setup` in your server
 2. Select **Ticket** from the setup menu
 3. Configure:
-   - **Category** — the channel category where tickets are created
-   - **Channel** — the channel where the ticket panel is posted
+   - **Category** — stored as ticket configuration
+   - **Channel** — stored as the ticket panel channel
    - **Role** — the support role that gets access to tickets
+
+The setup flow stores configuration in MongoDB, but it does not currently post a ticket panel automatically. A ticket panel message still needs a `ticket` select-menu component for members to open the modal-backed ticket flow.
 
 ### How It Works
 
@@ -51,8 +53,10 @@ A configurable support ticket system with HTML transcripts.
 3. A private channel is created named `ticket-<username>`
 4. The channel is visible only to the member, support role, and admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
+6. An HTML transcript is generated and DM'd to the member who clicked **Close Ticket**
 7. The channel is deleted after 10 seconds
+
+Current implementation note: `src/components/modals/ticket-modal.js` uses the stored `Ticket.Channel` value as the new channel `parent`, even though setup also records a `Ticket.Category` value. Verify this before changing ticket setup or support runbooks.
 
 ---
 
@@ -125,7 +129,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. A `jtcsetups` document already exists for the guild with a hub voice channel ID
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -135,7 +139,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### Configuration
 
-JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels.
+JTC setup data is stored in the `jtcsetups` collection with the hub channel ID, category, and active temporary channels. The `/setup` command currently labels Join-to-Create as future work and does not expose the `jtc` select option, and there is no `jtcSSM` component file. The runtime handler also reads `data.UserLimit`, but `prisma/schema.prisma` does not define a `UserLimit` field on `JTCSetup`, so generated clients will not persist that setting.
 
 ---
 
@@ -145,7 +149,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP for a required guild member
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +160,7 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status normalized for canvacord. Missing presence, unsupported status values, and `invisible` are shown as `offline`.
 
 ### Data Storage
 
