@@ -5,6 +5,7 @@ const mConfig = require("../../messageConfig.json");
 const getLocalContextMenus = require("../../utils/getLocalContextMenus");
 
 module.exports = async (client, interaction) => {
+  if (interaction.replied || interaction.deferred) return;
   if (!interaction.isContextMenuCommand()) return;
   const localContextMenus = getLocalContextMenus();
 

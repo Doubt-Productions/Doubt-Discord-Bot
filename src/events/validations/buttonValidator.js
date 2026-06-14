@@ -6,6 +6,7 @@ const getButtons = require("../../utils/getButtons");
 const chalk = require("chalk");
 
 module.exports = async (client, interaction) => {
+  if (interaction.replied || interaction.deferred) return;
   if (!interaction.isButton()) return;
   const buttons = getButtons();
 
@@ -80,7 +81,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await buttonObject.run(client, interaction);
   } catch (err) {
     console.log(chalk.red(`An error occurred! ${err}`));
   }

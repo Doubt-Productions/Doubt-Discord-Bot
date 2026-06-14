@@ -5,6 +5,7 @@ const mConfig = require("../../messageConfig.json");
 const getModals = require("../../utils/getModals");
 
 module.exports = async (client, interaction) => {
+  if (interaction.replied || interaction.deferred) return;
   if (!interaction.isModalSubmit()) return;
   const modals = getModals();
 
@@ -69,7 +70,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await modalObject.run(client, interaction);
   } catch (err) {
     console.error(
       `An error occurred while validating modal commands! ${err}`

@@ -5,6 +5,7 @@ const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
 module.exports = async (client, interaction) => {
+  if (interaction.replied || interaction.deferred) return;
   if (!interaction.isChatInputCommand()) return;
   const localCommands = getLocalDevCommands();
 
@@ -122,7 +123,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await commandObject.run(client, interaction);
   } catch (err) {
     console.error(
       `An error occurred while validating chat input commands! ${err}`
