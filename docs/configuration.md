@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production; leave unset or empty for development unless you have reviewed the MongoDB caveat below | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not exactly `true` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not exactly `true` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is unset/empty for runtime MongoDB URI selection |
 
 ### Production Variables
 
@@ -34,18 +34,22 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag is read in two different ways in `src/example.config.js`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=true       →  CLIENT_TOKEN, CLIENT_ID, GUILD_ID
+PRODUCTION unset/empty → DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI selection uses truthiness instead of an exact `"true"` comparison:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION unset/empty → DEV_MONGODB_URI
+PRODUCTION=false       → MONGODB_URI because "false" is a non-empty string
+PRODUCTION=true        → MONGODB_URI
 ```
+
+For local development, either leave `PRODUCTION` unset/empty or verify the copied `src/config.js` explicitly selects the intended MongoDB URI.
 
 ---
 
