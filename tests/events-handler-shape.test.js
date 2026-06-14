@@ -27,7 +27,8 @@ test("events handler uses per-module registration and .run for object exports", 
     "expected validations folder special-case"
   );
   assert.ok(
-    src.includes("continue") && src.includes("interactionCreate (validators)"),
-    "expected validations block to register validator chain separately"
+    src.includes("guildComponents.run(client, ...args)") &&
+      src.includes('fileName === "components.js"'),
+    "expected Guild interaction handlers in validator chain without duplicate listeners"
   );
 });

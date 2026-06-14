@@ -11,6 +11,7 @@ const getSelects = require("../../utils/getSelects");
  * @returns
  */
 module.exports = async (client, interaction) => {
+  if (interaction.replied || interaction.deferred) return;
   if (!interaction.isAnySelectMenu()) return;
   const selects = getSelects();
 
@@ -85,7 +86,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await selectObject.run(client, interaction);
   } catch (err) {
     console.error(`An error occurred while validating select menus! ${err}`);
   }
