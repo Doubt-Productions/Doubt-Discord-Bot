@@ -1,10 +1,7 @@
 /**
- * Regression: src/handlers/events.js must register Discord event names from
- * each module's `event` field and call `eventModule.run` for object exports.
- * A broken "one listener per folder" loop called `await eventFunction(client,
- * ...args)` on every file, which throws for `{ event, run }` modules and
- * registered the wrong event name (e.g. "Guild"), so messageCreate and Guild
- * interactionCreate never ran.
+ * Regression: interactionCreate must use one sequential listener so validators
+ * gate before Guild handlers run. Separate listeners caused every slash command
+ * and button to execute twice in parallel (economy corruption, double eval).
  */
 const { test } = require("node:test");
 const assert = require("node:assert");
@@ -23,11 +20,28 @@ test("events handler uses per-module registration and .run for object exports", 
     "expected object-module branch with eventModule.run and eventModule.event"
   );
   assert.ok(
+    src.includes("interactionCreateHandlers"),
+    "expected consolidated interactionCreate handler list"
+  );
+  assert.ok(
+    src.includes('eventModule.event === "interactionCreate"'),
+    "expected Guild interactionCreate modules to join consolidated chain"
+  );
+  assert.ok(
     src.includes('folderName === "validations"'),
     "expected validations folder special-case"
   );
-  assert.ok(
-    src.includes("continue") && src.includes("interactionCreate (validators)"),
-    "expected validations block to register validator chain separately"
-  );
+});
+
+test("validators gate interactions without executing command run()", () => {
+  const validatorDir = path.join(__dirname, "../src/events/validations");
+  const files = fs.readdirSync(validatorDir).filter((f) => f.endsWith(".js"));
+
+  for (const file of files) {
+    const src = fs.readFileSync(path.join(validatorDir, file), "utf8");
+    assert.ok(
+      !src.includes(".run(client, interaction)"),
+      `${file} must not execute handlers; Guild listeners own execution`
+    );
+  }
 });

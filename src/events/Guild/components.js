@@ -10,7 +10,7 @@ module.exports = {
      * @param {import('discord.js').Interaction} interaction 
      * @returns 
      */
-    run: (client, interaction) => {
+    run: async (client, interaction) => {
         if (interaction.replied || interaction.deferred) return;
 
         if (interaction.isButton()) {
@@ -19,7 +19,7 @@ module.exports = {
             if (!component) return;
 
             try {
-                component.run(client, interaction);
+                await component.run(client, interaction);
             } catch (error) {
                 log(error, 'error');
             }
@@ -33,7 +33,7 @@ module.exports = {
             if (!component) return;
 
             try {
-                component.run(client, interaction);
+                await component.run(client, interaction);
             } catch (error) {
                 log(error, 'error');
             }
@@ -47,7 +47,7 @@ module.exports = {
             if (!component) return;
 
             try {
-                component.run(client, interaction);
+                await component.run(client, interaction);
             } catch (error) {
                 log(error, 'error');
             }
