@@ -12,8 +12,11 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate          # Required after install or schema edits
 npm run dev                  # Start with nodemon
 ```
+
+`npm run dev` expects `nodemon` to be available; install it globally or use your preferred local runner if the command is missing.
 
 ## Project Scripts
 
@@ -202,9 +205,12 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader registers validators and `{ event, run }` modules correctly |
+| `interaction-cooldown.test.js` | Guild backup slash cooldown bookkeeping and expiry behavior |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `rank-card-presence-status.test.js` | Rank cards normalize missing or unsupported presence statuses |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

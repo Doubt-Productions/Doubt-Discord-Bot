@@ -154,6 +154,8 @@ Ticket system configuration — one per guild.
 
 **Used by:** Setup wizard (ticketSSM), ticket menu, ticket modal
 
+**Operational note:** the setup wizard stores both `Category` and `Channel`, but `src/components/modals/ticket-modal.js` currently uses `data.Channel` as the parent when creating a ticket channel. Verify this path before changing the ticket setup UX or documenting automated ticket-panel posting.
+
 ---
 
 ### GuildSchema
@@ -214,6 +216,8 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+**Operational note:** `/setup` does not currently expose the JTC option, and `src/events/Guild/jointocreate.js` reads `data.UserLimit` even though the Prisma model has no `UserLimit` field. Existing deployments need manual data setup and should expect `userLimit` to be undefined unless the schema/code gap is resolved.
 
 ## Schema Files
 

@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production; leave unset or empty for development | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not `"true"` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not `"true"` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is unset or empty |
 
 ### Production Variables
 
@@ -34,18 +34,20 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag controls which set of credentials the bot uses, but the checks are not identical in `src/example.config.js`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION unset/empty  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
+PRODUCTION=true         →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
 
 The guild ID for command registration:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION is not "true"  →  DEV_GUILD_ID
+PRODUCTION=true           →  GUILD_ID
 ```
+
+Important pitfall: environment variables are strings. Token, client ID, and guild ID selection compare `process.env.PRODUCTION === "true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. If `.env` contains `PRODUCTION=false`, the runtime MongoDB URI still resolves to `MONGODB_URI`, not `DEV_MONGODB_URI`.
 
 ---
 

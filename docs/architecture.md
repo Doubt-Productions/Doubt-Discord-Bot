@@ -130,10 +130,13 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing user/message menus and deletes menus marked `deleted` on `DEV_GUILD_ID`
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+
+The validation pipeline is the primary `interactionCreate` path. The Guild `interactionCreate.js` file is a backup router that skips replied/deferred interactions and is the only path that applies `command.options.cooldown`.
 
 ## Database Layer
 
@@ -176,6 +179,7 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `getButtons.js` / `getSelects.js` / `getModals.js` | Load component modules |
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
+| `rankCardPresenceStatus.js` | Normalize Discord member presence to canvacord-safe rank-card statuses |
 | `buttonPagination.js` | Alternative pagination helper |
 | `join-to-create/generateEmbed.js` | JTC status embed builder |
 | `join-to-create/generateRow.js` | JTC dashboard button row |
