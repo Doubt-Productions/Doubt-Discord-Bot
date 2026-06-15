@@ -30,6 +30,13 @@ module.exports = {
     const reason =
       interaction.options.getString(`reason`) || "No reason provided";
 
+    if (!member) {
+      return interaction.reply({
+        content: `That user is not a member of this server.`,
+        ephemeral: true,
+      });
+    }
+
     if (!member.kickable) {
       return interaction.reply({
         content: `I cannot kick this user!`,
