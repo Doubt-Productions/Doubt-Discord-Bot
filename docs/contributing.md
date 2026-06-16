@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate
 npm run dev                  # Start with nodemon
 ```
 
@@ -204,7 +205,10 @@ test("my feature works correctly", () => {
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Account deletion uses the Prisma delegate delete filter |
+| `events-handler-shape.test.js` | Event loader supports grouped function handlers and `{ event, run }` object handlers |
+| `interaction-cooldown.test.js` | Slash cooldown bookkeeping and expiry are safe |
+| `rank-card-presence-status.test.js` | Rank-card presence status normalization for canvacord |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |

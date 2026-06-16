@@ -22,9 +22,9 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
+This installs all runtime dependencies and the Prisma CLI (dev dependency). There is no `postinstall` hook in `package.json`, so generate the Prisma client explicitly after installing dependencies or changing `prisma/schema.prisma`.
 
-If you need to regenerate the Prisma client manually:
+Generate or regenerate the Prisma client:
 
 ```bash
 npx prisma generate
@@ -43,13 +43,15 @@ Fill in the required values. See [Configuration](configuration.md) for details o
 At minimum for development, you need:
 
 ```env
-PRODUCTION=false
+# Leave PRODUCTION unset or empty for local development.
 DEV_TOKEN=your_discord_bot_token
 DEV_CLIENT_ID=your_discord_app_id
 DEV_GUILD_ID=your_test_server_id
 DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
+
+Avoid setting a literal `PRODUCTION=false` string with the generated config. Token and guild selection treat it as development, but MongoDB URI selection treats any non-empty string as truthy and selects `MONGODB_URI`.
 
 ## Step 4: Configure the Bot
 
@@ -105,6 +107,8 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 ```bash
 npm run dev
 ```
+
+`npm run dev` calls `nodemon .`; install `nodemon` separately or use `npx nodemon .` if it is not already available in your environment.
 
 ### Production mode:
 

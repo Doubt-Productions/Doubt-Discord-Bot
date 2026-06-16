@@ -70,9 +70,15 @@ The event handler scans `src/events/` subdirectories:
 | `ready/` | Files export functions, registered under `ready` event |
 | `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
 
-### Interaction Validation Pipeline
+### Interaction Routing
 
-When an `interactionCreate` event fires, **all** validators run in sequence:
+The bot registers multiple `interactionCreate` listeners:
+
+- `src/events/Guild/interactionCreate.js` routes loaded slash and developer commands from `client.collection.*` and is the only path that applies `command.options.cooldown`.
+- `src/events/Guild/components.js` routes loaded button, select-menu, and modal handlers from `client.collection.components`.
+- `src/events/validations/**` is a sequential validation chain registered under `interactionCreate`.
+
+The validators run in sequence:
 
 ```
 interactionCreate
@@ -90,6 +96,8 @@ Each validator:
 3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
 
+The Guild interaction handlers skip interactions that have already been replied to or deferred. The validation chain does not perform that shared guard before command execution, so changing listener order or moving command execution between paths can affect double-run behavior and cooldown enforcement.
+
 ### Guild Event Handlers
 
 These handle non-interaction events:
@@ -99,7 +107,7 @@ These handle non-interaction events:
 | `messageCreate.js` | `messageCreate` | Prefix command routing |
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
-| `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
+| `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management when `jtcsetups` data already exists |
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
 | `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
@@ -130,10 +138,11 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing menus and deletes menus marked `deleted` on `DEV_GUILD_ID`; it does not edit existing menu definitions
+3. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
 ## Database Layer
 

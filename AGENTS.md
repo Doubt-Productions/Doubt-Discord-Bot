@@ -4,11 +4,11 @@
 
 ### Overview
 
-This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB via **Prisma v6** for persistence and supports slash/prefix commands, moderation, economy, leveling, tickets, and more.
+This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB via **Prisma v6** for persistence and supports slash/prefix commands, moderation, economy, manual rank cards, tickets, and more.
 
 ### Prerequisites
 
-- **MongoDB**: Must be running and reachable by the URI selected in `src/config.js`. For local development, set `DEV_MONGODB_URI=mongodb://127.0.0.1:27017/doubt`. In Cloud Agent environments, start MongoDB via Docker:
+- **MongoDB**: Must be running and reachable by the URI selected in `src/config.js`. For local development, set `DEV_MONGODB_URI=mongodb://127.0.0.1:27017/doubt` and leave `PRODUCTION` unset or empty unless you have reviewed the generated config. A literal `PRODUCTION=false` string still selects `MONGODB_URI` for runtime Prisma connections in `src/example.config.js`. In Cloud Agent environments, start MongoDB via Docker:
   ```
   sudo dockerd &>/tmp/dockerd.log &
   sleep 3
