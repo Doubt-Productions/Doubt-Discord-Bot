@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production. Leave unset or empty for local development unless you have reviewed `src/config.js`. | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not `"true"` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not `"true"` |
+| `DEV_GUILD_ID` | Guild ID for ready-time slash/context-menu registration | Always |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is unset or empty in the generated config |
 
 ### Production Variables
 
@@ -34,18 +34,27 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The generated `src/example.config.js` does not handle every field the same way. Token, client ID, and `handler.guildId` compare `PRODUCTION` to the string `"true"`:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION unset/empty/false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_GUILD_ID
+PRODUCTION=true               →  CLIENT_TOKEN, CLIENT_ID, GUILD_ID
 ```
 
-The guild ID for command registration:
+MongoDB URI and `variables.dbName` use JavaScript truthiness instead:
+
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION unset/empty  →  DEV_MONGODB_URI, development
+PRODUCTION=false        →  MONGODB_URI, production
+PRODUCTION=true         →  MONGODB_URI, production
 ```
+
+For local development, prefer leaving `PRODUCTION` unset or empty. A literal `PRODUCTION=false` string still selects `MONGODB_URI` for runtime Prisma connections unless you edit the generated `src/config.js`.
+
+Command registration uses two guild IDs:
+
+- Ready-time slash commands and context menus always use `DEV_GUILD_ID`.
+- Developer commands use `config.handler.guildId`, which resolves to `DEV_GUILD_ID` unless `PRODUCTION === "true"`, then `GUILD_ID`.
 
 ---
 

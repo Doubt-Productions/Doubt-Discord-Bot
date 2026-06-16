@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): server member to render |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -73,6 +73,8 @@ The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
 
+The setup embed mentions Join-to-Create, but the JTC select-menu option is currently commented out and the embed says the feature will be added later.
+
 ---
 
 ## Context Menu Commands
@@ -104,7 +106,7 @@ Prefix commands use `?` by default (configurable per-guild). They are **disabled
 
 ## Developer Commands
 
-These commands are deployed only to the support/dev guild (`config.handler.guildId`). Most require the user's ID to be listed in `config.moderation.developers`.
+These commands are deployed only to the support/dev guild (`config.handler.guildId`). In local development that usually resolves to `DEV_GUILD_ID`; with `PRODUCTION=true` it resolves to `GUILD_ID`. Most require the user's ID to be listed in `config.moderation.developers`.
 
 | Command | Description | Gate |
 |---------|-------------|------|

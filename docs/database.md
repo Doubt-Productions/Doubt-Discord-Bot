@@ -4,7 +4,9 @@ Doubt uses **MongoDB** as its database, accessed through **Prisma v6**. The Pris
 
 ## Connection
 
-The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag).
+The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri`, not directly from `DATABASE_URL`.
+
+In the generated `src/example.config.js`, token and guild selection use `PRODUCTION === "true"`, but MongoDB URI selection uses truthiness. For local development, leave `PRODUCTION` unset or empty so runtime Prisma uses `DEV_MONGODB_URI`; a literal `PRODUCTION=false` string selects `MONGODB_URI`.
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
 
@@ -115,6 +117,8 @@ Experience points and level data — one per user per guild.
 
 **Used by:** `/rank info/reset/set`
 
+There is no verified passive XP writer in the current event handlers. Rank data is created or updated by the rank commands, with missing users displayed as level `1` and XP `0` by `/rank info`.
+
 ---
 
 ### Welcome
@@ -214,6 +218,8 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+The current `/setup` command does not expose JTC configuration, so this collection must already contain valid setup data before `src/events/Guild/jointocreate.js` can create temporary voice channels. That handler reads `data.UserLimit`, but `JTCSetup` does not currently define a `UserLimit` field in `prisma/schema.prisma`; verify schema and stored documents before depending on JTC voice-channel limits.
 
 ## Schema Files
 
