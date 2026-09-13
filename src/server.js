@@ -3,7 +3,7 @@ function server() {
 
   // Constants
   const PORT = 8080;
-  const HOST = "0.0.0.0";
+  const HOST = process.env.HEALTH_HOST || "127.0.0.1";
 
   // App
   const app = express();

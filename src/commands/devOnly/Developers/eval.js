@@ -4,8 +4,7 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
-const config = require("../../../config");
-const GuildSchema = require("../../../schemas/GuildSchema");
+const { safeEval } = require("../../../utils/safeEval");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,12 +28,26 @@ module.exports = {
     await interaction.deferReply();
     const toCode = interaction.options.getString("code");
 
-    const executedEvalValue = eval(toCode);
-    console.log(executedEvalValue);
+    let executedEvalValue;
+    try {
+      executedEvalValue = await safeEval(toCode, { client, interaction });
+    } catch (error) {
+      await interaction.editReply({
+        content: `Eval failed: ${error.message}`,
+      });
+      return;
+    }
+
+    const output =
+      executedEvalValue === undefined
+        ? "undefined"
+        : typeof executedEvalValue === "string"
+          ? executedEvalValue
+          : JSON.stringify(executedEvalValue, null, 2);
 
     const embed = new EmbedBuilder()
       .setTitle("Code executed")
-      .setDescription(`The return output was:\n${executedEvalValue}`);
+      .setDescription(`The return output was:\n\`\`\`\n${output.slice(0, 3500)}\n\`\`\``);
 
     await interaction.editReply({ embeds: [embed] });
   },

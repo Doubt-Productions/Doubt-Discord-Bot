@@ -10,7 +10,9 @@ module.exports = async (client, interaction) => {
 
   try {
     const modalObject = modals.find(
-      (modal) => modal.customId === interaction.customId
+      (modal) =>
+        interaction.customId === modal.customId ||
+        interaction.customId.startsWith(`${modal.customId}:`)
     );
     if (!modalObject) return;
 

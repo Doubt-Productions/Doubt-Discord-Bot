@@ -5,6 +5,15 @@ module.exports = (existing, local) => {
     return true;
   };
 
+  if (
+    changed(
+      existing.default_member_permissions ?? null,
+      local.data.default_member_permissions ?? null
+    )
+  ) {
+    return true;
+  }
+
   const optionsChanged = changed(
     optionsArray(existing),
     optionsArray(local.data)

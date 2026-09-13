@@ -10,6 +10,8 @@ const {
 const ExtendedClient = require("../../class/ExtendedClient");
 const ticketSchema = require("../../schemas/ticketSchema");
 
+const TICKET_MODAL_PREFIX = "ticket-modal:";
+
 module.exports = {
   customId: "ticket-modal",
   /**
@@ -19,19 +21,29 @@ module.exports = {
    */
   run: async (client, interaction) => {
     const reason = interaction.fields.getTextInputValue("reason");
+    const subject = decodeTicketSubject(interaction.customId);
 
-    const data = await ticketSchema.findFirst({ where: { Guild: interaction.guild.id } });
+    const data = await ticketSchema.findFirst({
+      where: { Guild: interaction.guild.id },
+    });
 
-    const posChannel = await interaction.guild.channels.cache.find(
+    const posChannel = interaction.guild.channels.cache.find(
       (c) => c.name === `ticket-${interaction.user.displayName}`
     );
-    if (posChannel)
+    if (posChannel) {
       return await interaction.reply({
         content: `You already have a ticket open!`,
         ephemeral: true,
       });
+    }
 
-    const category = data.Channel;
+    const category = data?.Category;
+    if (!category) {
+      return await interaction.reply({
+        content: `Ticket system is not fully configured. Ask an admin to set a ticket category.`,
+        ephemeral: true,
+      });
+    }
 
     const embed = new EmbedBuilder()
       .setColor(`Blurple`)
@@ -39,7 +51,7 @@ module.exports = {
       .setDescription(
         `Welcome to your ticket! Please wait while the staff review your information`
       )
-      .addFields({ name: `Subject`, value: `${data.Ticket}`, inline: true })
+      .addFields({ name: `Subject`, value: `${subject}`, inline: true })
       .addFields({ name: `Reason`, value: `${reason}`, inline: true })
       .setFooter({
         text: `${interaction.guild.name} tickets`,
@@ -54,7 +66,7 @@ module.exports = {
         .setEmoji("🔒")
     );
 
-    let channel = await interaction.guild.channels.create({
+    const channel = await interaction.guild.channels.create({
       name: `ticket-${interaction.user.displayName}`,
       parent: category,
       type: ChannelType.GuildText,
@@ -80,18 +92,22 @@ module.exports = {
             PermissionFlagsBits.ReadMessageHistory,
           ],
         },
-        {
-          id: data.Role,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.ReadMessageHistory,
-          ],
-        }
+        ...(data?.Role
+          ? [
+              {
+                id: data.Role,
+                allow: [
+                  PermissionFlagsBits.ViewChannel,
+                  PermissionFlagsBits.SendMessages,
+                  PermissionFlagsBits.ReadMessageHistory,
+                ],
+              },
+            ]
+          : []),
       ],
     });
 
-    let msg = await channel.send({
+    await channel.send({
       embeds: [embed],
       components: [button],
     });
@@ -102,3 +118,16 @@ module.exports = {
     });
   },
 };
+
+function decodeTicketSubject(customId) {
+  if (!customId.startsWith(TICKET_MODAL_PREFIX)) {
+    return "General";
+  }
+
+  const encoded = customId.slice(TICKET_MODAL_PREFIX.length);
+  try {
+    return decodeURIComponent(encoded) || "General";
+  } catch {
+    return "General";
+  }
+}

@@ -102,6 +102,10 @@ module.exports = {
       subcommand.setName("list").setDescription("List all badges")
     ),
 
+  options: {
+    developers: true,
+  },
+
   /**
    *
    * @param {ExtendedClient} client

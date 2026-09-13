@@ -14,11 +14,8 @@ module.exports = async (client, interaction) => {
     );
     if (!commandObject) return;
 
-    const requiresDeveloper =
-      commandObject.devOnly === true ||
-      commandObject.options?.developers === true;
-
-    if (requiresDeveloper) {
+    // Every command under devOnly/ is developer-only (fail-closed).
+    {
       const developerIds = normalizeIdAllowlist(
         config.moderation?.developers
       );

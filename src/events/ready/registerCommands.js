@@ -38,6 +38,8 @@ module.exports = async (client) => {
             name: commandName,
             description: commandDescription,
             options: commandOptions,
+            default_member_permissions:
+              localCommand.data.default_member_permissions ?? null,
           });
           console.log(
             chalk.yellow(`Application command ${commandName} has been edited.`)
@@ -57,6 +59,8 @@ module.exports = async (client) => {
           name: commandName,
           description: commandDescription,
           options: commandOptions,
+          default_member_permissions:
+            localCommand.data.default_member_permissions ?? null,
         });
         console.log(
           chalk.green(`Application command ${commandName} has been registered.`)

@@ -8,16 +8,17 @@ const {
   normalizeIdAllowlist,
 } = require("../src/utils/normalizeIdAllowlist");
 
-function requiresDeveloperGate(cmd) {
-  return cmd.devOnly === true || cmd.options?.developers === true;
+/** All commands under devOnly/ are developer-gated (fail-closed). */
+function requiresDeveloperGate() {
+  return true;
 }
 
 test("eval / deploy style commands use options.developers", () => {
   const evalLike = { options: { developers: true } };
   assert.strictEqual(requiresDeveloperGate(evalLike), true);
   assert.strictEqual(requiresDeveloperGate({ devOnly: true }), true);
-  assert.strictEqual(requiresDeveloperGate({ options: {} }), false);
-  assert.strictEqual(requiresDeveloperGate({}), false);
+  assert.strictEqual(requiresDeveloperGate({ options: {} }), true);
+  assert.strictEqual(requiresDeveloperGate({}), true);
 });
 
 /** Mirrors devCommandValidator staff gate (array roles only; no string.includes) */
