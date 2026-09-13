@@ -17,7 +17,7 @@ module.exports = {
         ? ""
         : "",
     },
-    dbName: process.env.PRODUCTION ? "production" : "development",
+    dbName: process.env.PRODUCTION === "true" ? "production" : "development",
     supportServerId: process.env.GUILD_ID,
   },
   moderation: {
@@ -38,7 +38,7 @@ module.exports = {
       message: true,
     },
     mongodb: {
-      uri: process.env.PRODUCTION
+      uri: process.env.PRODUCTION === "true"
         ? process.env.MONGODB_URI
         : process.env.DEV_MONGODB_URI,
       toggle: true,
