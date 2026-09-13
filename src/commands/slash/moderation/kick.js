@@ -2,6 +2,7 @@ const {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   EmbedBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const ms = require("ms");
@@ -20,7 +21,9 @@ module.exports = {
     .addStringOption((option) =>
       option.setName(`reason`).setDescription(`The reason for the kick`)
     )
+    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
     .toJSON(),
+  userPermissions: [PermissionFlagsBits.KickMembers],
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

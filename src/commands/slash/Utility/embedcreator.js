@@ -4,6 +4,7 @@ const {
   EmbedBuilder,
   ChannelType,
   Colors,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { embed, log } = require("../../../functions");
@@ -56,7 +57,9 @@ module.exports = {
         .setDescription("The footer of the embed")
         .setRequired(false)
     )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .toJSON(),
+  userPermissions: [PermissionFlagsBits.ManageMessages],
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction
