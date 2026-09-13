@@ -32,7 +32,7 @@ module.exports = {
       ? process.env.GUILD_ID
       : process.env.DEV_GUILD_ID,
     commands: {
-      prefix: true,
+      prefix: false,
       slash: true,
       user: true,
       message: true,

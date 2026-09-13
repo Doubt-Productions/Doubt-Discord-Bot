@@ -30,7 +30,7 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
-- Prefix commands require `handler.commands.prefix: true` in `src/config.js`. The example config defaults this to `true`.
+- Prefix commands are loaded from `src/commands/prefix/**` but are gated by `handler.commands.prefix` in `src/config.js`. The example config defaults this to `false`; set it to `true` in your copied `src/config.js` to enable prefix command execution.
 - The default prefix character is `?` via `handler.prefix`. Per-guild overrides come from `GuildSchema.prefix` when `handler.mongodb.toggle` is enabled.
 - Prefix commands are handled by `src/events/Guild/messageCreate.js`, which is registered through the `{ event, run }` export shape in `src/handlers/events.js`.
 - Discord **Message Content Intent** must be enabled for the bot application in the Discord Developer Portal. The client requests `GatewayIntentBits.MessageContent` in `src/class/ExtendedClient.js`, but Discord still requires the privileged intent to be turned on for the app; without it, `message.content` is empty and prefix commands never match.
