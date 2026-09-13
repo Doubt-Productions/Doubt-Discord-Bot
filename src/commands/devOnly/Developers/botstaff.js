@@ -11,6 +11,7 @@ const {
   migrateLegacyStaffRoles,
   BOT_STAFF_BADGE_EMOJI,
 } = require("../../../utils/botStaff");
+const { BOT_STAFF_MIGRATE_WARNING } = require("../../../constants/botStaff");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -45,7 +46,7 @@ module.exports = {
       subcommand
         .setName("migrate")
         .setDescription(
-          "One-time cutover: import legacy moderation.staffRoles members into BotStaff"
+          "One-time cutover: import legacy moderation.staffRoles members into BotStaff (does not remove Discord roles)"
         )
     ),
 
@@ -123,6 +124,7 @@ module.exports = {
           new EmbedBuilder()
             .setTitle(`${BOT_STAFF_BADGE_EMOJI} Bot staff migration`)
             .addFields(fields)
+            .setFooter({ text: BOT_STAFF_MIGRATE_WARNING })
             .setColor(result.migrated?.length ? "Green" : "Orange"),
         ],
       });

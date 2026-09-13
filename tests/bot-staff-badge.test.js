@@ -15,6 +15,15 @@ test("isReservedBotStaffBadge matches stable id and reserved name", () => {
   assert.strictEqual(isReservedBotStaffBadge("random-id", "Helper"), false);
 });
 
+test("isReservedBotStaffBadge blocks lookalike ids and names", () => {
+  assert.strictEqual(isReservedBotStaffBadge("bot_staff", null), true);
+  assert.strictEqual(isReservedBotStaffBadge("botstaff", null), true);
+  assert.strictEqual(isReservedBotStaffBadge("BOT-STAFF", null), true);
+  assert.strictEqual(isReservedBotStaffBadge(null, "BOT  STAFF"), true);
+  assert.strictEqual(isReservedBotStaffBadge(null, "bot-staff"), true);
+  assert.strictEqual(isReservedBotStaffBadge("helper-badge", "Helper"), false);
+});
+
 test("badge command blocks reserved bot-staff badge operations", () => {
   const src = fs.readFileSync(
     path.join(__dirname, "../src/commands/devOnly/Developers/badge.js"),

@@ -127,6 +127,22 @@ module.exports = {
         : null,
       badge = await badges.findFirst({ where: { badgeId: id } });
 
+    if (
+      id &&
+      ["edit", "delete", "give", "take"].includes(option) &&
+      isReservedBotStaffBadge(id, null)
+    ) {
+      return interaction.editReply({
+        embeds: [
+          {
+            title: "❌ Reserved badge",
+            description:
+              "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+          },
+        ],
+      });
+    }
+
     if (option === "create") {
       if (isReservedBotStaffBadge(null, name)) {
         return interaction.editReply({

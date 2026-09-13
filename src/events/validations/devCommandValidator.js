@@ -5,7 +5,11 @@ const {
   isStaffOnlyAllowed,
   hasBotStaffConfigured,
 } = require("../../utils/botStaff");
-const { getStaffOnlyDenialMessage } = require("../../utils/botStaffAcl");
+const {
+  getStaffOnlyDenialMessage,
+  usesStaffOnlyGate,
+  requiresDeveloperGate,
+} = require("../../utils/botStaffAcl");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -19,8 +23,23 @@ module.exports = async (client, interaction) => {
     );
     if (!commandObject) return;
 
-    // Every command under devOnly/ is developer-only (fail-closed).
-    {
+    if (usesStaffOnlyGate(commandObject)) {
+      const developerIds = normalizeIdAllowlist(
+        config.moderation?.developers
+      );
+      const allowed = await isStaffOnlyAllowed(
+        interaction.user.id,
+        developerIds
+      );
+      if (!allowed) {
+        const hasAnyBotStaff = await hasBotStaffConfigured();
+        await interaction.reply({
+          content: getStaffOnlyDenialMessage({ hasAnyBotStaff }),
+          ephemeral: true,
+        });
+        return;
+      }
+    } else if (requiresDeveloperGate(commandObject)) {
       const developerIds = normalizeIdAllowlist(
         config.moderation?.developers
       );
@@ -38,24 +57,6 @@ module.exports = async (client, interaction) => {
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);
         await interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
-
-    if (commandObject.options?.staffOnly) {
-      const developerIds = normalizeIdAllowlist(
-        config.moderation?.developers
-      );
-      const allowed = await isStaffOnlyAllowed(
-        interaction.user.id,
-        developerIds
-      );
-      if (!allowed) {
-        const hasAnyBotStaff = await hasBotStaffConfigured();
-        await interaction.reply({
-          content: getStaffOnlyDenialMessage({ hasAnyBotStaff }),
-          ephemeral: true,
-        });
         return;
       }
     }

@@ -72,4 +72,20 @@ test("botstaff command exposes migrate subcommand", () => {
 
   assert.match(src, /\.setName\("migrate"\)/);
   assert.match(src, /migrateLegacyStaffRoles/);
+  assert.match(src, /BOT_STAFF_MIGRATE_WARNING/);
+});
+
+test("dev validator routes staffOnly commands through BotStaff gate only", () => {
+  const src = fs.readFileSync(
+    path.join(__dirname, "../src/events/validations/devCommandValidator.js"),
+    "utf8"
+  );
+
+  assert.match(src, /usesStaffOnlyGate/);
+  assert.match(src, /requiresDeveloperGate/);
+  const staffGateIndex = src.indexOf("usesStaffOnlyGate(commandObject)");
+  const developerGateIndex = src.indexOf("requiresDeveloperGate(commandObject)");
+  assert.ok(staffGateIndex > -1);
+  assert.ok(developerGateIndex > -1);
+  assert.ok(staffGateIndex < developerGateIndex);
 });
