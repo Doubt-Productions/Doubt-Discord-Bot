@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required) |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -45,29 +45,29 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 
 ### Utility
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/ping` | Bot latency and WebSocket ping | — |
-| `/embedcreator` | Create a custom embed | `title`, `description`, `color` (required); `channel`, `image`, `thumbnail`, `footer` (optional) |
+| Command | Description | Options | Required permission |
+|---------|-------------|---------|---------------------|
+| `/ping` | Bot latency and WebSocket ping | — | — |
+| `/embedcreator` | Create a custom embed | `title`, `description`, `color` (required); `channel`, `image`, `thumbnail`, `footer` (optional) | Manage Messages |
 
 ### Moderation
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/kick <user> [reason]` | Kick a member | `user` (required), `reason` (optional) |
-| `/ban <user> [reason]` | Ban a member | `user` (required), `reason` (optional) |
-| `/unban <user>` | Unban a user by ID | `user` (required): user ID string |
-| `/timeout <user> <duration> [reason]` | Timeout a member | `user` (required), `duration` (required, e.g. `5m`, `1h`, `7d`), `reason` (optional). Range: 5 seconds to 28 days. |
-| `/automod flagged-words <channel>` | Set up flagged words automod | `channel` (required): alert channel |
-| `/automod spam-messages <channel>` | Set up spam detection | `channel` (required): alert channel |
-| `/automod mention-spam <number> <channel> [duration]` | Set up mention spam detection | `number` (required): max mentions, `channel` (required), `duration` (optional) |
-| `/automod keyword <keyword> <channel>` | Block a specific keyword | `keyword` (required), `channel` (required) |
+| Command | Description | Options | Required permission |
+|---------|-------------|---------|---------------------|
+| `/kick <user> [reason]` | Kick a member | `user` (required), `reason` (optional) | Kick Members |
+| `/ban <user> [reason]` | Ban a member | `user` (required), `reason` (optional) | Ban Members |
+| `/unban <user>` | Unban a user by ID | `user` (required): user ID string | Ban Members |
+| `/timeout <user> <duration> [reason]` | Timeout a member | `user` (required), `duration` (required, e.g. `5m`, `1h`, `7d`), `reason` (optional). Range: 5 seconds to 28 days. | Moderate Members |
+| `/automod flagged-words <channel>` | Set up flagged words automod | `channel` (required): alert channel | Manage Guild |
+| `/automod spam-messages <channel>` | Set up spam detection | `channel` (required): alert channel | Manage Guild |
+| `/automod mention-spam <number> <channel> [duration]` | Set up mention spam detection | `number` (required): max mentions, `channel` (required), `duration` (optional) | Manage Guild |
+| `/automod keyword <keyword> <channel>` | Block a specific keyword | `keyword` (required), `channel` (required) | Manage Guild |
 
 ### Management
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/setup` | Open the setup wizard | — |
+| Command | Description | Options | Required permission |
+|---------|-------------|---------|---------------------|
+| `/setup` | Open the setup wizard | — | Manage Guild |
 
 The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
@@ -98,19 +98,19 @@ Prefix commands use `?` by default (configurable per-guild). They are **disabled
 | `?ping` | `?p` | Check bot latency | Administrator |
 | `?prefix set <new>` | — | Change the guild's command prefix | Administrator |
 | `?prefix reset` | — | Reset prefix to default | Administrator |
-| `?eval <code>` | `?e` | Evaluate JavaScript code | Developer only |
+| `?eval <code>` | `?e` | Evaluate JavaScript code in the VM-based `safeEval` sandbox | Developer only |
 
 ---
 
 ## Developer Commands
 
-These commands are deployed only to the support/dev guild (`config.handler.guildId`). Most require the user's ID to be listed in `config.moderation.developers`.
+These commands are deployed only to the support/dev guild (`config.handler.guildId`). Every command under `src/commands/devOnly/**` fails closed unless the user's ID is listed in `config.moderation.developers`.
 
 | Command | Description | Gate |
 |---------|-------------|------|
 | `/connectdb` | Attempt to reconnect to the database | developers |
 | `/deploy` | Re-deploy developer commands to the guild | developers |
-| `/eval <code>` | Evaluate JavaScript code | developers |
+| `/eval <code>` | Evaluate JavaScript code in the VM-based `safeEval` sandbox | developers |
 | `/simjoin` | Simulate a member joining (fires `guildMemberAdd`) | developers |
 | `/simleave` | Simulate a member leaving (fires `guildMemberRemove`) | developers |
 | `/listguilds` | List all guilds the bot is in (paginated) | developers |

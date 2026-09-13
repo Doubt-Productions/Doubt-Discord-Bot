@@ -100,10 +100,8 @@ These handle non-interaction events:
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
-| `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
-| `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+`interactionCreate` is handled only by the `validations/` pipeline. The old backup Guild routers were removed so slash commands, components, modals, and context menus are not double-executed.
 
 ## Component System
 
@@ -135,6 +133,8 @@ Two deployment paths exist:
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
 2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
 
+`src/events/ready/registerCommands.js` also syncs `default_member_permissions` from command definitions, so Discord's command UI and the runtime validators enforce the same user permission gate for protected slash commands.
+
 ## Database Layer
 
 The database layer uses Prisma v6 with the MongoDB provider. See [Database](database.md) for model details.
@@ -149,7 +149,7 @@ The schema files maintain backward-compatible import paths so existing `require(
 
 ## Express Server
 
-`src/server.js` starts a minimal Express server on `0.0.0.0:8080` that serves a single health-check endpoint at `/`. Returns a plain text message confirming the bot is online.
+`src/server.js` starts a minimal Express server on `127.0.0.1:8080` by default and serves a single health-check endpoint at `/`. Set `HEALTH_HOST` when the process should bind a different host. The endpoint returns a plain text message confirming the bot is online.
 
 ## Utility Functions
 
@@ -179,3 +179,6 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `buttonPagination.js` | Alternative pagination helper |
 | `join-to-create/generateEmbed.js` | JTC status embed builder |
 | `join-to-create/generateRow.js` | JTC dashboard button row |
+| `safeEval.js` | Sandboxed developer eval helper with blocked globals, length limit, and timeout |
+| `setupGuard.js` | Manage Guild gate and initiating-user component filter for setup flows |
+| `ticketAuth.js` | Ticket close authorization helper |

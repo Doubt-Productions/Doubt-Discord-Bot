@@ -33,9 +33,9 @@ Configuration constraints:
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
 - Prisma runtime queries use `config.handler.mongodb.uri`. `DATABASE_URL` is only read by Prisma CLI tools.
 - `config.variables.dbName` still exists for configuration compatibility, but the verified Prisma startup path does not read it; include the database name in the MongoDB URI instead.
-- The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
+- The Express sidecar in `src/server.js` listens on `127.0.0.1:8080` by default and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`. Set `HEALTH_HOST` to override the bind host.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` is compared with `process.env.PRODUCTION === "true"` for token, client ID, guild ID, database name, and MongoDB URI selection. Any value other than the exact string `true`, including `false`, selects development credentials.
 
 ## Prisma Persistence
 
@@ -120,8 +120,8 @@ Permission and safety gates are split across validators in `src/events/validatio
 
 - Regular slash commands use `chatInputCommandValidator.js` and `src/utils/getLocalCommands.js`.
 - Developer-only slash commands use `devCommandValidator.js` and `src/utils/getLocalDevCommands.js`.
-- `devOnly: true` or `options.developers: true`: user must be listed in `config.moderation.developers`. Regular slash/context/component validators compare against `interaction.member.id`; the developer-command validator compares against `interaction.user.id`.
-- Missing or empty `config.moderation.developers`: developer-only commands in `devCommandValidator.js` are denied as misconfigured.
+- Every command under `src/commands/devOnly/**` is developer-only, regardless of whether it also sets `options.developers`. The caller must be listed in `config.moderation.developers`; the developer-command validator compares against `interaction.user.id`.
+- Missing or empty `config.moderation.developers`: all developer-only commands in `devCommandValidator.js` are denied as misconfigured.
 - `options.staffOnly: true`: enforced by `devCommandValidator.js`; the member must have one of `config.moderation.staffRoles`.
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.
 - `testMode: true`: command must run in `config.handler.guildId`.
@@ -129,20 +129,32 @@ Permission and safety gates are split across validators in `src/events/validatio
 - `botPermissions`: the bot member must have each listed Discord permission.
 - Component validators also prevent users from interacting with another user's command-owned button or select menu when `interaction.message.interaction` is present.
 
+Protected slash commands now carry both Discord default member permissions and runtime `userPermissions`:
+
+| Command | Required member permission |
+|---------|----------------------------|
+| `/ban`, `/unban` | Ban Members |
+| `/kick` | Kick Members |
+| `/timeout` | Moderate Members |
+| `/automod`, `/setup` | Manage Guild |
+| `/embedcreator` | Manage Messages |
+
+`src/events/ready/registerCommands.js` and `src/utils/commandComparing.js` include `default_member_permissions` when deciding whether to create or edit Discord commands, so permission changes require command registration to run again.
+
+Developer eval commands call `src/utils/safeEval.js` instead of raw `eval()`. The helper runs code in a VM context with a 3000 ms timeout, rejects input over 2000 characters, and blocks direct references to identifiers such as `process`, `require`, `module`, `global`, `Buffer`, `fs`, `child_process`, `net`, `http`, `https`, and `worker_threads`. Slash eval exposes `client` and `interaction`; prefix eval exposes `client` and `message`.
+
 Command execution contracts:
 
-- The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
-- Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
-- The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply a generic slash-command cooldown. Per-command cooldowns must be implemented inside the command module when needed, such as `/rob`.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contract:
 
 - `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
 - Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- Files under `src/events/Guild` export `{ event, run }` objects. The loader registers them on `eventModule.event` and calls `eventModule.run(client, ...args)`.
+- `validations/` is the only `interactionCreate` registration path. The previous backup Guild interaction routers were removed to avoid duplicate command/component execution.
 
 ## Command Deployment
 
@@ -159,21 +171,34 @@ Troubleshooting command registration:
 - If command options are not changing, inspect `src/utils/commandComparing.js`; it normalizes name, description, options, and choices before deciding whether to edit an existing command.
 - `config.handler.deploy` and `config.handler.guildDeploy` exist in `src/example.config.js`, but the verified deployment paths above do not currently read those flags.
 
+## Setup And Ticket Guards
+
+The setup wizard and ticket flow have explicit authorization helpers:
+
+- `/setup` requires Manage Guild through both Discord default member permissions and runtime `userPermissions`.
+- Setup select menus call `denyUnlessManageGuild()` from `src/utils/setupGuard.js`, so direct component interaction is also rejected for members without Manage Guild.
+- Follow-up setup collectors use `setupComponentFilter(interaction, customId)`, which binds the collector to the user who started the setup interaction.
+- Ticket menu selections encode the selected subject in a modal custom ID with the `ticket-modal:` prefix. `ModalCommandValidator.js` routes both exact custom IDs and `customId:` prefixes to the same modal handler.
+- Ticket channels are created under the configured ticket category. If the category is missing, the modal replies with a configuration error instead of creating a channel.
+- `ticket-close` calls `canCloseTicket()` from `src/utils/ticketAuth.js`. A close is allowed for members with Manage Channels, members with the configured support role, or the opener identified by their View Channel permission overwrite.
+- The ticket-close transcript is DM'd to the member who clicked close, then the channel is deleted after 10 seconds.
+
 ## GitHub Release Automation
 
-`.github/workflows/release.yml` publishes GitHub Releases from `main` when `package.json` changes the top-level `version` field.
+`.github/workflows/release.yml` publishes GitHub Releases from `main` when the current `package.json` version does not already have a matching Git tag.
 
 Release workflow behavior:
 
 1. A push to `main` starts the `Release` workflow.
 2. The workflow reads `package.json` with Node and derives the release tag as `v<version>`, for example `v1.2.1`.
-3. It checks only the latest pushed commit range, `HEAD~1..HEAD`, for a `package.json` line containing `"version"`.
-4. If the version changed, it fetches tags and skips the release when the derived tag already exists.
+3. It uses a full checkout (`fetch-depth: 0`) and checks whether the derived tag already exists.
+4. If the tag exists, release creation is skipped.
 5. If the tag is new, it sets up Node.js `22`, installs dependencies with `npm ci || npm install`, runs `npm test`, generates a changelog from commits since the most recent version-sorted tag, and creates a non-draft, non-prerelease GitHub Release with `softprops/action-gh-release`.
+6. GitHub Actions are pinned by commit SHA, and Dependabot is configured to update both npm and GitHub Actions dependencies.
 
 Release operator notes:
 
-- Bump `package.json` in the commit that lands on `main` when you want a release. The workflow does not create or commit version bumps.
+- Bump `package.json` before the commit lands on `main` when you want a new release tag. The workflow does not create or commit version bumps.
 - The workflow creates a Git tag through the GitHub Release action; do not pre-create the same `v<version>` tag unless you intend the workflow to skip release creation.
 - The workflow publishes a GitHub Release only. It does not publish an npm package, build Docker images, deploy the bot, or update Discord commands.
 - `contents: write` permission is required so the workflow token can create the release and tag.
@@ -231,6 +256,17 @@ Regression tests in `tests/` document important economy invariants:
 - `tests/rob-cooldown-race.test.js`: `/rob` must take its per-user cooldown lock before any `await` to avoid overlapping balance saves.
 - `tests/rob-caught-penalty.test.js`, `tests/rob-failure-penalty.test.js`, and `tests/rob-fine-cap.test.js`: a failed robbery fine must not exceed the robber's current wallet.
 
+Security and runtime regression tests cover recent hardening:
+
+- `tests/events-handler-shape.test.js`: object-style Guild event modules must register by their `event` field.
+- `tests/no-duplicate-interaction-handlers.test.js`: backup Guild interaction routers must stay removed so validators are the single `interactionCreate` path.
+- `tests/dev-command-gate.test.js`, `tests/developer-gate.test.js`, and `tests/prefix-developer-gate.test.js`: developer-only commands fail closed unless the caller is allowlisted.
+- `tests/safe-eval.test.js`: developer eval uses the VM helper with blocked identifiers and length limits.
+- `tests/ticket-auth.test.js`: ticket close authorization permits only Manage Channels, the configured support role, or the ticket opener.
+- `tests/production-config.test.js`: `src/example.config.js` uses strict `PRODUCTION === "true"` checks.
+- `tests/interaction-cooldown.test.js`: cooldown expiry helpers tolerate already-cleared entries.
+- `tests/rank-card-presence-status.test.js`: rank-card presence status is normalized before passing to canvacord.
+
 When changing economy code, prefer adding or updating focused `node:test` regression tests in `tests/` before adjusting command behavior.
 
 ## Operational Pitfalls
@@ -238,5 +274,5 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - The bot requires Discord gateway intents that match the enabled features. `ExtendedClient` currently passes a numeric intent bitfield, so keep Discord Developer Portal settings in sync when changing message, member, or guild-dependent behavior.
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
-- The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- The health endpoint is not authenticated. It binds to `127.0.0.1` by default; set `HEALTH_HOST=0.0.0.0` only when exposing port `8080` is intentional for the hosting environment.
+- Prefix command support depends on `handler.commands.prefix` being enabled and the `messageCreate` handler in `src/events/Guild/messageCreate.js` registering successfully through the `{ event, run }` loader contract.
