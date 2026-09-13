@@ -33,6 +33,13 @@ module.exports = {
     const reason =
       interaction.options.getString(`reason`) || "No reason provided";
 
+    if (!member) {
+      return interaction.reply({
+        content: `The specified user is not in this server.`,
+        ephemeral: true,
+      });
+    }
+
     if (!member.bannable) {
       return interaction.reply({
         content: `I cannot ban this user!`,
