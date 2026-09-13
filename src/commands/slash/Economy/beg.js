@@ -20,6 +20,13 @@ module.exports = {
 
     let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
 
+    if (!Data) {
+      return await interaction.reply({
+        content: `You don't have an account!`,
+        ephemeral: true,
+      });
+    }
+
     let negative = Math.round(Math.random() * -300 - 10);
     let positive = Math.round(Math.random() * 300 + 10);
 
@@ -34,10 +41,8 @@ module.exports = {
         ephemeral: true,
       });
 
-    if (Data) {
-      Data.Wallet += value;
-      await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
-    }
+    Data.Wallet += value;
+    await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
 
     if (value > 0) {
       const positiveChoices = [
