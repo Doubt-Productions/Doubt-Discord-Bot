@@ -72,7 +72,6 @@ module.exports = {
   },
   moderation: {
     developers: [""],    // Array of user IDs with developer access
-    staffRoles: [""],    // Array of role IDs for staff commands
   },
   handler: {
     prefix: "?",         // Default prefix for prefix commands
@@ -98,8 +97,8 @@ module.exports = {
 #### `moderation.developers`
 Array of Discord user ID strings. Users listed here can use developer-only commands (`/eval`, `/deploy`, `/badge`, etc.). If this array is empty or missing, all developer commands are blocked with a configuration error message.
 
-#### `moderation.staffRoles`
-Array of Discord role ID strings. Members with any of these roles can use staff-only commands.
+#### Global bot staff
+Cross-guild bot staff is stored in Mongo (`BotStaff` collection) and managed with `/botstaff`. Staff-only commands check that ACL (developers are always allowed). The `bot-staff` badge is a public display mark only.
 
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.

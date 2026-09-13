@@ -8,6 +8,7 @@ const { has } = require("node-emoji");
 const badges = require("../../../schemas/badge");
 const users = require("../../../schemas/userConfig");
 const { randomId } = require("../../../functions");
+const { isReservedBotStaffBadge } = require("../../../utils/botStaffAcl");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -127,6 +128,18 @@ module.exports = {
       badge = await badges.findFirst({ where: { badgeId: id } });
 
     if (option === "create") {
+      if (isReservedBotStaffBadge(null, name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
+
       let animated = false;
 
       if (emoji.startsWith("<a:")) {
@@ -189,8 +202,32 @@ module.exports = {
           ],
         });
 
+      if (isReservedBotStaffBadge(badge.badgeId, badge.name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
+
       name = name || badge.name;
       emoji = emoji || badge.emoji;
+
+      if (isReservedBotStaffBadge(badge.badgeId, name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
 
       if (!isEmoji(client, emoji))
         return interaction.editReply({
@@ -255,6 +292,18 @@ module.exports = {
           ],
         });
 
+      if (isReservedBotStaffBadge(badge.badgeId, badge.name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
+
       await badges.delete({ where: { id: badge.id } });
 
       interaction.editReply({
@@ -274,6 +323,18 @@ module.exports = {
             },
           ],
         });
+
+      if (isReservedBotStaffBadge(badge.badgeId, badge.name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
 
       if (!user)
         return interaction.editReply({
@@ -318,6 +379,18 @@ module.exports = {
             },
           ],
         });
+
+      if (isReservedBotStaffBadge(badge.badgeId, badge.name)) {
+        return interaction.editReply({
+          embeds: [
+            {
+              title: "❌ Reserved badge",
+              description:
+                "The Bot Staff badge is reserved. Use `/botstaff` to manage it.",
+            },
+          ],
+        });
+      }
 
       if (!user)
         return interaction.editReply({

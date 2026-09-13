@@ -114,3 +114,12 @@ model JTCSetup {
 
   @@map("jtcsetups")
 }
+
+model BotStaff {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String   @unique
+  addedBy String
+  addedAt DateTime @default(now())
+
+  @@map("botstaff")
+}

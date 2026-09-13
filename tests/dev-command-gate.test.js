@@ -7,6 +7,7 @@ const assert = require("node:assert");
 const {
   normalizeIdAllowlist,
 } = require("../src/utils/normalizeIdAllowlist");
+const { isStaffGateAllowed } = require("../src/utils/botStaffAcl");
 
 /** All commands under devOnly/ are developer-gated (fail-closed). */
 function requiresDeveloperGate() {
@@ -21,23 +22,22 @@ test("eval / deploy style commands use options.developers", () => {
   assert.strictEqual(requiresDeveloperGate({}), true);
 });
 
-/** Mirrors devCommandValidator staff gate (array roles only; no string.includes) */
-function staffGateHasRole(staffRolesConfig, memberRoleIds) {
-  const staffRoleIds = normalizeIdAllowlist(staffRolesConfig);
-  return memberRoleIds.some((id) => staffRoleIds.includes(id));
-}
-
-test("staffRoles as a string does not grant access via substring match", () => {
-  const ok = staffGateHasRole("111111111111111111222222222222222222", [
-    "111111111111111112",
-  ]);
-  assert.strictEqual(ok, false);
+test("staffOnly gate allows configured developers", () => {
+  const developerIds = normalizeIdAllowlist(["111111111111111111"]);
+  const allowed = isStaffGateAllowed(
+    "111111111111111111",
+    developerIds,
+    false
+  );
+  assert.strictEqual(allowed, true);
 });
 
-test("staffRoles as an array grants access when member holds a listed role", () => {
-  const ok = staffGateHasRole(
-    ["111111111111111111", "222222222222222222"],
-    ["999999999999999999", "111111111111111111"]
+test("staffOnly gate denies users who are neither developers nor bot staff", () => {
+  const developerIds = normalizeIdAllowlist(["111111111111111111"]);
+  const allowed = isStaffGateAllowed(
+    "222222222222222222",
+    developerIds,
+    false
   );
-  assert.strictEqual(ok, true);
+  assert.strictEqual(allowed, false);
 });

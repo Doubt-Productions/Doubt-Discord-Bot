@@ -120,6 +120,9 @@ These commands are deployed only to the support/dev guild (`config.handler.guild
 | `/badge give <id> <user>` | Give a badge to a user | developers |
 | `/badge take <id> <user>` | Remove a badge from a user | developers |
 | `/badge list` | List all badges | developers |
-| `/staffonly` | Test staff role check | staffOnly |
+| `/botstaff add <user>` | Add global bot staff (syncs `bot-staff` badge) | developers |
+| `/botstaff remove <user>` | Remove global bot staff | developers |
+| `/botstaff list` | List global bot staff | developers |
+| `/staffonly` | Test bot staff ACL check | staffOnly |
 | `/nsfw` | Test NSFW channel check | staffOnly + nsfw |
 | `/testembed` | Test embed helper function | developers |

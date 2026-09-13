@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
+const { isStaffOnlyAllowed } = require("../../utils/botStaff");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -38,15 +39,14 @@ module.exports = async (client, interaction) => {
     }
 
     if (commandObject.options?.staffOnly) {
-      const member = interaction.member;
-      const staffRoleIds = normalizeIdAllowlist(
-        config.moderation?.staffRoles
+      const developerIds = normalizeIdAllowlist(
+        config.moderation?.developers
       );
-      if (
-        !member?.roles?.cache?.some((role) =>
-          staffRoleIds.includes(role.id)
-        )
-      ) {
+      const allowed = await isStaffOnlyAllowed(
+        interaction.user.id,
+        developerIds
+      );
+      if (!allowed) {
         await interaction.reply({
           content: `This is a staff only command.`,
           ephemeral: true,

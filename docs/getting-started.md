@@ -62,7 +62,7 @@ cp src/example.config.js src/config.js
 Edit `src/config.js` to set:
 
 - **`moderation.developers`** — array of Discord user IDs who can use developer commands
-- **`moderation.staffRoles`** — array of role IDs for staff-only commands
+- **Global bot staff** — managed with `/botstaff` (Mongo `BotStaff` collection); staff-only commands use that ACL
 - **`variables.channels.logs`** — channel ID for logging (optional)
 - **`variables.channels.botGuilds`** / **`botUsers`** — channel IDs for stat displays (optional, but the bot will error every 30 minutes if not configured)
 

@@ -126,7 +126,8 @@ Permission and safety gates are split across validators in `src/events/validatio
 - Developer-only slash commands use `devCommandValidator.js` and `src/utils/getLocalDevCommands.js`.
 - `devOnly: true` or `options.developers: true`: user must be listed in `config.moderation.developers`. Regular slash/context/component validators compare against `interaction.member.id`; the developer-command validator compares against `interaction.user.id`.
 - Missing or empty `config.moderation.developers`: developer-only commands in `devCommandValidator.js` are denied as misconfigured.
-- `options.staffOnly: true`: enforced by `devCommandValidator.js`; the member must have one of `config.moderation.staffRoles`.
+- `options.staffOnly: true`: enforced by `devCommandValidator.js`; the user must be listed in `config.moderation.developers` or in the Mongo `BotStaff` collection (`userId` ACL). Guild roles are not checked.
+- Global bot staff is managed with `/botstaff` (developer-only). It writes `BotStaff` records and syncs the reserved `bot-staff` badge (display-only; privilege comes from Mongo, not the badge).
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.
 - `testMode: true`: command must run in `config.handler.guildId`.
 - `userPermissions`: member must have each listed Discord permission.
