@@ -200,13 +200,20 @@ test("my feature works correctly", () => {
 
 | Test File | What It Tests |
 |-----------|---------------|
-| `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
-| `developer-gate.test.js` | Developer ID allowlist validation |
+| `dev-command-gate.test.js` | Developer command and staff-role gate detection |
+| `developer-gate.test.js` | Developer ID allowlist validation fails closed |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `production-config.test.js` | `PRODUCTION` environment checks stay strict string comparisons |
+| `events-handler-shape.test.js` | Event loader supports `{ event, run }` object exports and validator chaining |
+| `no-duplicate-interaction-handlers.test.js` | Guild backup interaction routers stay removed |
+| `interaction-cooldown.test.js` | Cooldown bookkeeping helper behavior stays single-entry and expiry-safe |
+| `ticket-auth.test.js` | Ticket close authorization for opener, staff role, and Manage Channels |
+| `rank-card-presence-status.test.js` | Rank-card presence values are safe for `canvacord` |
+| `safe-eval.test.js` | Eval sandbox blocks restricted globals and long inputs |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
-| `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `economy-account-delete.test.js` | Economy account deletion avoids Mongoose document-method assumptions |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
-| `rob-module-loads.test.js` | `/rob` file parses without errors |
+| `rob-module-loads.test.js` | `/rob` file parses without requiring Discord dependencies |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
 | `rob-caught-penalty.test.js` | Failed robbery penalty is capped at wallet |
 | `rob-failure-penalty.test.js` | Failed rob transfer amount is capped |

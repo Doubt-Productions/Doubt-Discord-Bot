@@ -131,18 +131,17 @@ Permission and safety gates are split across validators in `src/events/validatio
 
 Command execution contracts:
 
-- The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
-- Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
-- The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- `src/events/validations/chatInputCommandValidator.js` is the active regular slash-command execution path. It validates the interaction, then calls `commandObject.run(client, interaction)` directly.
+- There is no generic slash-command cooldown runner in the current `src/events/Guild` tree. Commands that need cooldowns must enforce them in their own command modules, as `/rob` does with its in-memory per-user lock.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 
-Event loader caveat:
+Event loader contracts:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- `src/handlers/events.js` registers the `validations` folder as one sequential `interactionCreate` listener.
+- Function exports in other direct event folders are grouped under the folder name, such as `ready`.
+- Object exports with `{ event, run }` are registered on `eventModule.event` and invoked with `eventModule.run(client, ...args)`.
+- The current `src/events/Guild` folder contains non-interaction Discord events only: `messageCreate`, `guildMemberAdd`, and `voiceStateUpdate`. Interaction execution is handled by the validation pipeline, avoiding duplicate backup routers for the same interaction.
 
 ## Command Deployment
 
@@ -232,6 +231,20 @@ Regression tests in `tests/` document important economy invariants:
 - `tests/rob-caught-penalty.test.js`, `tests/rob-failure-penalty.test.js`, and `tests/rob-fine-cap.test.js`: a failed robbery fine must not exceed the robber's current wallet.
 
 When changing economy code, prefer adding or updating focused `node:test` regression tests in `tests/` before adjusting command behavior.
+
+## Generated Discord Images
+
+Two user-facing workflows build PNG attachments from Discord member data:
+
+- `/rank info <user>` in `src/commands/slash/General/rank.js` uses `canvacord` `Rank` cards. The `user` option is required by the slash-command builder. If no XP record exists for the selected guild/member pair, the card renders with `level: 1` and `xp: 0` without creating a database row.
+- The **Profile** user context menu in `src/contextmenus/profile.js` uses `discord-arts` `profileImage()` and attaches the result as `<user-id>.png`. It loads or creates a `users` record, resolves badge IDs through the `badges` collection, and passes custom emoji image URLs, avatar URL, banner URL, accent color, and username to the image generator.
+
+Maintenance notes:
+
+- `src/commands/slash/Info/userinfo.js` contains a `case "profile"` block, but the slash subcommand definition is commented out. Treat the **Profile** context menu as the active profile-image interface unless the slash command data is restored.
+- Rank-card presence must go through `src/utils/rankCardPresenceStatus.js`; `canvacord` throws on unsupported status strings, and Discord presence is often missing without the `GuildPresences` intent.
+- `discord-arts` is used only by profile-card generation. When upgrading it, verify the Profile context menu in a guild because the unit tests do not exercise remote image fetching or canvas rendering.
+- Run `npm test` after touching rank-card helpers; `tests/rank-card-presence-status.test.js` covers supported, missing, and unsupported presence values.
 
 ## Operational Pitfalls
 
