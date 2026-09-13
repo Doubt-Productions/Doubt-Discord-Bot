@@ -41,11 +41,18 @@ PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
 
-The guild ID for command registration:
+The check is strict: only `PRODUCTION=true` selects production values. Any other
+value, including `false`, an empty string, or an unset variable, selects the
+development values from `src/config.js`.
+
+The runtime support/developer guild ID in `config.handler.guildId`:
 ```
 PRODUCTION=false  →  DEV_GUILD_ID
 PRODUCTION=true   →  GUILD_ID
 ```
+
+Ready-time slash and context-menu registration still reads `DEV_GUILD_ID`
+directly from the environment.
 
 ---
 

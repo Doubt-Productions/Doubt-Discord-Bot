@@ -21,7 +21,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 | Task | Command |
 |------|---------|
-| Install deps | `npm install` |
+| Install deps | `npm ci` |
 | Run tests | `npm test` |
 | Start bot (dev) | `npm run dev` (uses nodemon) |
 | Start bot (prod) | `npm start` |
@@ -36,7 +36,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 ### Known issues
 
 - No ESLint or other linter is configured in this repo.
-- `package-lock.json` is `.gitignore`d, so `npm install` may resolve slightly different dependency versions across environments.
+- `package-lock.json` is tracked, so prefer `npm ci` for reproducible installs. Use `npm install` when intentionally updating dependencies and the lockfile.
 
 ### Testing notes
 

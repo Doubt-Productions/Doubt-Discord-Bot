@@ -44,6 +44,9 @@ module.exports = {
 ```
 
 The command is automatically loaded at startup and registered on `DEV_GUILD_ID`.
+Set `.setDefaultMemberPermissions(...)` and `userPermissions` when the command
+should be limited by Discord permissions; for example moderation commands use
+Ban/Kick/Moderate Members and `/setup` uses Manage Guild.
 
 ### Adding a Developer Command
 
@@ -85,6 +88,8 @@ module.exports = {
 ```
 
 Remember: prefix commands are disabled by default (`config.handler.commands.prefix`).
+Developer prefix commands must set `data.developers: true`; the prefix message
+router enforces that flag against `config.moderation.developers`.
 
 ### Adding a Component Handler
 
@@ -200,9 +205,16 @@ test("my feature works correctly", () => {
 
 | Test File | What It Tests |
 |-----------|---------------|
-| `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
+| `dev-command-gate.test.js` | Developer commands fail closed and staff roles are normalized before checking |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `safe-eval.test.js` | Developer eval sandbox result, blocked identifiers, and length limit |
+| `ticket-auth.test.js` | Ticket close authorization for opener, support role, Manage Channels, and random members |
+| `no-duplicate-interaction-handlers.test.js` | Backup interaction routers stay removed and validators own the interaction path |
+| `production-config.test.js` | `PRODUCTION` checks use strict `"true"` comparisons |
+| `events-handler-shape.test.js` | Event loader registers function handlers and `{ event, run }` modules correctly |
+| `interaction-cooldown.test.js` | Slash cooldown helper behavior remains per user and per command |
+| `rank-card-presence-status.test.js` | Rank cards normalize missing or unsupported presence statuses safely |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
@@ -276,5 +288,6 @@ log("Error occurred", "err");        // Red [ERROR]
 1. Run `npm test` before opening a PR — all tests must pass
 2. Run `node --check` on any modified command files to verify syntax
 3. Add regression tests for bug fixes when practical
-4. Keep commits focused and descriptive
-5. Update documentation if adding new features or changing behavior
+4. Run targeted syntax checks for touched command or component files when practical
+5. Keep commits focused and descriptive
+6. Update documentation if adding new features or changing behavior
