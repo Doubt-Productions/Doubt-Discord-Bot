@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to `true` for production. Any other value, including `false` or an unset variable, uses development settings. | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not `true` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not `true` |
+| `DEV_GUILD_ID` | Guild ID for ready-time slash and context-menu registration | Always |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is not `true` |
 
 ### Production Variables
 
@@ -22,7 +22,7 @@ Copy `.env.example` to `.env` and fill in the values.
 |----------|-------------|
 | `CLIENT_TOKEN` | Discord bot token for production |
 | `CLIENT_ID` | Discord application ID for production |
-| `GUILD_ID` | Support/production guild ID |
+| `GUILD_ID` | Support/production guild ID. Also feeds developer-command deployment and stat-channel updates through `config.handler.guildId` when `PRODUCTION=true`. |
 | `MONGODB_URI` | MongoDB connection string for production |
 
 ### Optional Variables
@@ -34,18 +34,20 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag is read as a string. Only the exact value `true` selects production credentials:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=true              →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+unset, false, or any other   →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 ```
 
-The guild ID for command registration:
+`config.handler.guildId` is selected the same way for developer-command deployment and stat-channel updates:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION=true              →  GUILD_ID
+unset, false, or any other   →  DEV_GUILD_ID
 ```
+
+Ready-time slash command and context-menu registration currently read `DEV_GUILD_ID` directly.
 
 ---
 
@@ -67,7 +69,7 @@ module.exports = {
       botGuilds: "",     // Voice channel renamed to show guild count
       botUsers: "",      // Voice channel renamed to show user count
     },
-    dbName: "...",       // "production" or "development" (auto-set)
+    dbName: "...",       // "production" only when PRODUCTION === "true"; otherwise "development"
     supportServerId: "", // GUILD_ID value
   },
   moderation: {
