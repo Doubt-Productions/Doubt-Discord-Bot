@@ -102,7 +102,9 @@ Array of Discord user ID strings. Users listed here can use developer-only comma
 Array of Discord role ID strings. Members with any of these roles can use staff-only commands.
 
 #### `handler.commands.prefix`
-Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
+Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default in `src/example.config.js`.
+
+Prefix command modules are still loaded into `client.collection.prefixcommands`, but `src/events/Guild/messageCreate.js` returns before matching commands while this toggle is `false`. Enabling the toggle only permits the bot-side handler; the Discord bot application must also have **Message Content Intent** enabled in the Discord Developer Portal because command routing reads `message.content`.
 
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
@@ -112,4 +114,4 @@ The bot renames these channels every 30 minutes to display current guild and use
 
 ### Per-Guild Prefix
 
-Each guild can set a custom prefix with `?prefix set <new_prefix>`. Custom prefixes are stored in the `guildschemas` MongoDB collection. If no custom prefix is set, the default from `handler.prefix` is used.
+Each guild can set a custom prefix with `?prefix set <new_prefix>` after prefix commands are enabled. Custom prefixes are stored in the `guildschemas` MongoDB collection and are read only when `handler.mongodb.toggle` is enabled. If MongoDB is disabled, the lookup fails, or no custom prefix is set, the bot falls back to the default from `handler.prefix`.
