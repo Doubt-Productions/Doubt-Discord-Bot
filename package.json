@@ -15,7 +15,7 @@
     "@iamtraction/google-translate": "^2.0.1",
     "@prisma/client": "^6.19.3",
     "ascii-table": "^0.0.9",
-    "canvacord": "^5.4.10",
+    "canvacord": "^6.0.4",
     "chalk": "^2.4.2",
     "discord-arts": "^0.5.8",
     "discord-html-transcripts": "^3.1.5",
