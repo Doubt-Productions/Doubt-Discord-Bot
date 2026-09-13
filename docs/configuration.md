@@ -30,11 +30,12 @@ Copy `.env.example` to `.env` and fill in the values.
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). Not used at runtime. |
+| `HEALTH_HOST` | Bind host for the Express health check. Defaults to `127.0.0.1`; set to `0.0.0.0` only when the host should accept external probes. |
 | `TOPGG_TOKEN` | [Top.gg](https://top.gg/) API token for automatic stat posting |
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The `PRODUCTION` flag is compared with `process.env.PRODUCTION === "true"` in `src/example.config.js`. Only the exact string `true` selects production credentials; unset values and strings such as `false` use development credentials.
 
 ```
 PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
@@ -96,7 +97,7 @@ module.exports = {
 ### Key Configuration Notes
 
 #### `moderation.developers`
-Array of Discord user ID strings. Users listed here can use developer-only commands (`/eval`, `/deploy`, `/badge`, etc.). If this array is empty or missing, all developer commands are blocked with a configuration error message.
+Array of Discord user ID strings. Every command under `src/commands/devOnly/**` is blocked unless the caller is listed here. If this array is empty or missing, all developer commands fail closed with a configuration error message.
 
 #### `moderation.staffRoles`
 Array of Discord role ID strings. Members with any of these roles can use staff-only commands.

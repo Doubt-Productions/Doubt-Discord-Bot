@@ -27,8 +27,8 @@ This project is currently a WIP!
 <!--- Installation -->
 ## 🔌 Installation
 ```md
-- Install Node.js and npm.
-- Run npm i.
+- Install Node.js 18+ and npm.
+- Run npm ci, or npm install when intentionally refreshing dependency versions.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
 - Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
 - Set DATABASE_URL for Prisma CLI commands, then run npx prisma generate after install or schema changes.
@@ -39,7 +39,7 @@ This project is currently a WIP!
 <!--- Usage -->
 ## 🔍 Usage
 
-This is a Discord bot application, not an importable npm module. It starts from `src/index.js`, logs in with the token selected by `src/config.js`, connects to MongoDB through Prisma when enabled, registers commands/components/events, and exposes an unauthenticated health endpoint on `0.0.0.0:8080` that returns a plain-text online message plus Discord invite link.
+This is a Discord bot application, not an importable npm module. It starts from `src/index.js`, logs in with the token selected by `src/config.js`, connects to MongoDB through Prisma when enabled, registers commands/components/events, and exposes an unauthenticated health endpoint on `127.0.0.1:8080` by default (`HEALTH_HOST` overrides the bind host) that returns a plain-text online message plus Discord invite link.
 
 Developer and operator notes live in [`docs/engineering-guide.md`](docs/engineering-guide.md). Start there for setup constraints, command deployment, permission gates, economy behavior, and troubleshooting.
 

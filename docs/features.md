@@ -37,22 +37,25 @@ A configurable support ticket system with HTML transcripts.
 
 ### Setup
 
-1. Run `/setup` in your server
+1. Run `/setup` in your server as a member with Manage Guild
 2. Select **Ticket** from the setup menu
 3. Configure:
    - **Category** — the channel category where tickets are created
    - **Channel** — the channel where the ticket panel is posted
    - **Role** — the support role that gets access to tickets
 
+The setup flow stores this configuration. It does not automatically create a ticket panel message; an operator still needs to make sure a message uses the `ticket` select-menu component in the configured panel channel.
+
 ### How It Works
 
 1. Members select a ticket type from the panel select menu
-2. A modal appears asking for a reason/description
-3. A private channel is created named `ticket-<username>`
-4. The channel is visible only to the member, support role, and admins
+2. A modal appears asking for a reason/description; the selected subject is encoded in the modal ID with the `ticket-modal:` prefix
+3. A private channel is created named `ticket-<username>` under the configured category
+4. The channel is visible only to the member, support role, and bot/admins
 5. When resolved, click the **Close Ticket** button
-6. An HTML transcript is generated and DM'd to the ticket creator
-7. The channel is deleted after 10 seconds
+6. The close button can be used by members with Manage Channels, the configured support role, or the opener identified by their channel permission overwrite
+7. An HTML transcript is generated and DM'd to the member who clicked close
+8. The channel is deleted after 10 seconds
 
 ---
 
@@ -125,7 +128,7 @@ Temporary voice channels that are created when a user joins a hub channel.
 
 ### How It Works
 
-1. An admin configures a hub voice channel via the setup system
+1. An admin creates JTC setup data for a hub voice channel
 2. When a user joins the hub channel, a temporary voice channel is created
 3. The channel is named after the user (e.g., `🔊 | Username`)
 4. The user gets Manage Channels permission on their channel
@@ -145,7 +148,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -188,16 +191,16 @@ Badges appear on user info displays:
 
 ### Available Actions
 
-| Command | Description |
-|---------|-------------|
-| `/kick <user> [reason]` | Remove a member from the server |
-| `/ban <user> [reason]` | Permanently ban a member |
-| `/unban <user_id>` | Remove a ban by user ID |
-| `/timeout <user> <duration> [reason]` | Temporarily mute a member (5s to 28 days) |
+| Command | Description | Required permission |
+|---------|-------------|---------------------|
+| `/kick <user> [reason]` | Remove a member from the server | Kick Members |
+| `/ban <user> [reason]` | Permanently ban a member | Ban Members |
+| `/unban <user_id>` | Remove a ban by user ID | Ban Members |
+| `/timeout <user> <duration> [reason]` | Temporarily mute a member (5s to 28 days) | Moderate Members |
 
 ### AutoMod Rules
 
-The `/automod` command creates Discord AutoMod rules:
+The `/automod` command requires Manage Guild and creates Discord AutoMod rules:
 
 - **Flagged Words** — Alerts in a channel when flagged content is detected
 - **Spam Messages** — Detects and alerts on message spam
@@ -220,7 +223,7 @@ Right-click any message → **Apps** → **Translate Message** to translate it t
 
 ## Health Check
 
-The bot runs an Express server on port 8080 that responds to `GET /` with a status message. This can be used for uptime monitoring services.
+The bot runs an Express server on `127.0.0.1:8080` by default and responds to `GET /` with a status message. Set `HEALTH_HOST` to change the bind host when an uptime monitor needs network access.
 
 ```bash
 curl http://localhost:8080/

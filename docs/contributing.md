@@ -9,9 +9,10 @@ See [Getting Started](getting-started.md) for full setup instructions. Quick sta
 ```bash
 git clone https://github.com/Doubt-Productions/Doubt-Discord-Bot.git
 cd Doubt-Discord-Bot
-npm install
+npm ci
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate
 npm run dev                  # Start with nodemon
 ```
 
@@ -22,6 +23,8 @@ npm run dev                  # Start with nodemon
 | `npm start` | `node .` | Start the bot |
 | `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
+
+`package-lock.json` is committed. Use `npm ci` for reproducible installs, and let Dependabot refresh npm and GitHub Actions pins unless you are intentionally changing dependencies yourself.
 
 ## Code Structure
 
@@ -200,17 +203,24 @@ test("my feature works correctly", () => {
 
 | Test File | What It Tests |
 |-----------|---------------|
-| `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
+| `dev-command-gate.test.js` | Developer command fail-closed allowlist and staff role normalization |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader registers `{ event, run }` modules correctly |
+| `no-duplicate-interaction-handlers.test.js` | Validators are the only `interactionCreate` routers |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `production-config.test.js` | Strict `PRODUCTION === "true"` runtime config selection |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
+| `interaction-cooldown.test.js` | Cooldown expiry no-ops safely when already cleared |
+| `rank-card-presence-status.test.js` | Rank-card presence statuses are normalized for canvacord |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |
 | `rob-module-loads.test.js` | `/rob` file parses without errors |
 | `rob-cooldown-race.test.js` | Cooldown lock prevents concurrent rob races |
 | `rob-caught-penalty.test.js` | Failed robbery penalty is capped at wallet |
 | `rob-failure-penalty.test.js` | Failed rob transfer amount is capped |
 | `rob-fine-cap.test.js` | Fine cannot exceed robber's wallet |
+| `safe-eval.test.js` | Developer eval sandbox blocks restricted identifiers and long input |
+| `ticket-auth.test.js` | Ticket close authorization for opener, staff role, and Manage Channels |
 
 ## Code Conventions
 

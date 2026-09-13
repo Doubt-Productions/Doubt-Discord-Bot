@@ -33,7 +33,7 @@ Doubt is a feature-rich Discord bot offering:
 
 | Component | Technology |
 |-----------|------------|
-| Runtime | Node.js (v16.11+) |
+| Runtime | Node.js 18+ (release CI uses Node 22) |
 | Bot Framework | discord.js v14 |
 | Database | MongoDB (via Prisma v6) |
 | HTTP Server | Express (health-check on port 8080) |
