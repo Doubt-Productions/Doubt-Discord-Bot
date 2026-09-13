@@ -22,9 +22,9 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
+This installs all runtime dependencies and the Prisma CLI (dev dependency). The repository does not define a `postinstall` hook, so generate the Prisma client explicitly after installing dependencies or changing `prisma/schema.prisma`.
 
-If you need to regenerate the Prisma client manually:
+Generate or regenerate the Prisma client with:
 
 ```bash
 npx prisma generate
@@ -50,6 +50,8 @@ DEV_GUILD_ID=your_test_server_id
 DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
+
+`DEV_MONGODB_URI` is used by the running bot. `DATABASE_URL` is used by Prisma CLI commands. Keep both pointed at the same database during local development.
 
 ## Step 4: Configure the Bot
 
@@ -96,7 +98,13 @@ Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
 
 1. Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas)
 2. Create a database user and get the connection string
-3. Set `DEV_MONGODB_URI` to the Atlas connection string
+3. Set `DEV_MONGODB_URI` to the Atlas connection string, including the database name before query parameters:
+
+```env
+DEV_MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/doubt-dev?retryWrites=true
+```
+
+If the runtime URI has an empty path, the bot appends `config.variables.dbName` (`development` locally, `production` when `PRODUCTION=true`) and logs a warning. Prefer setting the database name explicitly because `DATABASE_URL` for Prisma CLI commands is not rewritten by the bot.
 
 ## Step 7: Run the Bot
 
@@ -138,7 +146,8 @@ You should see:
 
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
-- Verify the connection string format includes the database name
+- Verify the connection string is not blank and includes the intended database name
+- If startup logs say the URI had no database name, add `/your-db-name` to `DEV_MONGODB_URI`, `MONGODB_URI`, and `DATABASE_URL` so runtime and Prisma CLI commands use the same database
 
 ### Channel editing errors every 30 minutes
 

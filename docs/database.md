@@ -8,6 +8,16 @@ The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It 
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
 
+Before constructing `PrismaClient`, `src/handlers/prisma.js` calls `resolveMongoUri()` from `src/utils/resolveMongoUri.js`:
+
+- Missing or blank runtime URIs throw a clear startup error naming `DEV_MONGODB_URI` or `MONGODB_URI`.
+- Invalid URL strings throw before Prisma is created.
+- Runtime URIs that already include a database path, such as `mongodb://127.0.0.1:27017/doubt-dev`, are passed through unchanged.
+- Runtime URIs with no database path, such as `mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true`, are rewritten to include `config.variables.dbName` before the query string, for example `mongodb+srv://user:pass@cluster.mongodb.net/development?retryWrites=true`.
+- If `config.variables.dbName` is missing or blank, the fallback database name is `development`.
+
+Prefer explicit database names in `.env` even though runtime startup can fill the path. Prisma CLI commands use `DATABASE_URL` directly, so they do not receive this runtime rewrite.
+
 ## Prisma CLI
 
 For Prisma CLI tools (like `prisma db push` or `prisma studio`), set the `DATABASE_URL` environment variable in `.env` to your MongoDB connection string.

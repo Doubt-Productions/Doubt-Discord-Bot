@@ -14,7 +14,7 @@ Copy `.env.example` to `.env` and fill in the values.
 | `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
 | `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development; include `/dbname` when possible | `PRODUCTION=false` |
 
 ### Production Variables
 
@@ -23,7 +23,7 @@ Copy `.env.example` to `.env` and fill in the values.
 | `CLIENT_TOKEN` | Discord bot token for production |
 | `CLIENT_ID` | Discord application ID for production |
 | `GUILD_ID` | Support/production guild ID |
-| `MONGODB_URI` | MongoDB connection string for production |
+| `MONGODB_URI` | MongoDB connection string for production; include `/dbname` when possible |
 
 ### Optional Variables
 
@@ -46,6 +46,25 @@ The guild ID for command registration:
 PRODUCTION=false  →  DEV_GUILD_ID
 PRODUCTION=true   →  GUILD_ID
 ```
+
+### MongoDB URI Database Names
+
+Runtime MongoDB connections are selected in `src/example.config.js` and normalized in `src/handlers/prisma.js` before Prisma is created:
+
+- `PRODUCTION=true` uses `MONGODB_URI` and `config.variables.dbName` is `production`.
+- Any other `PRODUCTION` value, including `false` or an unset value, uses `DEV_MONGODB_URI` and `config.variables.dbName` is `development`.
+- Missing, blank, or invalid MongoDB URLs fail startup with an explicit error naming the selected environment variable.
+- A URI with an empty path gets `config.variables.dbName` appended before query parameters.
+- A URI that already contains a database path is left unchanged.
+
+Examples:
+
+```env
+DEV_MONGODB_URI=mongodb://127.0.0.1:27017/doubt-dev
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/doubt-prod?retryWrites=true
+```
+
+If `DEV_MONGODB_URI=mongodb://127.0.0.1:27017` is used at runtime, the bot connects with `mongodb://127.0.0.1:27017/development` and logs a warning. Keep `DATABASE_URL` explicit because Prisma CLI commands read it directly instead of going through the runtime normalizer.
 
 ---
 
