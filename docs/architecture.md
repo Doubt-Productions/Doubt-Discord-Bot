@@ -100,10 +100,8 @@ These handle non-interaction events:
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
-| `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
-| `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+Interaction execution is handled by the validators listed above. The old Guild backup interaction routers are not present, which avoids double-running slash commands or components for the same Discord interaction.
 
 ## Component System
 

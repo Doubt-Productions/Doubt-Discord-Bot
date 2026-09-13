@@ -145,7 +145,7 @@ Per-guild leveling system with visual rank cards.
 
 ### Commands
 
-- **`/rank info [user]`** — View a rank card showing current level and XP
+- **`/rank info <user>`** — View a rank card showing the member's current level and XP
 - **`/rank reset <user>`** — Reset a user's XP and level to defaults
 - **`/rank set <user> <level>`** — Manually set a user's level
 
@@ -156,6 +156,7 @@ Rank cards are generated using the `canvacord` library and display:
 - Current level
 - XP progress
 - Username
+- Presence status, normalized to `offline` when Discord presence data is missing or unsupported
 
 ### Data Storage
 
@@ -181,6 +182,28 @@ A global badge system managed by bot developers.
 Badges appear on user info displays:
 - `/user info` command
 - **Info** context menu (right-click → Info)
+- **Profile** user context menu profile-card images
+
+---
+
+## User Profile Cards
+
+The **Profile** user context menu generates a PNG profile-card attachment for a guild member.
+
+### How It Works
+
+1. Right-click a guild member and choose **Apps** → **Profile**.
+2. The bot defers the reply while it loads or creates that user's `users` collection record.
+3. Badge IDs in `users.badges` are resolved through the `badges` collection.
+4. Custom emoji badge image URLs, the user's avatar URL, banner URL, accent color, and username are passed to `discord-arts` `profileImage()`.
+5. The generated image is attached as `<user-id>.png`.
+
+### Constraints
+
+- The target must be a guild member. The command replies with an error if the member cannot be resolved.
+- Only badge entries with resolvable custom emoji image URLs are passed as visual custom badges.
+- The slash `/user info` command currently displays textual user details and badges only. The profile-card image path is exposed by the **Profile** user context menu.
+- Profile cards depend on Discord-hosted image URLs and the `discord-arts` package, so dependency upgrades should be checked against the context menu in a real guild when possible.
 
 ---
 
