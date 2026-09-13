@@ -92,6 +92,8 @@ Right-click a user or message to access these commands.
 
 Prefix commands use `?` by default (configurable per-guild). They are **disabled by default** — set `handler.commands.prefix: true` in `config.js` to enable.
 
+The bot must also have Discord **Message Content Intent** enabled; otherwise `message.content` is unavailable and the prefix router cannot match commands. Per-guild prefix changes are stored in MongoDB, so installs with `handler.mongodb.toggle: false` always use `handler.prefix`.
+
 | Command | Aliases | Description | Permissions |
 |---------|---------|-------------|-------------|
 | `?help` | `?h` | List all available commands | — |

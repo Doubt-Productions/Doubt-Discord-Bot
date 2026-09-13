@@ -63,6 +63,7 @@ Edit `src/config.js` to set:
 
 - **`moderation.developers`** — array of Discord user IDs who can use developer commands
 - **`moderation.staffRoles`** — array of role IDs for staff-only commands
+- **`handler.commands.prefix`** — set to `true` only if this install should accept prefix commands such as `?help`
 - **`variables.channels.logs`** — channel ID for logging (optional)
 - **`variables.channels.botGuilds`** / **`botUsers`** — channel IDs for stat displays (optional, but the bot will error every 30 minutes if not configured)
 
@@ -124,7 +125,8 @@ You should see:
 
 1. Check the health endpoint: `curl http://localhost:8080/`
 2. In your Discord test server, try `/ping` or `/test`
-3. Run the test suite: `npm test`
+3. If `handler.commands.prefix` is enabled, try `?help` with the current server prefix
+4. Run the test suite: `npm test`
 
 ## Common Issues
 
@@ -147,3 +149,9 @@ The bot tries to rename `botGuilds` and `botUsers` channels periodically. If the
 ### Prefix commands don't work
 
 Prefix commands are disabled by default. In `src/config.js`, set `handler.commands.prefix` to `true` to enable them.
+
+Also check:
+
+- **Message Content Intent** is enabled for the bot application in the Discord Developer Portal
+- The bot has been restarted after changing `src/config.js`
+- The message starts with the active prefix (`handler.prefix`, or the guild-specific prefix stored in MongoDB when database access is enabled)
