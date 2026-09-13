@@ -22,7 +22,6 @@ module.exports = {
   },
   moderation: {
     developers: [""],
-    staffRoles: ["", ""],
   },
   handler: {
     prefix: "?",

@@ -126,7 +126,23 @@ Permission and safety gates are split across validators in `src/events/validatio
 - Developer-only slash commands use `devCommandValidator.js` and `src/utils/getLocalDevCommands.js`.
 - `devOnly: true` or `options.developers: true`: user must be listed in `config.moderation.developers`. Regular slash/context/component validators compare against `interaction.member.id`; the developer-command validator compares against `interaction.user.id`.
 - Missing or empty `config.moderation.developers`: developer-only commands in `devCommandValidator.js` are denied as misconfigured.
-- `options.staffOnly: true`: enforced by `devCommandValidator.js`; the member must have one of `config.moderation.staffRoles`.
+- `options.staffOnly: true` **without** `options.developers: true`: enforced by `devCommandValidator.js` using only the Mongo `BotStaff` ACL (`isStaffOnlyAllowed`; developers still pass). Bot staff do **not** need to be listed in `config.moderation.developers` for these commands.
+- `options.developers: true` (for example `/botstaff`, `/badge`, `/eval`): still requires `config.moderation.developers` regardless of `staffOnly`.
+- Global bot staff is managed with `/botstaff` (developer-only). It writes `BotStaff` records and syncs the reserved `bot-staff` badge (display-only; privilege comes from Mongo, not the badge).
+
+### Cutover from `moderation.staffRoles`
+
+`config.moderation.staffRoles` was removed in favor of the Mongo `BotStaff` ACL. Operators upgrading must not deploy with an empty ACL and expect staff-only commands to keep working.
+
+**Recommended upgrade checklist**
+
+1. Before removing `staffRoles` from your live `src/config.js`, run `/botstaff migrate` while the legacy role IDs are still present and `BotStaff` is empty. Migration reads `moderation.staffRoles`, resolves the support guild (`variables.supportServerId` or `handler.guildId`), and creates `BotStaff` rows (with badge sync) for human members who hold any listed role.
+2. If you already removed `staffRoles`, add each person manually with `/botstaff add <user>` before deploy.
+3. Run `npx prisma db push` so the `botstaff` and `botstaffremovals` collections exist.
+4. Confirm with `/botstaff list`, then remove `staffRoles` from config.
+5. Remove the legacy Discord staff roles. `/botstaff migrate` is refused when `BotStaff` already has entries unless `force: true`. Users removed with `/botstaff remove` are tombstoned in `botstaffremovals` and always skipped by migrate; bots are never imported.
+
+**Fail-closed behavior:** `options.staffOnly` denies non-developers who are not in `BotStaff`. If the collection is empty, the denial message explicitly tells operators to run `/botstaff migrate` or `/botstaff add` — there is no silent fallback to guild roles.
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.
 - `testMode: true`: command must run in `config.handler.guildId`.
 - `userPermissions`: member must have each listed Discord permission.

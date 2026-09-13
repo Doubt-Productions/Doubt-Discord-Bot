@@ -1,6 +1,16 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
+const {
+  isStaffOnlyAllowed,
+  hasBotStaffConfigured,
+} = require("../../utils/botStaff");
+const {
+  getStaffOnlyDenialMessage,
+  usesStaffOnlyGate,
+  requiresDeveloperGate,
+} = require("../../utils/botStaffAcl");
+const { STAFF_GATE_ERROR_MESSAGE } = require("../../constants/botStaff");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -14,8 +24,37 @@ module.exports = async (client, interaction) => {
     );
     if (!commandObject) return;
 
-    // Every command under devOnly/ is developer-only (fail-closed).
-    {
+    if (usesStaffOnlyGate(commandObject)) {
+      const developerIds = normalizeIdAllowlist(
+        config.moderation?.developers
+      );
+      try {
+        const allowed = await isStaffOnlyAllowed(
+          interaction.user.id,
+          developerIds
+        );
+        if (!allowed) {
+          const hasAnyBotStaff = await hasBotStaffConfigured();
+          await interaction.reply({
+            content: getStaffOnlyDenialMessage({ hasAnyBotStaff }),
+            ephemeral: true,
+          });
+          return;
+        }
+      } catch (staffGateErr) {
+        console.error(
+          `Staff gate failed for /${interaction.commandName}: ${staffGateErr}`
+        );
+        console.error(staffGateErr);
+        if (!interaction.replied && !interaction.deferred) {
+          await interaction.reply({
+            content: STAFF_GATE_ERROR_MESSAGE,
+            ephemeral: true,
+          });
+        }
+        return;
+      }
+    } else if (requiresDeveloperGate(commandObject)) {
       const developerIds = normalizeIdAllowlist(
         config.moderation?.developers
       );
@@ -33,24 +72,6 @@ module.exports = async (client, interaction) => {
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);
         await interaction.reply({ embeds: [rEmbed], ephemeral: true });
-        return;
-      }
-    }
-
-    if (commandObject.options?.staffOnly) {
-      const member = interaction.member;
-      const staffRoleIds = normalizeIdAllowlist(
-        config.moderation?.staffRoles
-      );
-      if (
-        !member?.roles?.cache?.some((role) =>
-          staffRoleIds.includes(role.id)
-        )
-      ) {
-        await interaction.reply({
-          content: `This is a staff only command.`,
-          ephemeral: true,
-        });
         return;
       }
     }
