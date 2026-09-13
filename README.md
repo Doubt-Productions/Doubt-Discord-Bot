@@ -30,7 +30,8 @@ This project is currently a WIP!
 - Install Node.js and npm.
 - Run npm i.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
-- Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
+- Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs. Prefix commands are enabled by default (`handler.commands.prefix: true`); the default prefix is `?`.
+- Enable the Discord **Message Content Intent** for the bot application in the Discord Developer Portal so prefix commands can read message text.
 - Set DATABASE_URL for Prisma CLI commands, then run npx prisma generate after install or schema changes.
 - Run npm run dev to start the bot with nodemon, or npm start to run it with node.
 - Run npm test before opening a PR.
