@@ -57,13 +57,13 @@ User configuration and badge assignments.
 
 **Collection:** `users`
 
-**Used by:** `/user info`, `/badge give/take`, context menus (info, profile)
+**Used by:** `/user info`, `/badge give/take`, `/botstaff add/remove`, context menus (info, profile)
 
 ---
 
 ### Badge
 
-Global badge definitions (not per-guild).
+Global badge definitions (not per-guild). The reserved `bot-staff` badge is display-only; staff privileges come from the `BotStaff` ACL, not from the badge assignment.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -77,7 +77,41 @@ Global badge definitions (not per-guild).
 
 **Collection:** `badges`
 
-**Used by:** `/badge` (create/edit/delete/give/take/list), user info displays
+**Used by:** `/badge` (create/edit/delete/give/take/list), `/botstaff add/remove`, user info displays
+
+---
+
+### BotStaff
+
+Global bot staff access list. This is cross-guild and is the source of truth for developer commands that set `options.staffOnly: true` without `options.developers: true`.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | ObjectId | Auto-generated primary key |
+| `userId` | String | Discord user ID with global staff access; unique |
+| `addedBy` | String | Discord user ID of the developer who granted access |
+| `addedAt` | DateTime | Timestamp when access was granted |
+
+**Collection:** `botstaff`
+
+**Used by:** `/botstaff add/remove/list/migrate`, `devCommandValidator.js` staff-only gate
+
+---
+
+### BotStaffRemoval
+
+Tombstone records for users removed from global bot staff. These records stop `/botstaff migrate` from re-importing a user who still holds a legacy `moderation.staffRoles` Discord role.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | ObjectId | Auto-generated primary key |
+| `userId` | String | Removed Discord user ID; unique |
+| `removedBy` | String | Discord user ID of the developer who removed access |
+| `removedAt` | DateTime | Timestamp when access was removed |
+
+**Collection:** `botstaffremovals`
+
+**Used by:** `/botstaff remove`, `/botstaff migrate`
 
 ---
 

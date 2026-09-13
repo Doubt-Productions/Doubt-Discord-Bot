@@ -182,6 +182,34 @@ Badges appear on user info displays:
 - `/user info` command
 - **Info** context menu (right-click → Info)
 
+### Reserved Bot Staff Badge
+
+The `bot-staff` badge is reserved for the global bot staff ACL. `/badge create` and `/badge edit` reject reserved Bot Staff IDs, names, and the reserved shield emoji. Existing badges whose ID or name normalizes to `botstaff` cannot be edited, deleted, given, or taken through `/badge`; use `/botstaff add` and `/botstaff remove` instead so the ACL and display badge stay in sync.
+
+---
+
+## Global Bot Staff
+
+Global bot staff is a cross-guild access list for commands that set `options.staffOnly: true` without also setting `options.developers: true`.
+
+### Managing Staff (Developer Only)
+
+- **`/botstaff add <user>`** — Adds a user to the `BotStaff` collection and grants the reserved `bot-staff` display badge
+- **`/botstaff remove <user>`** — Removes the user from `BotStaff`, records a `BotStaffRemoval` tombstone, and removes the reserved badge
+- **`/botstaff list`** — Shows current BotStaff members with who added them and when
+- **`/botstaff migrate [force]`** — Imports human support-guild members who still hold legacy `moderation.staffRoles`
+
+### Access Rules
+
+- Developers listed in `config.moderation.developers` can always run `staffOnly` commands.
+- Non-developer BotStaff members can run `staffOnly` commands, but cannot run developer-only commands such as `/botstaff`, `/badge`, `/eval`, or `/deploy`.
+- The `bot-staff` badge is public display metadata only; removing or adding the badge directly does not grant staff access.
+- If no BotStaff entries exist, staff-only commands fail closed and tell operators to run `/botstaff migrate` or `/botstaff add`.
+
+### Cutover Notes
+
+Run `/botstaff migrate` before removing `moderation.staffRoles` from a live private `src/config.js`. Migration resolves the support guild from `variables.supportServerId` or `handler.guildId`, skips bot accounts, and refuses to run when `BotStaff` already has entries unless `force: true` is passed. Users removed through `/botstaff remove` are never re-imported by migration, even when forced.
+
 ---
 
 ## Moderation
