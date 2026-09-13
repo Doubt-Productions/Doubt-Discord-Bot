@@ -156,8 +156,18 @@ Troubleshooting command registration:
 
 - If slash commands do not update, confirm `DEV_GUILD_ID` is set and the bot is in that guild.
 - If developer commands are missing, confirm `config.handler.guildId` resolves to the intended guild and `config.moderation.developers` contains the operator's Discord user ID.
-- If command options are not changing, inspect `src/utils/commandComparing.js`; it normalizes name, description, options, and choices before deciding whether to edit an existing command.
+- If command options are not changing, inspect `src/utils/commandComparing.js`; it normalizes name, description, options, choices, and `default_member_permissions` before deciding whether to edit an existing command.
+- After deploying code that changes slash-command permission requirements (`default_member_permissions`), restart the bot so the ready handler in `registerCommands.js` pushes the new values to Discord.
 - `config.handler.deploy` and `config.handler.guildDeploy` exist in `src/example.config.js`, but the verified deployment paths above do not currently read those flags.
+
+## Security Hardening (PR #130)
+
+Permission gates, eval sandboxing, ticket close rules, and setup authorization are documented in [Security](security.md). Summary for operators:
+
+- Moderation, `/setup`, and `/embedcreator` slash commands set Discord `default_member_permissions` and enforce matching `userPermissions` at runtime.
+- `/eval` and prefix `?eval` require `config.moderation.developers` and execute through `src/utils/safeEval.js` (isolated VM, 3s timeout, blocked Node builtins).
+- Ticket close is authorized by `src/utils/ticketAuth.js` (opener, support role, or Manage Channels).
+- Setup components use `src/utils/setupGuard.js` (Manage Server check plus collectors bound to the initiating user).
 
 ## GitHub Release Automation
 

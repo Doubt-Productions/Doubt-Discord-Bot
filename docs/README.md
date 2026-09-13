@@ -13,6 +13,7 @@ Welcome to the official documentation for **Doubt**, an advanced multi-purpose D
 | [Database](database.md) | Prisma schema, models, and data layer |
 | [Architecture](architecture.md) | Codebase structure, event pipeline, and handler system |
 | [Engineering Guide](engineering-guide.md) | Detailed runtime behavior and operational notes |
+| [Security](security.md) | Permission gates, eval sandboxing, ticket/setup authorization |
 | [Contributing](contributing.md) | Developer setup, coding conventions, and testing |
 
 ## Quick Overview

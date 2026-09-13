@@ -45,33 +45,37 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 
 ### Utility
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/ping` | Bot latency and WebSocket ping | — |
-| `/embedcreator` | Create a custom embed | `title`, `description`, `color` (required); `channel`, `image`, `thumbnail`, `footer` (optional) |
+| Command | Description | Permission | Options |
+|---------|-------------|------------|---------|
+| `/ping` | Bot latency and WebSocket ping | — | — |
+| `/embedcreator` | Create a custom embed | Manage Messages | `title`, `description`, `color` (required); `channel`, `image`, `thumbnail`, `footer` (optional) |
 
 ### Moderation
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/kick <user> [reason]` | Kick a member | `user` (required), `reason` (optional) |
-| `/ban <user> [reason]` | Ban a member | `user` (required), `reason` (optional) |
-| `/unban <user>` | Unban a user by ID | `user` (required): user ID string |
-| `/timeout <user> <duration> [reason]` | Timeout a member | `user` (required), `duration` (required, e.g. `5m`, `1h`, `7d`), `reason` (optional). Range: 5 seconds to 28 days. |
-| `/automod flagged-words <channel>` | Set up flagged words automod | `channel` (required): alert channel |
-| `/automod spam-messages <channel>` | Set up spam detection | `channel` (required): alert channel |
-| `/automod mention-spam <number> <channel> [duration]` | Set up mention spam detection | `number` (required): max mentions, `channel` (required), `duration` (optional) |
-| `/automod keyword <keyword> <channel>` | Block a specific keyword | `keyword` (required), `channel` (required) |
+| Command | Description | Permission | Options |
+|---------|-------------|------------|---------|
+| `/kick <user> [reason]` | Kick a member | Kick Members | `user` (required), `reason` (optional) |
+| `/ban <user> [reason]` | Ban a member | Ban Members | `user` (required), `reason` (optional) |
+| `/unban <user>` | Unban a user by ID | Ban Members | `user` (required): user ID string |
+| `/timeout <user> <duration> [reason]` | Timeout a member | Moderate Members | `user` (required), `duration` (required, e.g. `5m`, `1h`, `7d`), `reason` (optional). Range: 5 seconds to 28 days. |
+| `/automod flagged-words <channel>` | Set up flagged words automod | Manage Server | `channel` (required): alert channel |
+| `/automod spam-messages <channel>` | Set up spam detection | Manage Server | `channel` (required): alert channel |
+| `/automod mention-spam <number> <channel> [duration]` | Set up mention spam detection | Manage Server | `number` (required): max mentions, `channel` (required), `duration` (optional) |
+| `/automod keyword <keyword> <channel>` | Block a specific keyword | Manage Server | `keyword` (required), `channel` (required) |
+
+Discord permission names in the **Permission** column match `default_member_permissions` on each command. See [Security](security.md) for how these sync after deploy.
 
 ### Management
 
-| Command | Description | Options |
-|---------|-------------|---------|
-| `/setup` | Open the setup wizard | — |
+| Command | Description | Permission | Options |
+|---------|-------------|------------|---------|
+| `/setup` | Open the setup wizard | Manage Server | — |
 
 The setup wizard provides a select menu to configure:
 - **Welcome System** — channel, message template, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
+
+Setup follow-up menus and collectors require **Manage Server** and accept input only from the member who ran `/setup`. See [Security — Setup wizard authorization](security.md#setup-wizard-authorization).
 
 ---
 
@@ -98,7 +102,7 @@ Prefix commands use `?` by default (configurable per-guild). They are **disabled
 | `?ping` | `?p` | Check bot latency | Administrator |
 | `?prefix set <new>` | — | Change the guild's command prefix | Administrator |
 | `?prefix reset` | — | Reset prefix to default | Administrator |
-| `?eval <code>` | `?e` | Evaluate JavaScript code | Developer only |
+| `?eval <code>` | `?e` | Evaluate JavaScript code in a VM sandbox | Developer only |
 
 ---
 
@@ -110,7 +114,7 @@ These commands are deployed only to the support/dev guild (`config.handler.guild
 |---------|-------------|------|
 | `/connectdb` | Attempt to reconnect to the database | developers |
 | `/deploy` | Re-deploy developer commands to the guild | developers |
-| `/eval <code>` | Evaluate JavaScript code | developers |
+| `/eval <code>` | Evaluate JavaScript code in a VM sandbox | developers |
 | `/simjoin` | Simulate a member joining (fires `guildMemberAdd`) | developers |
 | `/simleave` | Simulate a member leaving (fires `guildMemberRemove`) | developers |
 | `/listguilds` | List all guilds the bot is in (paginated) | developers |
@@ -123,3 +127,5 @@ These commands are deployed only to the support/dev guild (`config.handler.guild
 | `/staffonly` | Test staff role check | staffOnly |
 | `/nsfw` | Test NSFW channel check | staffOnly + nsfw |
 | `/testembed` | Test embed helper function | developers |
+
+Developer `/eval` and prefix `?eval` use `safeEval` (3-second timeout, 2000-character limit, blocked Node builtins). Details: [Security — Developer eval sandbox](security.md#developer-eval-sandbox).

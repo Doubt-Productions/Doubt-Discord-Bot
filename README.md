@@ -41,5 +41,5 @@ This project is currently a WIP!
 
 This is a Discord bot application, not an importable npm module. It starts from `src/index.js`, logs in with the token selected by `src/config.js`, connects to MongoDB through Prisma when enabled, registers commands/components/events, and exposes an unauthenticated health endpoint on `0.0.0.0:8080` that returns a plain-text online message plus Discord invite link.
 
-Developer and operator notes live in [`docs/engineering-guide.md`](docs/engineering-guide.md). Start there for setup constraints, command deployment, permission gates, economy behavior, and troubleshooting.
+Developer and operator notes live in [`docs/engineering-guide.md`](docs/engineering-guide.md). Permission gates, eval sandboxing, and ticket/setup authorization are in [`docs/security.md`](docs/security.md).
 

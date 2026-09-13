@@ -98,6 +98,8 @@ module.exports = {
 #### `moderation.developers`
 Array of Discord user ID strings. Users listed here can use developer-only commands (`/eval`, `/deploy`, `/badge`, etc.). If this array is empty or missing, all developer commands are blocked with a configuration error message.
 
+`/eval` and prefix `?eval` additionally run submitted code through a VM sandbox (`src/utils/safeEval.js`). Limit this list to trusted operators. See [Security — Developer eval sandbox](security.md#developer-eval-sandbox).
+
 #### `moderation.staffRoles`
 Array of Discord role ID strings. Members with any of these roles can use staff-only commands.
 

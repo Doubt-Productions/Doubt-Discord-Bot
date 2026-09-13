@@ -37,12 +37,14 @@ A configurable support ticket system with HTML transcripts.
 
 ### Setup
 
-1. Run `/setup` in your server
+1. Run `/setup` in your server (requires **Manage Server**)
 2. Select **Ticket** from the setup menu
 3. Configure:
    - **Category** — the channel category where tickets are created
    - **Channel** — the channel where the ticket panel is posted
    - **Role** — the support role that gets access to tickets
+
+Only the member who started `/setup` can use the follow-up select menus and channel/role collectors. See [Security — Setup wizard authorization](security.md#setup-wizard-authorization).
 
 ### How It Works
 
@@ -54,6 +56,16 @@ A configurable support ticket system with HTML transcripts.
 6. An HTML transcript is generated and DM'd to the ticket creator
 7. The channel is deleted after 10 seconds
 
+### Who can close a ticket
+
+The **Close Ticket** button is allowed only for:
+
+- The member who opened the ticket
+- Members with the configured ticket **support role**
+- Members with the **Manage Channels** guild permission
+
+Everyone else sees an ephemeral permission error. See [Security — Ticket close authorization](security.md#ticket-close-authorization).
+
 ---
 
 ## Welcome System
@@ -62,7 +74,7 @@ Automated welcome messages and role assignment for new members.
 
 ### Setup
 
-1. Run `/setup` in your server
+1. Run `/setup` in your server (requires **Manage Server**)
 2. Select **Welcome** from the setup menu
 3. Configure:
    - **Channel** — where welcome messages are sent
@@ -209,6 +221,10 @@ The `/automod` command creates Discord AutoMod rules:
 - Kick and ban commands attempt to DM the user before the action
 - The bot requires appropriate permissions (Kick Members, Ban Members, Moderate Members)
 - Timeout duration is parsed using the `ms` library (e.g., `5m`, `1h`, `7d`)
+
+### Discord permission visibility
+
+Moderation slash commands set `default_member_permissions` so Discord hides them from members without the matching permission. After deploying permission changes, **restart the bot** so ready-time registration syncs the updated values. See [Security](security.md).
 
 ---
 
