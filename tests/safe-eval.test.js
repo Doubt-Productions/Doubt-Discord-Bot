@@ -27,3 +27,16 @@ test("safeEval enforces length limit", async () => {
     /2000 character limit/
   );
 });
+
+test("safeEval blocks constructor-chain process escape", async () => {
+  const bypass =
+    "const x='pro'+'cess'; const C=(function(){return this;})().constructor.constructor; C('return '+x)().env";
+  await assert.rejects(() => safeEval(bypass), /not allowed/);
+});
+
+test("safeEval blocks dot-constructor access", async () => {
+  await assert.rejects(
+    () => safeEval("''.split.constructor('return 1')()"),
+    /not allowed/
+  );
+});
