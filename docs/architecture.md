@@ -50,7 +50,10 @@ Commands are stored in `client.collection.interactioncommands` and `client.appli
 
 Same structure as slash commands but loaded into `client.collection.developercommands`. Deployed to `config.handler.guildId` via REST API (separate from regular slash command registration).
 
-Developer commands may set `options: { developers: true }` to restrict access.
+Every command under `src/commands/devOnly/**` is treated as developer-only by
+`devCommandValidator.js`. Keep `options: { developers: true }` on developer
+commands for clarity, but do not rely on individual command metadata to opt in
+to the developer gate.
 
 ### Prefix Commands (`src/commands/prefix/`)
 
@@ -90,6 +93,10 @@ Each validator:
 3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
 
+The validators are the only active `interactionCreate` routing path. The old
+Guild backup routers for slash commands and components have been removed, so a
+matching command or component should execute once through the validation chain.
+
 ### Guild Event Handlers
 
 These handle non-interaction events:
@@ -100,10 +107,9 @@ These handle non-interaction events:
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
-| `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
-| `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
-
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+Guild interaction routers are intentionally absent. Add new interaction behavior
+to the validation pipeline or component handlers instead of adding a second
+`interactionCreate` listener under `src/events/Guild/`.
 
 ## Component System
 
@@ -122,7 +128,9 @@ Each component exports `{ customId, run }`.
 
 ### Component Routing
 
-Components are routed by `customId` matching. Some components are handled by the validator pipeline, while others use inline collectors (e.g., economy buttons `page1`/`page2`, help `help-menu`).
+Top-level components are routed by validator `customId` matching. Short-lived
+setup subflows use message component collectors with user-specific filters so
+only the user who opened the setup interaction can answer that collector.
 
 ## Context Menus
 
@@ -176,6 +184,9 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `getButtons.js` / `getSelects.js` / `getModals.js` | Load component modules |
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
+| `safeEval.js` | Run developer eval code in a constrained VM sandbox |
+| `setupGuard.js` | Enforce Manage Guild on setup components and build setup collector filters |
+| `ticketAuth.js` | Decide whether a member may close a ticket channel |
 | `buttonPagination.js` | Alternative pagination helper |
 | `join-to-create/generateEmbed.js` | JTC status embed builder |
 | `join-to-create/generateRow.js` | JTC dashboard button row |
