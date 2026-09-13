@@ -9,6 +9,7 @@ const { Rank } = require("canvacord");
 const xp = require("../../../schemas/XpSchema");
 const { log } = require("../../../functions");
 const rankCardPresenceStatus = require("../../../utils/rankCardPresenceStatus");
+const { denyUnlessManageGuild } = require("../../../utils/setupGuard");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -102,6 +103,8 @@ module.exports = {
         break;
       }
       case "reset": {
+        if (!(await denyUnlessManageGuild(interaction))) return;
+
         const member2 = interaction.options.getMember("user");
         if (!member2) {
           return await interaction.reply({
@@ -132,6 +135,8 @@ module.exports = {
         break;
       }
       case "set": {
+        if (!(await denyUnlessManageGuild(interaction))) return;
+
         const member3 = interaction.options.getMember("user");
         if (!member3) {
           return await interaction.reply({
