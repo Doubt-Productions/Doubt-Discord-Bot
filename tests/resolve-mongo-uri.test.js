@@ -66,3 +66,51 @@ test("resolveMongoUri defaults dbName to development when unset", () => {
   assert.strictEqual(rewritten, true);
   assert.strictEqual(uri, "mongodb://localhost:27017/development");
 });
+
+test("resolveMongoUri accepts replica-set URIs that already include a db name", () => {
+  const original =
+    "mongodb://user:pass@host1:27017,host2:27017/mydb?replicaSet=rs0";
+  const { uri, rewritten } = resolveMongoUri(
+    original,
+    "development",
+    "MONGODB_URI"
+  );
+
+  assert.strictEqual(rewritten, false);
+  assert.strictEqual(uri, original);
+});
+
+test("resolveMongoUri appends dbName to replica-set URIs without a path", () => {
+  const { uri, rewritten } = resolveMongoUri(
+    "mongodb://host1:27017,host2:27017?replicaSet=rs0",
+    "production",
+    "MONGODB_URI"
+  );
+
+  assert.strictEqual(rewritten, true);
+  assert.strictEqual(
+    uri,
+    "mongodb://host1:27017,host2:27017/production?replicaSet=rs0"
+  );
+});
+
+test("resolveMongoUri preserves credentials when appending dbName", () => {
+  const { uri, rewritten } = resolveMongoUri(
+    "mongodb://user:p%40ss%3Aword@host:27017",
+    "development",
+    "DEV_MONGODB_URI"
+  );
+
+  assert.strictEqual(rewritten, true);
+  assert.strictEqual(
+    uri,
+    "mongodb://user:p%40ss%3Aword@host:27017/development"
+  );
+});
+
+test("resolveMongoUri rejects non-mongodb schemes", () => {
+  assert.throws(
+    () => resolveMongoUri("https://example.com", "development", "DEV_MONGODB_URI"),
+    /must start with mongodb/
+  );
+});
