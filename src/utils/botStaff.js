@@ -1,4 +1,5 @@
 const botStaffModel = require("../schemas/botStaff");
+const botStaffRemovalModel = require("../schemas/botStaffRemoval");
 const badges = require("../schemas/badge");
 const users = require("../schemas/userConfig");
 const {
@@ -34,12 +35,46 @@ async function hasBotStaffConfigured() {
   return (await countBotStaff()) > 0;
 }
 
-async function migrateLegacyStaffRoles(client, addedBy, configOverride) {
+async function getRemovedBotStaffUserIds() {
+  const removals = await botStaffRemovalModel.findMany({
+    select: { userId: true },
+  });
+  return new Set(removals.map((entry) => entry.userId));
+}
+
+async function recordBotStaffRemoval(userId, removedBy) {
+  return botStaffRemovalModel.upsert({
+    where: { userId },
+    create: { userId, removedBy },
+    update: { removedBy, removedAt: new Date() },
+  });
+}
+
+async function clearBotStaffRemoval(userId) {
+  await botStaffRemovalModel.deleteMany({ where: { userId } });
+}
+
+async function migrateLegacyStaffRoles(client, addedBy, options = {}) {
+  const { configOverride, force = false } = options;
+
+  const existingCount = await countBotStaff();
+  if (existingCount > 0 && !force) {
+    return {
+      migrated: [],
+      skipped: [],
+      reason: "botstaff_already_configured",
+      message:
+        "BotStaff already has entries. Run `/botstaff migrate` with `force: true` only if you intend to re-import legacy roles. " +
+        "Removed users and bots are always skipped.",
+    };
+  }
+
   const activeConfig = configOverride ?? require("../config");
   const roleIds = getLegacyStaffRoleIds(activeConfig.moderation?.staffRoles);
   if (roleIds.length === 0) {
     return {
       migrated: [],
+      skipped: [],
       reason: "no_legacy_roles",
       message:
         "No legacy `moderation.staffRoles` IDs found in config. Add staff with `/botstaff add` instead.",
@@ -53,6 +88,7 @@ async function migrateLegacyStaffRoles(client, addedBy, configOverride) {
   if (!guildId) {
     return {
       migrated: [],
+      skipped: [],
       reason: "no_guild_id",
       message:
         "Could not resolve a support guild (`variables.supportServerId` or `handler.guildId`).",
@@ -63,35 +99,55 @@ async function migrateLegacyStaffRoles(client, addedBy, configOverride) {
   if (!guild) {
     return {
       migrated: [],
+      skipped: [],
       reason: "guild_not_found",
       message: `Bot is not in guild \`${guildId}\` or the guild could not be fetched.`,
     };
   }
 
   await guild.members.fetch();
+  const removedUserIds = await getRemovedBotStaffUserIds();
   const memberIds = findMemberIdsWithRoles(
     guild.members.cache.map((member) => ({
       userId: member.id,
+      isBot: member.user.bot,
       roleIds: [...member.roles.cache.keys()],
     })),
     roleIds
   );
 
   const migrated = [];
+  const skipped = [];
   for (const userId of memberIds) {
+    if (removedUserIds.has(userId)) {
+      skipped.push(userId);
+      continue;
+    }
+
+    const alreadyStaff = await isBotStaff(userId);
+    if (alreadyStaff) {
+      continue;
+    }
+
     await addBotStaff(userId, addedBy);
     migrated.push(userId);
   }
 
   return {
     migrated,
+    skipped,
     reason: migrated.length > 0 ? "ok" : "no_matching_members",
     roleIds,
     guildId,
     message:
       migrated.length > 0
-        ? `Migrated ${migrated.length} member(s) from legacy staff roles into BotStaff.`
-        : "No members in the support guild currently hold the legacy staff roles.",
+        ? `Migrated ${migrated.length} member(s) from legacy staff roles into BotStaff.` +
+          (skipped.length > 0
+            ? ` Skipped ${skipped.length} previously removed user(s).`
+            : "")
+        : skipped.length > 0
+          ? `No new members migrated. Skipped ${skipped.length} previously removed user(s) who still hold legacy roles.`
+          : "No members in the support guild currently hold the legacy staff roles.",
   };
 }
 
@@ -148,22 +204,24 @@ async function takeBotStaffBadge(userId) {
 }
 
 async function addBotStaff(userId, addedBy) {
+  await clearBotStaffRemoval(userId);
   await ensureBotStaffBadgeCatalog();
   const record = await botStaffModel.upsert({
     where: { userId },
     create: { userId, addedBy },
-    update: { addedBy },
+    update: { addedBy, addedAt: new Date() },
   });
   await giveBotStaffBadge(userId);
   return record;
 }
 
-async function removeBotStaff(userId) {
+async function removeBotStaff(userId, removedBy) {
   const record = await botStaffModel.findUnique({ where: { userId } });
   if (!record) {
     return null;
   }
   await botStaffModel.delete({ where: { userId } });
+  await recordBotStaffRemoval(userId, removedBy);
   await takeBotStaffBadge(userId);
   return record;
 }

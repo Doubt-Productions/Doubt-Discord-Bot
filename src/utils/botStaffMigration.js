@@ -13,13 +13,17 @@ function resolveMigrationGuildId(supportServerId, handlerGuildId) {
 }
 
 /**
- * @param {Iterable<{ id?: string, userId?: string, roleIds?: string[] }>} members
+ * @param {Iterable<{ id?: string, userId?: string, roleIds?: string[], isBot?: boolean }>} members
  */
 function findMemberIdsWithRoles(members, roleIds) {
   const roleIdSet = new Set(roleIds);
   const userIds = new Set();
 
   for (const member of members) {
+    if (member.isBot === true) {
+      continue;
+    }
+
     const memberRoleIds = member.roleIds ?? [];
     if (memberRoleIds.some((roleId) => roleIdSet.has(roleId))) {
       const userId = member.userId ?? member.id;

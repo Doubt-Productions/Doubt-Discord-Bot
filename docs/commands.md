@@ -123,7 +123,7 @@ These commands are deployed only to the support/dev guild (`config.handler.guild
 | `/botstaff add <user>` | Add global bot staff (syncs `bot-staff` badge) | developers |
 | `/botstaff remove <user>` | Remove global bot staff | developers |
 | `/botstaff list` | List global bot staff | developers |
-| `/botstaff migrate` | One-time import from legacy `moderation.staffRoles` | developers |
+| `/botstaff migrate [force]` | One-time import from legacy `moderation.staffRoles` (refused when BotStaff non-empty unless `force`) | developers |
 | `/staffonly` | Test bot staff ACL check | staffOnly |
 | `/nsfw` | Test NSFW channel check | staffOnly + nsfw |
 | `/testembed` | Test embed helper function | developers |

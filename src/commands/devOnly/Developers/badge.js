@@ -144,7 +144,7 @@ module.exports = {
     }
 
     if (option === "create") {
-      if (isReservedBotStaffBadge(null, name)) {
+      if (isReservedBotStaffBadge(null, name, emoji)) {
         return interaction.editReply({
           embeds: [
             {
@@ -233,7 +233,7 @@ module.exports = {
       name = name || badge.name;
       emoji = emoji || badge.emoji;
 
-      if (isReservedBotStaffBadge(badge.badgeId, name)) {
+      if (isReservedBotStaffBadge(badge.badgeId, name, emoji)) {
         return interaction.editReply({
           embeds: [
             {

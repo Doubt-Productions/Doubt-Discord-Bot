@@ -39,8 +39,14 @@ test("addBotStaff upserts ACL and syncs badge", async () => {
       return Promise.resolve({
         userId: args.create.userId,
         addedBy: args.create.addedBy,
-        addedAt: new Date("2026-01-01T00:00:00Z"),
+        addedAt: args.update?.addedAt ?? new Date("2026-01-01T00:00:00Z"),
       });
+    },
+  };
+  const fakeBotStaffRemoval = {
+    deleteMany(args) {
+      events.push(["removalClear", args]);
+      return Promise.resolve();
     },
   };
   const fakeBadges = {
@@ -71,17 +77,20 @@ test("addBotStaff upserts ACL and syncs badge", async () => {
   };
 
   const botStaffPath = require.resolve("../src/schemas/botStaff");
+  const removalPath = require.resolve("../src/schemas/botStaffRemoval");
   const badgePath = require.resolve("../src/schemas/badge");
   const userPath = require.resolve("../src/schemas/userConfig");
   const botStaffUtilPath = require.resolve("../src/utils/botStaff");
   const originals = {
     botStaff: require.cache[botStaffPath]?.exports,
+    removal: require.cache[removalPath]?.exports,
     badge: require.cache[badgePath]?.exports,
     user: require.cache[userPath]?.exports,
     botStaffUtil: require.cache[botStaffUtilPath]?.exports,
   };
 
   require.cache[botStaffPath] = { exports: fakeBotStaff };
+  require.cache[removalPath] = { exports: fakeBotStaffRemoval };
   require.cache[badgePath] = { exports: fakeBadges };
   require.cache[userPath] = { exports: fakeUsers };
   delete require.cache[botStaffUtilPath];
@@ -90,13 +99,21 @@ test("addBotStaff upserts ACL and syncs badge", async () => {
     const { addBotStaff } = require("../src/utils/botStaff");
     const record = await addBotStaff("555555555555555555", "111111111111111111");
     assert.strictEqual(record.userId, "555555555555555555");
-    assert.ok(events.some((e) => e[0] === "upsert"));
+    const upsertEvent = events.find((e) => e[0] === "upsert");
+    assert.ok(upsertEvent);
+    assert.ok(upsertEvent[1].update.addedAt instanceof Date);
     assert.ok(events.some((e) => e[0] === "userUpdate"));
+    assert.ok(events.some((e) => e[0] === "removalClear"));
   } finally {
     if (originals.botStaff !== undefined) {
       require.cache[botStaffPath].exports = originals.botStaff;
     } else {
       delete require.cache[botStaffPath];
+    }
+    if (originals.removal !== undefined) {
+      require.cache[removalPath].exports = originals.removal;
+    } else {
+      delete require.cache[removalPath];
     }
     if (originals.badge !== undefined) {
       require.cache[badgePath].exports = originals.badge;
@@ -116,7 +133,7 @@ test("addBotStaff upserts ACL and syncs badge", async () => {
   }
 });
 
-test("removeBotStaff deletes ACL and removes badge", async () => {
+test("removeBotStaff deletes ACL, tombstones removal, and removes badge", async () => {
   const events = [];
   const fakeBotStaff = {
     findUnique({ where }) {
@@ -129,6 +146,12 @@ test("removeBotStaff deletes ACL and removes badge", async () => {
     },
     delete({ where }) {
       events.push(["delete", where.userId]);
+      return Promise.resolve();
+    },
+  };
+  const fakeBotStaffRemoval = {
+    upsert(args) {
+      events.push(["removalUpsert", args]);
       return Promise.resolve();
     },
   };
@@ -147,17 +170,20 @@ test("removeBotStaff deletes ACL and removes badge", async () => {
   };
 
   const botStaffPath = require.resolve("../src/schemas/botStaff");
+  const removalPath = require.resolve("../src/schemas/botStaffRemoval");
   const badgePath = require.resolve("../src/schemas/badge");
   const userPath = require.resolve("../src/schemas/userConfig");
   const botStaffUtilPath = require.resolve("../src/utils/botStaff");
   const originals = {
     botStaff: require.cache[botStaffPath]?.exports,
+    removal: require.cache[removalPath]?.exports,
     badge: require.cache[badgePath]?.exports,
     user: require.cache[userPath]?.exports,
     botStaffUtil: require.cache[botStaffUtilPath]?.exports,
   };
 
   require.cache[botStaffPath] = { exports: fakeBotStaff };
+  require.cache[removalPath] = { exports: fakeBotStaffRemoval };
   require.cache[badgePath] = {
     exports: { findFirst: () => null, create: () => null },
   };
@@ -166,16 +192,28 @@ test("removeBotStaff deletes ACL and removes badge", async () => {
 
   try {
     const { removeBotStaff } = require("../src/utils/botStaff");
-    const removed = await removeBotStaff("666666666666666666");
+    const removed = await removeBotStaff(
+      "666666666666666666",
+      "111111111111111111"
+    );
     assert.strictEqual(removed.userId, "666666666666666666");
     assert.deepStrictEqual(events.find((e) => e[0] === "userUpdate")[1], [
       "other",
     ]);
+    const tombstone = events.find((e) => e[0] === "removalUpsert");
+    assert.ok(tombstone);
+    assert.strictEqual(tombstone[1].create.userId, "666666666666666666");
+    assert.strictEqual(tombstone[1].create.removedBy, "111111111111111111");
   } finally {
     if (originals.botStaff !== undefined) {
       require.cache[botStaffPath].exports = originals.botStaff;
     } else {
       delete require.cache[botStaffPath];
+    }
+    if (originals.removal !== undefined) {
+      require.cache[removalPath].exports = originals.removal;
+    } else {
+      delete require.cache[removalPath];
     }
     if (originals.badge !== undefined) {
       require.cache[badgePath].exports = originals.badge;

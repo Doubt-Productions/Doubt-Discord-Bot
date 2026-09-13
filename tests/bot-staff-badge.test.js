@@ -6,6 +6,7 @@ const { isReservedBotStaffBadge } = require("../src/utils/botStaffAcl");
 const {
   BOT_STAFF_BADGE_ID,
   BOT_STAFF_BADGE_NAME,
+  BOT_STAFF_BADGE_EMOJI,
 } = require("../src/constants/botStaff");
 
 test("isReservedBotStaffBadge matches stable id and reserved name", () => {
@@ -22,6 +23,11 @@ test("isReservedBotStaffBadge blocks lookalike ids and names", () => {
   assert.strictEqual(isReservedBotStaffBadge(null, "BOT  STAFF"), true);
   assert.strictEqual(isReservedBotStaffBadge(null, "bot-staff"), true);
   assert.strictEqual(isReservedBotStaffBadge("helper-badge", "Helper"), false);
+});
+
+test("isReservedBotStaffBadge blocks reserved shield emoji", () => {
+  assert.strictEqual(isReservedBotStaffBadge(null, "Helper", BOT_STAFF_BADGE_EMOJI), true);
+  assert.strictEqual(isReservedBotStaffBadge(null, "Helper", "⭐"), false);
 });
 
 test("badge command blocks reserved bot-staff badge operations", () => {

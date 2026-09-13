@@ -1,5 +1,6 @@
 const {
   BOT_STAFF_BADGE_ID,
+  BOT_STAFF_BADGE_EMOJI,
 } = require("../constants/botStaff");
 
 const RESERVED_BOT_STAFF_BADGE_KEY = "botstaff";
@@ -12,10 +13,14 @@ function normalizeBadgeKey(value) {
 }
 
 /**
- * Whether a badge id or display name is reserved for global bot staff.
+ * Whether a badge id, display name, or emoji is reserved for global bot staff.
  */
-function isReservedBotStaffBadge(badgeId, name) {
+function isReservedBotStaffBadge(badgeId, name, emoji) {
   if (badgeId === BOT_STAFF_BADGE_ID) {
+    return true;
+  }
+
+  if (typeof emoji === "string" && emoji.trim() === BOT_STAFF_BADGE_EMOJI) {
     return true;
   }
 

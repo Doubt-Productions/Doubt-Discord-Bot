@@ -48,6 +48,14 @@ module.exports = {
         .setDescription(
           "One-time cutover: import legacy moderation.staffRoles members into BotStaff (does not remove Discord roles)"
         )
+        .addBooleanOption((option) =>
+          option
+            .setName("force")
+            .setDescription(
+              "Re-import when BotStaff already has entries (still skips removed users and bots)"
+            )
+            .setRequired(false)
+        )
     ),
 
   options: {
@@ -84,10 +92,10 @@ module.exports = {
     }
 
     if (subcommand === "migrate") {
-      const result = await migrateLegacyStaffRoles(
-        client,
-        interaction.user.id
-      );
+      const force = interaction.options.getBoolean("force") ?? false;
+      const result = await migrateLegacyStaffRoles(client, interaction.user.id, {
+        force,
+      });
 
       const fields = [
         {
@@ -119,6 +127,13 @@ module.exports = {
         });
       }
 
+      if (result.skipped?.length) {
+        fields.push({
+          name: "Skipped (previously removed)",
+          value: result.skipped.map((id) => `<@${id}> (\`${id}\`)`).join("\n"),
+        });
+      }
+
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -133,7 +148,7 @@ module.exports = {
 
     if (subcommand === "remove") {
       const user = interaction.options.getUser("user", true);
-      const record = await removeBotStaff(user.id);
+      const record = await removeBotStaff(user.id, interaction.user.id);
 
       if (!record) {
         await interaction.editReply({

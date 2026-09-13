@@ -136,11 +136,11 @@ Permission and safety gates are split across validators in `src/events/validatio
 
 **Recommended upgrade checklist**
 
-1. Before removing `staffRoles` from your live `src/config.js`, run `/botstaff migrate` while the legacy role IDs are still present. Migration reads `moderation.staffRoles`, resolves the support guild (`variables.supportServerId` or `handler.guildId`), and creates `BotStaff` rows (with badge sync) for members who hold any listed role.
+1. Before removing `staffRoles` from your live `src/config.js`, run `/botstaff migrate` while the legacy role IDs are still present and `BotStaff` is empty. Migration reads `moderation.staffRoles`, resolves the support guild (`variables.supportServerId` or `handler.guildId`), and creates `BotStaff` rows (with badge sync) for human members who hold any listed role.
 2. If you already removed `staffRoles`, add each person manually with `/botstaff add <user>` before deploy.
-3. Run `npx prisma db push` so the `botstaff` collection exists.
+3. Run `npx prisma db push` so the `botstaff` and `botstaffremovals` collections exist.
 4. Confirm with `/botstaff list`, then remove `staffRoles` from config.
-5. Remove the legacy Discord staff roles (or stop re-running migrate). `/botstaff migrate` re-imports anyone who still holds a legacy role, including users previously removed with `/botstaff remove`.
+5. Remove the legacy Discord staff roles. `/botstaff migrate` is refused when `BotStaff` already has entries unless `force: true`. Users removed with `/botstaff remove` are tombstoned in `botstaffremovals` and always skipped by migrate; bots are never imported.
 
 **Fail-closed behavior:** `options.staffOnly` denies non-developers who are not in `BotStaff`. If the collection is empty, the denial message explicitly tells operators to run `/botstaff migrate` or `/botstaff add` — there is no silent fallback to guild roles.
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.

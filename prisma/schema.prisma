@@ -123,3 +123,12 @@ model BotStaff {
 
   @@map("botstaff")
 }
+
+model BotStaffRemoval {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique
+  removedBy String
+  removedAt DateTime @default(now())
+
+  @@map("botstaffremovals")
+}
