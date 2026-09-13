@@ -30,7 +30,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 - The Prisma schema is at `prisma/schema.prisma`. After schema changes, run `npx prisma generate` to regenerate the client.
 - The Prisma client singleton is in `src/handlers/prisma.js` and reads the MongoDB URI from `config.handler.mongodb.uri`.
-- `DATABASE_URL` in `.env` is used only by `prisma` CLI tools (e.g., `prisma db push`). The runtime client uses the URI from config.
+- `DATABASE_URL` in `.env` is used by Prisma CLI tools (e.g., `prisma db push`). At runtime, `src/handlers/prisma.js` resolves the MongoDB URI (appending `config.variables.dbName` when the path is empty) and sets `process.env.DATABASE_URL` to match before creating the client. Include `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` and keep `DATABASE_URL` aligned for CLI use.
 - MongoDB is schema-less so `prisma migrate` commands do NOT work. Use `prisma db push` to sync indexes.
 
 ### Known issues
