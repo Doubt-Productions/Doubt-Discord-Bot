@@ -32,7 +32,7 @@ Configuration constraints:
 - `src/example.config.js` is the runtime schema for `src/config.js`.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
 - Prisma runtime queries use `config.handler.mongodb.uri`. `DATABASE_URL` is only read by Prisma CLI tools.
-- `config.variables.dbName` still exists for configuration compatibility, but the verified Prisma startup path does not read it; include the database name in the MongoDB URI instead.
+- MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
 - `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
