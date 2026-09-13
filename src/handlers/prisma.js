@@ -19,6 +19,9 @@ if (rewritten) {
   );
 }
 
+// Prisma schema reads env("DATABASE_URL"); keep it aligned with the resolved URI.
+process.env.DATABASE_URL = datasourceUrl;
+
 const prisma = new PrismaClient({
   datasourceUrl,
 });

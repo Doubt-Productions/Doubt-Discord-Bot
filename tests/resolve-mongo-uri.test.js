@@ -114,3 +114,30 @@ test("resolveMongoUri rejects non-mongodb schemes", () => {
     /must start with mongodb/
   );
 });
+
+test("resolveMongoUri does not produce a double slash when path is only a trailing slash", () => {
+  const { uri, rewritten } = resolveMongoUri(
+    "mongodb://localhost:27017/",
+    "development",
+    "DEV_MONGODB_URI"
+  );
+
+  assert.strictEqual(rewritten, true);
+  assert.strictEqual(uri, "mongodb://localhost:27017/development");
+  assert.doesNotMatch(uri, /\/\/development/);
+});
+
+test("resolveMongoUri appends dbName before query params on replica-set hosts", () => {
+  const { uri, rewritten } = resolveMongoUri(
+    "mongodb://host1:27017,host2:27017/?replicaSet=rs0&authSource=admin",
+    "production",
+    "MONGODB_URI"
+  );
+
+  assert.strictEqual(rewritten, true);
+  assert.strictEqual(
+    uri,
+    "mongodb://host1:27017,host2:27017/production?replicaSet=rs0&authSource=admin"
+  );
+  assert.doesNotMatch(uri, /\/\/production/);
+});
