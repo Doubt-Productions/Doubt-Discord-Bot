@@ -19,12 +19,12 @@ cd Doubt-Discord-Bot
 ## Step 2: Install Dependencies
 
 ```bash
-npm install
+npm ci
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
+This installs all runtime dependencies and the Prisma CLI (dev dependency) from the tracked lockfile. Use `npm install` instead when intentionally changing dependencies.
 
-If you need to regenerate the Prisma client manually:
+Generate the Prisma client after installing dependencies and after every `prisma/schema.prisma` change:
 
 ```bash
 npx prisma generate
@@ -138,7 +138,7 @@ You should see:
 
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
-- Verify the connection string format includes the database name
+- Verify the connection string format includes the database name. If the path is empty, the runtime appends `config.variables.dbName` (`development` unless `PRODUCTION=true`).
 
 ### Channel editing errors every 30 minutes
 
