@@ -28,6 +28,6 @@
     "topgg-autoposter": "^2.0.2"
   },
   "devDependencies": {
-    "prisma": "^6.19.3"
+    "prisma": "^7.10.0"
   }
 }
