@@ -8,7 +8,7 @@ const ExtendedClient = require("../class/ExtendedClient");
 
 const badge = require("../schemas/badge");
 const userConfig = require("../schemas/userConfig");
-const { profileImage } = require("discord-arts");
+const { Profile } = require("discord-arts");
 
 module.exports = {
   data: new ContextMenuCommandBuilder().setName("profile").setType(2),
@@ -49,12 +49,10 @@ module.exports = {
       badgeURLs.push(badgeurls);
     }
 
-    const buffer = await profileImage(user.id, {
-      username: user.user.username,
-      avatar: user.user.displayAvatarURL({ format: "png" }),
-      customBadges: badgeURLs,
-      background: user.user.bannerURL(),
-      color: user.user.accentColor,
+    const bannerUrl = user.user.bannerURL();
+    const buffer = await Profile(user.id, {
+      customBadges: badgeURLs.filter(Boolean),
+      ...(bannerUrl ? { customBackground: bannerUrl } : {}),
     });
 
     await interaction.editReply({
