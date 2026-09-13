@@ -1,3 +1,13 @@
+function normalizeDefaultMemberPermissions(value) {
+  if (value == null) return null;
+
+  if (typeof value === "object" && "bitfield" in value) {
+    return value.bitfield.toString();
+  }
+
+  return String(value);
+}
+
 module.exports = (existing, local) => {
   const changed = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
 
@@ -5,12 +15,14 @@ module.exports = (existing, local) => {
     return true;
   };
 
-  if (
-    changed(
-      existing.default_member_permissions ?? null,
-      local.data.default_member_permissions ?? null
-    )
-  ) {
+  const existingPermissions = normalizeDefaultMemberPermissions(
+    existing.defaultMemberPermissions ?? existing.default_member_permissions
+  );
+  const localPermissions = normalizeDefaultMemberPermissions(
+    local.data.default_member_permissions ?? local.data.defaultMemberPermissions
+  );
+
+  if (changed(existingPermissions, localPermissions)) {
     return true;
   }
 
