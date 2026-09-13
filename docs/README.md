@@ -29,7 +29,7 @@ Doubt is a feature-rich Discord bot offering:
 - **Join-to-Create** — temporary voice channels
 - **Rank/XP System** — per-guild leveling with rank cards
 - **Utility** — embeds, user info, server info, translation, avatars
-- **Developer Tools** — eval, deploy, badge management, simulated joins/leaves
+- **Developer Tools** — eval, deploy, global BotStaff ACL, badge management, simulated joins/leaves
 
 ## Tech Stack
 
