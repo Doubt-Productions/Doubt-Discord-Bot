@@ -29,7 +29,7 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). Not used at runtime. |
+| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, `prisma generate`, etc.). Runtime code syncs this to the resolved active MongoDB URI before creating Prisma. |
 | `TOPGG_TOKEN` | [Top.gg](https://top.gg/) API token for automatic stat posting |
 
 ### Production Toggle Behavior
@@ -40,6 +40,10 @@ The `PRODUCTION` flag controls which set of credentials the bot uses:
 PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
+
+`src/example.config.js` compares `PRODUCTION` to the string `"true"`. Any other value, including `false` or an unset variable, uses the development values.
+
+MongoDB URIs should include a database path, for example `mongodb://localhost:27017/doubt-dev`. If the active URI has no path, `src/handlers/prisma.js` appends `config.variables.dbName` (`development` or `production`) before constructing Prisma and sets `process.env.DATABASE_URL` to the same resolved value. This append step preserves replica-set host lists and encoded credentials. Missing or blank MongoDB URI values, or values that do not start with `mongodb://` or `mongodb+srv://`, fail startup with a clear error.
 
 The guild ID for command registration:
 ```

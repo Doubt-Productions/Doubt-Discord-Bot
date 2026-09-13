@@ -12,6 +12,7 @@ cd Doubt-Discord-Bot
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
+npx prisma generate         # Regenerate the Prisma client after install/schema changes
 npm run dev                  # Start with nodemon
 ```
 
@@ -202,7 +203,16 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader function exports and `{ event, run }` object exports |
+| `interaction-cooldown.test.js` | Slash command cooldown map behavior |
+| `no-duplicate-interaction-handlers.test.js` | Event loader keeps one active chat-input validation path |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
+| `prisma-datasource.test.js` | Prisma handler syncs `DATABASE_URL` before client construction |
+| `production-config.test.js` | Strict `PRODUCTION === "true"` environment selection |
+| `rank-card-presence-status.test.js` | Rank-card presence values are normalized for canvacord |
+| `resolve-mongo-uri.test.js` | MongoDB URI validation, db-name appending, replica-set hosts, and credential preservation |
+| `safe-eval.test.js` | Developer eval sandbox restrictions |
+| `ticket-auth.test.js` | Ticket close authorization rules |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |

@@ -4,13 +4,22 @@ Doubt uses **MongoDB** as its database, accessed through **Prisma v6**. The Pris
 
 ## Connection
 
-The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag).
+The Prisma client is initialized in `src/handlers/prisma.js` as a singleton. It reads the MongoDB URI from `config.handler.mongodb.uri` (which resolves to `DEV_MONGODB_URI` or `MONGODB_URI` based on the `PRODUCTION` flag), normalizes it through `src/utils/resolveMongoUri.js`, and passes the resolved value to `new PrismaClient({ datasourceUrl })`.
+
+`resolveMongoUri` enforces these startup rules:
+
+- The active URI must be present and must start with `mongodb://` or `mongodb+srv://`.
+- URIs should include a database path, such as `mongodb://127.0.0.1:27017/doubt`.
+- If the path is missing or empty, the bot appends `config.variables.dbName` (`development` or `production`) before any query string and logs a warning.
+- Existing database paths are preserved. The resolver uses string parsing so replica-set host lists such as `host1:27017,host2:27017` and encoded credentials are not rewritten.
+
+Before Prisma is constructed, `src/handlers/prisma.js` also assigns the resolved runtime URI to `process.env.DATABASE_URL`. This keeps Prisma's schema-level `env("DATABASE_URL")` and the explicit `datasourceUrl` override aligned during bot startup.
 
 Connection is established during bot startup if `config.handler.mongodb.toggle` is `true`.
 
 ## Prisma CLI
 
-For Prisma CLI tools (like `prisma db push` or `prisma studio`), set the `DATABASE_URL` environment variable in `.env` to your MongoDB connection string.
+For Prisma CLI tools (like `prisma db push` or `prisma studio`), set the `DATABASE_URL` environment variable in `.env` to the same MongoDB connection string you expect the bot to use, including the `/dbname` path. The runtime sync described above happens only when `src/handlers/prisma.js` loads; standalone Prisma CLI commands still read `DATABASE_URL` directly.
 
 ```bash
 # Sync indexes to the database

@@ -22,9 +22,7 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency). This repository does not define a `postinstall` hook, so generate the Prisma client explicitly after installing dependencies or changing `prisma/schema.prisma`:
 
 ```bash
 npx prisma generate
@@ -138,7 +136,9 @@ You should see:
 
 - Ensure MongoDB is running and accessible at the URI you configured
 - For Atlas: check that your IP is whitelisted in Network Access
-- Verify the connection string format includes the database name
+- Verify the active MongoDB URI starts with `mongodb://` or `mongodb+srv://`
+- Prefer including the database name in the URI path, for example `/doubt-dev`. If the path is empty, startup appends `config.variables.dbName` and logs a warning.
+- Keep `DATABASE_URL` aligned with the active MongoDB URI for Prisma CLI commands. Runtime startup syncs `process.env.DATABASE_URL` to the resolved URI before creating Prisma, but standalone CLI commands read `.env` directly.
 
 ### Channel editing errors every 30 minutes
 

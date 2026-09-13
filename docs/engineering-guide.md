@@ -36,17 +36,17 @@ Configuration constraints:
 - Discord **Message Content Intent** must be enabled for the bot application in the Discord Developer Portal. The client requests `GatewayIntentBits.MessageContent` in `src/class/ExtendedClient.js`, but Discord still requires the privileged intent to be turned on for the app; without it, `message.content` is empty and prefix commands never match.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
 - Prisma runtime queries use the MongoDB URI from `config.handler.mongodb.uri`, resolved through `resolveMongoUri` in `src/handlers/prisma.js`. At startup, that handler sets `process.env.DATABASE_URL` to the same resolved URI so Prisma schema `env("DATABASE_URL")` and the client `datasourceUrl` stay aligned.
-- MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
+- MongoDB URIs should include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. The resolver preserves comma-separated replica-set hosts and existing credential encoding when it appends the path. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI`, or a URI that does not start with `mongodb://` or `mongodb+srv://`, fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` is string-compared against `"true"` in `src/example.config.js`. Set `PRODUCTION=true` for production; any other value, including `false`, selects the development token, client ID, guild ID, database name, and MongoDB URI.
 
 ## Prisma Persistence
 
 Persistence now runs through Prisma v6 with the MongoDB provider:
 
 - `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `guildschemas`, `chatbots`, and `jtcsetups`.
-- `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with a resolved `datasourceUrl` and `process.env.DATABASE_URL` is set to match before `new PrismaClient()`.
+- `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with a resolved `datasourceUrl`, and `process.env.DATABASE_URL` is set to match before `new PrismaClient()`.
 - Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema` and `src/schemas/GuildSchema.js` exports `prisma.guildSchema`.
 - The legacy `src/handlers/mongoose.js` file remains in the tree, but `ExtendedClient` imports `src/handlers/prisma.js`. Do not add new imports of the Mongoose handler unless Mongoose is intentionally restored as a dependency.
 
