@@ -8,6 +8,7 @@ const botStaffModel = require("../../../schemas/botStaff");
 const {
   addBotStaff,
   removeBotStaff,
+  migrateLegacyStaffRoles,
   BOT_STAFF_BADGE_EMOJI,
 } = require("../../../utils/botStaff");
 
@@ -39,6 +40,13 @@ module.exports = {
     )
     .addSubcommand((subcommand) =>
       subcommand.setName("list").setDescription("List all global bot staff")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("migrate")
+        .setDescription(
+          "One-time cutover: import legacy moderation.staffRoles members into BotStaff"
+        )
     ),
 
   options: {
@@ -69,6 +77,53 @@ module.exports = {
                 )}:F>.`
             )
             .setColor("Green"),
+        ],
+      });
+      return;
+    }
+
+    if (subcommand === "migrate") {
+      const result = await migrateLegacyStaffRoles(
+        client,
+        interaction.user.id
+      );
+
+      const fields = [
+        {
+          name: "Result",
+          value: result.message,
+        },
+      ];
+
+      if (result.guildId) {
+        fields.push({
+          name: "Guild",
+          value: `\`${result.guildId}\``,
+          inline: true,
+        });
+      }
+
+      if (result.roleIds?.length) {
+        fields.push({
+          name: "Legacy role IDs",
+          value: result.roleIds.map((id) => `\`${id}\``).join(", "),
+          inline: false,
+        });
+      }
+
+      if (result.migrated?.length) {
+        fields.push({
+          name: "Migrated users",
+          value: result.migrated.map((id) => `<@${id}> (\`${id}\`)`).join("\n"),
+        });
+      }
+
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle(`${BOT_STAFF_BADGE_EMOJI} Bot staff migration`)
+            .addFields(fields)
+            .setColor(result.migrated?.length ? "Green" : "Orange"),
         ],
       });
       return;

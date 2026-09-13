@@ -100,6 +100,8 @@ Array of Discord user ID strings. Users listed here can use developer-only comma
 #### Global bot staff
 Cross-guild bot staff is stored in Mongo (`BotStaff` collection) and managed with `/botstaff`. Staff-only commands check that ACL (developers are always allowed). The `bot-staff` badge is a public display mark only.
 
+**Cutover:** If you still have `moderation.staffRoles` in your private `config.js`, run `/botstaff migrate` once to import those members before removing the key. Otherwise add each person with `/botstaff add` before deploy.
+
 #### `handler.commands.prefix`
 Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
 

@@ -1,7 +1,11 @@
 const { EmbedBuilder } = require("discord.js");
 const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
-const { isStaffOnlyAllowed } = require("../../utils/botStaff");
+const {
+  isStaffOnlyAllowed,
+  hasBotStaffConfigured,
+} = require("../../utils/botStaff");
+const { getStaffOnlyDenialMessage } = require("../../utils/botStaffAcl");
 const mConfig = require("../../messageConfig.json");
 const getLocalDevCommands = require("../../utils/getLocalDevCommands");
 
@@ -47,8 +51,9 @@ module.exports = async (client, interaction) => {
         developerIds
       );
       if (!allowed) {
+        const hasAnyBotStaff = await hasBotStaffConfigured();
         await interaction.reply({
-          content: `This is a staff only command.`,
+          content: getStaffOnlyDenialMessage({ hasAnyBotStaff }),
           ephemeral: true,
         });
         return;

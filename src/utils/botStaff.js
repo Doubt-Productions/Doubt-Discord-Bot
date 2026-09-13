@@ -10,6 +10,11 @@ const {
   isReservedBotStaffBadge,
   isStaffGateAllowed,
 } = require("./botStaffAcl");
+const {
+  getLegacyStaffRoleIds,
+  resolveMigrationGuildId,
+  findMemberIdsWithRoles,
+} = require("./botStaffMigration");
 
 async function isStaffOnlyAllowed(userId, developerIds) {
   const isMember = await isBotStaff(userId);
@@ -19,6 +24,75 @@ async function isStaffOnlyAllowed(userId, developerIds) {
 async function isBotStaff(userId) {
   const record = await botStaffModel.findUnique({ where: { userId } });
   return record !== null;
+}
+
+async function countBotStaff() {
+  return botStaffModel.count();
+}
+
+async function hasBotStaffConfigured() {
+  return (await countBotStaff()) > 0;
+}
+
+async function migrateLegacyStaffRoles(client, addedBy, configOverride) {
+  const activeConfig = configOverride ?? require("../config");
+  const roleIds = getLegacyStaffRoleIds(activeConfig.moderation?.staffRoles);
+  if (roleIds.length === 0) {
+    return {
+      migrated: [],
+      reason: "no_legacy_roles",
+      message:
+        "No legacy `moderation.staffRoles` IDs found in config. Add staff with `/botstaff add` instead.",
+    };
+  }
+
+  const guildId = resolveMigrationGuildId(
+    activeConfig.variables?.supportServerId,
+    activeConfig.handler?.guildId
+  );
+  if (!guildId) {
+    return {
+      migrated: [],
+      reason: "no_guild_id",
+      message:
+        "Could not resolve a support guild (`variables.supportServerId` or `handler.guildId`).",
+    };
+  }
+
+  const guild = await client.guilds.fetch(guildId).catch(() => null);
+  if (!guild) {
+    return {
+      migrated: [],
+      reason: "guild_not_found",
+      message: `Bot is not in guild \`${guildId}\` or the guild could not be fetched.`,
+    };
+  }
+
+  await guild.members.fetch();
+  const memberIds = findMemberIdsWithRoles(
+    guild.members.cache.map((member) => ({
+      userId: member.id,
+      roleIds: [...member.roles.cache.keys()],
+    })),
+    roleIds
+  );
+
+  const migrated = [];
+  for (const userId of memberIds) {
+    await addBotStaff(userId, addedBy);
+    migrated.push(userId);
+  }
+
+  return {
+    migrated,
+    reason: migrated.length > 0 ? "ok" : "no_matching_members",
+    roleIds,
+    guildId,
+    message:
+      migrated.length > 0
+        ? `Migrated ${migrated.length} member(s) from legacy staff roles into BotStaff.`
+        : "No members in the support guild currently hold the legacy staff roles.",
+  };
 }
 
 async function ensureBotStaffBadgeCatalog() {
@@ -101,6 +175,9 @@ module.exports = {
   isReservedBotStaffBadge,
   isStaffOnlyAllowed,
   isBotStaff,
+  countBotStaff,
+  hasBotStaffConfigured,
+  migrateLegacyStaffRoles,
   ensureBotStaffBadgeCatalog,
   giveBotStaffBadge,
   takeBotStaffBadge,

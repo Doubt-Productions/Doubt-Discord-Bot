@@ -26,7 +26,26 @@ function isStaffGateAllowed(userId, developerIds, isBotStaffMember) {
   return isBotStaffMember === true;
 }
 
+/**
+ * Fail-closed staffOnly denial copy (no silent empty ACL after staffRoles removal).
+ */
+function getStaffOnlyDenialMessage({ hasAnyBotStaff }) {
+  if (!hasAnyBotStaff) {
+    return (
+      "This is a staff-only command, but global bot staff is not configured yet. " +
+      "A developer must run `/botstaff migrate` (while `moderation.staffRoles` is still in config) " +
+      "or `/botstaff add` for each person before staff-only commands are available."
+    );
+  }
+
+  return (
+    "This command is restricted to global bot staff. " +
+    "Ask a developer to add you with `/botstaff add`."
+  );
+}
+
 module.exports = {
   isReservedBotStaffBadge,
   isStaffGateAllowed,
+  getStaffOnlyDenialMessage,
 };
