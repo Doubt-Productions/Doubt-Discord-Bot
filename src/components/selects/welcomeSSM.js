@@ -11,6 +11,10 @@ const {
 const ExtendedClient = require("../../class/ExtendedClient");
 const welcomeSchema = require("../../schemas/welcomeSchema");
 const { RoleSelectMenuBuilder } = require("@discordjs/builders");
+const {
+  denyUnlessManageGuild,
+  setupComponentFilter,
+} = require("../../utils/setupGuard");
 
 module.exports = {
   customId: "welcomeSSM",
@@ -20,6 +24,8 @@ module.exports = {
    * @param {StringSelectMenuInteraction} interaction
    */
   run: async (client, interaction) => {
+    if (!(await denyUnlessManageGuild(interaction))) return;
+
     const value = interaction.values[0];
 
     const embed = new EmbedBuilder()
@@ -61,7 +67,7 @@ module.exports = {
         });
 
         const collector = interaction.channel.createMessageComponentCollector({
-          filter: (i) => i.customId === "welcomeCSM1",
+          filter: setupComponentFilter(interaction, "welcomeCSM1"),
           time: 30000,
         });
 
@@ -214,7 +220,7 @@ module.exports = {
         });
 
         const collector3 = interaction.channel.createMessageComponentCollector({
-          filter: (i) => i.customId === "welcomeCSM2",
+          filter: setupComponentFilter(interaction, "welcomeCSM2"),
           time: 30000,
         });
 
@@ -272,7 +278,7 @@ module.exports = {
         });
 
         const collector4 = interaction.channel.createMessageComponentCollector({
-          filter: (i) => i.customId === "welcomeRSM1",
+          filter: setupComponentFilter(interaction, "welcomeRSM1"),
           time: 30000,
         });
 
@@ -330,7 +336,7 @@ module.exports = {
         });
 
         const collector5 = interaction.channel.createMessageComponentCollector({
-          filter: (i) => i.customId === "welcomeRSM2",
+          filter: setupComponentFilter(interaction, "welcomeRSM2"),
           time: 30000,
         });
 

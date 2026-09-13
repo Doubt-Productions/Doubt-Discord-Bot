@@ -7,6 +7,7 @@ const {
   ButtonStyle,
 } = require("discord.js");
 const ExtendedClient = require("../../class/ExtendedClient");
+const { denyUnlessManageGuild } = require("../../utils/setupGuard");
 
 module.exports = {
   customId: "setupSSM",
@@ -16,6 +17,8 @@ module.exports = {
    * @param {StringSelectMenuInteraction} interaction
    */
   run: async (client, interaction) => {
+    if (!(await denyUnlessManageGuild(interaction))) return;
+
     const value = interaction.values[0];
 
     const goBackBtn = new ButtonBuilder()
