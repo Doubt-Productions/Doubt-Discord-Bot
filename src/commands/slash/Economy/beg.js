@@ -35,7 +35,7 @@ module.exports = {
       });
 
     if (Data) {
-      Data.Wallet += value;
+      Data.Wallet = Math.max(0, Data.Wallet + value);
       await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
     }
 

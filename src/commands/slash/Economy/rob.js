@@ -7,6 +7,7 @@ const ExtendedClient = require("../../../class/ExtendedClient");
 const ecoSchema = require("../../../schemas/EcoSchema");
 
 var timeout = [];
+var victimLock = [];
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -38,6 +39,7 @@ module.exports = {
     const releaseCooldown = () => {
       timeout = timeout.filter((id) => id !== user.id);
     };
+    let releaseVictim = null;
 
     try {
       const target = options.getUser("user");
@@ -49,12 +51,26 @@ module.exports = {
         });
       }
 
+      if (victimLock.includes(target.id)) {
+        releaseCooldown();
+        return await interaction.reply({
+          content: `Someone is already robbing this user!`,
+          ephemeral: true,
+        });
+      }
+
+      victimLock.push(target.id);
+      releaseVictim = () => {
+        victimLock = victimLock.filter((id) => id !== target.id);
+      };
+
       let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
       let TargetData = await ecoSchema.findFirst({
         where: { User: target.id, Guild: guild.id },
       });
 
       if (!Data) {
+        releaseVictim();
         releaseCooldown();
         return await interaction.reply({
           content: `You don't have an account!`,
@@ -63,6 +79,7 @@ module.exports = {
       }
 
       if (!TargetData) {
+        releaseVictim();
         releaseCooldown();
         return await interaction.reply({
           content: `The target doesn't have an account!`,
@@ -71,6 +88,7 @@ module.exports = {
       }
 
       if (Data.Wallet < 100) {
+        releaseVictim();
         releaseCooldown();
         return await interaction.reply({
           content: `You need atleast $100 to rob someone!`,
@@ -79,6 +97,7 @@ module.exports = {
       }
 
       if (TargetData.Wallet < 100) {
+        releaseVictim();
         releaseCooldown();
         return await interaction.reply({
           content: `The target needs atleast $100 to rob them!`,
@@ -95,6 +114,7 @@ module.exports = {
         await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
         await ecoSchema.update({ where: { id: TargetData.id }, data: { Wallet: TargetData.Wallet } });
 
+        releaseVictim();
         setTimeout(() => {
           timeout = timeout.filter((id) => id !== user.id);
         }, 60000);
@@ -111,6 +131,7 @@ module.exports = {
         await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet } });
         await ecoSchema.update({ where: { id: TargetData.id }, data: { Wallet: TargetData.Wallet } });
 
+        releaseVictim();
         setTimeout(() => {
           timeout = timeout.filter((id) => id !== user.id);
         }, 60000);
@@ -122,6 +143,7 @@ module.exports = {
       }
     } catch (err) {
       releaseCooldown();
+      if (releaseVictim) releaseVictim();
       throw err;
     }
   },
