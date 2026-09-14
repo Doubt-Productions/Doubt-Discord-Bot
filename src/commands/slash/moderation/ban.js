@@ -30,8 +30,25 @@ module.exports = {
    * @param {[]} args
    */ run: async (client, interaction, args) => {
     const member = interaction.options.getMember(`user`);
+    const user = interaction.options.getUser(`user`);
     const reason =
       interaction.options.getString(`reason`) || "No reason provided";
+
+    if (!member) {
+      try {
+        await interaction.guild.members.ban(user, { reason });
+        return await interaction.reply({
+          content: `Successfully banned ${user.tag} for ${reason}!`,
+          ephemeral: true,
+        });
+      } catch (err) {
+        log(err, "err");
+        return await interaction.reply({
+          content: `An error occurred!`,
+          ephemeral: true,
+        });
+      }
+    }
 
     if (!member.bannable) {
       return interaction.reply({
