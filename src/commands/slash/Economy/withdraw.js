@@ -5,6 +5,11 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const ecoSchema = require("../../../schemas/EcoSchema");
+const {
+  economyLockKey,
+  acquireEconomyLock,
+  releaseEconomyLock,
+} = require("../../../utils/economyLock");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -23,62 +28,81 @@ module.exports = {
    */
   run: async (client, interaction) => {
     const { user, guild, options } = interaction;
+    const lockKey = economyLockKey(guild.id, user.id);
 
-    const amount = options.getString("amount");
-    let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
-    if (amount.startsWith("-"))
+    if (!acquireEconomyLock(lockKey)) {
       return await interaction.reply({
-        content: "You can't withdraw negative money!",
+        content: "Please wait for your previous economy action to finish.",
         ephemeral: true,
       });
+    }
 
-    if (!Data)
-      return await interaction.reply({
-        content: `You don't have an account!`,
-        ephemeral: true,
+    try {
+      const amount = options.getString("amount");
+      let Data = await ecoSchema.findFirst({
+        where: { User: user.id, Guild: guild.id },
       });
-
-    if (amount.toLowerCase() === "all") {
-      if (Data.Bank === 0)
+      if (amount.startsWith("-"))
         return await interaction.reply({
-          content: `You don't have any money to withdraw!`,
+          content: "You can't withdraw negative money!",
           ephemeral: true,
         });
 
-      Data.Wallet += Data.Bank;
-      Data.Bank = 0;
-      await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet, Bank: Data.Bank } });
-
-      return await interaction.reply({
-        content: `You withdrew all your money!`,
-        ephemeral: true,
-      });
-    } else {
-      const Converted = Number(amount);
-
-      if (isNaN(Converted) === true)
+      if (!Data)
         return await interaction.reply({
-          content: `The amount can only be a number`,
+          content: `You don't have an account!`,
           ephemeral: true,
         });
 
-      if (Data.Bank < parseInt(Converted) || Converted === Infinity)
-        return await interaction.reply({
-          content: `You don't have that much money!`,
-          ephemeral: true,
+      if (amount.toLowerCase() === "all") {
+        if (Data.Bank === 0)
+          return await interaction.reply({
+            content: `You don't have any money to withdraw!`,
+            ephemeral: true,
+          });
+
+        Data.Wallet += Data.Bank;
+        Data.Bank = 0;
+        await ecoSchema.update({
+          where: { id: Data.id },
+          data: { Wallet: Data.Wallet, Bank: Data.Bank },
         });
 
-      Data.Wallet += parseInt(Converted);
-      Data.Bank -= parseInt(Converted);
-      Data.Bank = Math.abs(Data.Bank);
-      await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet, Bank: Data.Bank } });
+        return await interaction.reply({
+          content: `You withdrew all your money!`,
+          ephemeral: true,
+        });
+      } else {
+        const Converted = Number(amount);
 
-      const embed = new EmbedBuilder()
-        .setColor("Blurple")
-        .setTitle(`Withdrawal Success!`)
-        .setDescription(`You withdrew $${Converted} from your bank!`);
+        if (isNaN(Converted) === true)
+          return await interaction.reply({
+            content: `The amount can only be a number`,
+            ephemeral: true,
+          });
 
-      return await interaction.reply({ embeds: [embed] });
+        if (Data.Bank < parseInt(Converted) || Converted === Infinity)
+          return await interaction.reply({
+            content: `You don't have that much money!`,
+            ephemeral: true,
+          });
+
+        Data.Wallet += parseInt(Converted);
+        Data.Bank -= parseInt(Converted);
+        await ecoSchema.update({
+          where: { id: Data.id },
+          data: { Wallet: Data.Wallet, Bank: Data.Bank },
+        });
+
+        const embed = new EmbedBuilder()
+          .setColor("Blurple")
+          .setTitle(`Withdrawal Success!`)
+          .setDescription(`You withdrew $${Converted} from your bank!`);
+
+        return await interaction.reply({ embeds: [embed] });
+      }
+    } finally {
+      releaseEconomyLock(lockKey);
     }
   },
 };
