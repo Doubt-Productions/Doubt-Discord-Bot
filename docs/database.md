@@ -156,22 +156,6 @@ Ticket system configuration — one per guild.
 
 ---
 
-### GuildSchema
-
-Per-guild settings (currently prefix only).
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | ObjectId | Auto-generated primary key |
-| `guild` | String? | Discord guild ID |
-| `prefix` | String? | Custom command prefix |
-
-**Collection:** `guildschemas`
-
-**Used by:** Prefix command routing, `?prefix set/reset`
-
----
-
 ### Chatbot
 
 Chatbot channel configuration — one per guild.

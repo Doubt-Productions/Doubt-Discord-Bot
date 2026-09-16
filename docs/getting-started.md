@@ -75,7 +75,7 @@ Edit `src/config.js` to set:
 5. Enable these **Privileged Gateway Intents**:
    - Presence Intent
    - Server Members Intent
-   - Message Content Intent
+   - **Do not** enable Message Content Intent — the bot is slash-command only and does not read guild message content.
 6. Navigate to **OAuth2** → **URL Generator**:
    - Scopes: `bot`, `applications.commands`
    - Permissions: Administrator (or the specific permissions you need)
@@ -113,7 +113,7 @@ npm start
 ```
 
 You should see:
-- Command loading tables (slash, prefix, dev-only)
+- Command loading tables (slash, dev-only)
 - Event registration table
 - Component loading table
 - `[SUCCESS] Prisma connected to MongoDB!`
@@ -144,6 +144,3 @@ You should see:
 
 The bot tries to rename `botGuilds` and `botUsers` channels periodically. If these channel IDs are empty or invalid in `config.js`, the bot will log errors. Either set valid channel IDs or ignore these non-fatal errors.
 
-### Prefix commands don't work
-
-Prefix commands are disabled by default. In `src/config.js`, set `handler.commands.prefix` to `true` to enable them.

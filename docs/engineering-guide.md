@@ -30,10 +30,8 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
-- Prefix commands are loaded from `src/commands/prefix/**` but are gated by `handler.commands.prefix` in `src/config.js`. The example config defaults this to `false`; set it to `true` in your copied `src/config.js` to enable prefix command execution.
-- The default prefix character is `?` via `handler.prefix`. Per-guild overrides come from `GuildSchema.prefix` when `handler.mongodb.toggle` is enabled.
-- Prefix commands are handled by `src/events/Guild/messageCreate.js`, which is registered through the `{ event, run }` export shape in `src/handlers/events.js`.
-- Discord **Message Content Intent** must be enabled for the bot application in the Discord Developer Portal. The client requests `GatewayIntentBits.MessageContent` in `src/class/ExtendedClient.js`, but Discord still requires the privileged intent to be turned on for the app; without it, `message.content` is empty and prefix commands never match.
+- The bot is slash-command only. `ExtendedClient` does **not** request `GatewayIntentBits.MessageContent`. Keep Message Content Intent disabled in the Discord Developer Portal.
+- AFK uses `messageCreate` for clearing the author's AFK status and for mention-based notifications via `message.mentions`; it does not read `message.content`.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
 - Prisma runtime queries use the MongoDB URI from `config.handler.mongodb.uri`, resolved through `resolveMongoUri` in `src/handlers/prisma.js`. At startup, that handler sets `process.env.DATABASE_URL` to the same resolved URI so Prisma schema `env("DATABASE_URL")` and the client `datasourceUrl` stay aligned.
 - MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
@@ -45,9 +43,9 @@ Configuration constraints:
 
 Persistence now runs through Prisma v6 with the MongoDB provider:
 
-- `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `guildschemas`, `chatbots`, and `jtcsetups`.
+- `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `chatbots`, and `jtcsetups`.
 - `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with a resolved `datasourceUrl` and `process.env.DATABASE_URL` is set to match before `new PrismaClient()`.
-- Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema` and `src/schemas/GuildSchema.js` exports `prisma.guildSchema`.
+- Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema`.
 - The legacy `src/handlers/mongoose.js` file remains in the tree, but `ExtendedClient` imports `src/handlers/prisma.js`. Do not add new imports of the Mongoose handler unless Mongoose is intentionally restored as a dependency.
 
 Use Prisma delegate methods instead of Mongoose document methods:
@@ -80,7 +78,6 @@ Command loading is handled by `src/handlers/commands.js`:
 
 - `src/commands/slash/**`: loaded into `client.collection.interactioncommands` and `client.applicationcommandsArray`.
 - `src/commands/devOnly/**`: loaded into `client.collection.developercommands` and `client.developerCommandsArray`.
-- `src/commands/prefix/**`: loaded into `client.collection.prefixcommands`; aliases are stored in `client.collection.aliases`.
 
 Component loading is handled by `src/handlers/components.js`:
 
@@ -155,10 +152,6 @@ Command execution contracts:
 - Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
 - The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
 - The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
-- Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
-- Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
-- If prefix command modules load but `handler.commands.prefix` is `false`, `src/handlers/commands.js` logs a startup warning and `messageCreate.js` returns before matching any command.
-
 Event loader notes:
 
 - `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
@@ -260,4 +253,4 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on `handler.commands.prefix`, the `messageCreate` handler in `src/events/Guild/messageCreate.js`, and the Discord **Message Content Intent** being enabled for the bot application.
+- Message context menus (for example **Translate Message**) receive the targeted message content in the interaction payload and do not require Message Content Intent.

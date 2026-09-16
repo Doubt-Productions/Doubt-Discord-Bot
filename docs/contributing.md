@@ -65,27 +65,6 @@ module.exports = {
 };
 ```
 
-### Adding a Prefix Command
-
-Create a new file in `src/commands/prefix/<Category>/`:
-
-```js
-module.exports = {
-  data: {
-    name: "myprefix",
-    description: "A prefix command",
-    aliases: ["mp"],
-    permissions: null,
-    developers: false,
-  },
-  run: async (client, message, args) => {
-    await message.reply("Hello from prefix command!");
-  },
-};
-```
-
-Remember: prefix commands are disabled by default (`config.handler.commands.prefix`).
-
 ### Adding a Component Handler
 
 #### Button
@@ -202,7 +181,6 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
-| `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
 | `rob-syntax.test.js` | `/rob` source file is valid JavaScript |

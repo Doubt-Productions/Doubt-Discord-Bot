@@ -4,7 +4,7 @@
 
 ### Overview
 
-This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB via **Prisma v6** for persistence and supports slash/prefix commands, moderation, economy, leveling, tickets, and more.
+This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord.js v14 and Express (health-check on port 8080). It uses MongoDB via **Prisma v6** for persistence and supports slash commands, context menus, moderation, economy, leveling, tickets, and more. It does not require Discord Message Content Intent.
 
 ### Prerequisites
 
