@@ -29,42 +29,41 @@ module.exports = {
    * @param {ChatInputCommandInteraction} interaction
    * @param {[]} args
    */ run: async (client, interaction, args) => {
-    const member = interaction.options.getMember(`user`);
+    const user = interaction.options.getUser("user", true);
+    const member = interaction.options.getMember("user");
     const reason =
       interaction.options.getString(`reason`) || "No reason provided";
 
-    if (!member.bannable) {
+    if (member && !member.bannable) {
       return interaction.reply({
         content: `I cannot ban this user!`,
         ephemeral: true,
       });
     }
 
-    member
+    await user
       .send({
         content: `You have been banned from ${interaction.guild.name} for ${reason}!`,
       })
-      .catch((err) => {
-        log(err, 'err');
-        interaction.reply({
-          content: `An error occurred!`,
-          ephemeral: true,
-        });
+      .catch((err) => log(err, "err"));
+
+    try {
+      if (member) {
+        await member.ban({ reason });
+      } else {
+        await interaction.guild.members.ban(user.id, { reason });
+      }
+
+      await interaction.reply({
+        content: `Successfully banned ${user.tag} for ${reason}!`,
+        ephemeral: true,
       });
-    await member
-      .ban({ reason: reason })
-      .then(() => {
-        interaction.reply({
-          content: `Successfully banned ${member.user.tag} for ${reason}!`,
-          ephemeral: true,
-        });
-      })
-      .catch((err) => {
-        log(err, 'err');
-        interaction.reply({
-          content: `An error occurred!`,
-          ephemeral: true,
-        });
+    } catch (err) {
+      log(err, "err");
+      await interaction.reply({
+        content: `An error occurred!`,
+        ephemeral: true,
       });
+    }
   },
 };

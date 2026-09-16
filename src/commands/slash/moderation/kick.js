@@ -33,6 +33,13 @@ module.exports = {
     const reason =
       interaction.options.getString(`reason`) || "No reason provided";
 
+    if (!member) {
+      return interaction.reply({
+        content: "The specified user is not in this server.",
+        ephemeral: true,
+      });
+    }
+
     if (!member.kickable) {
       return interaction.reply({
         content: `I cannot kick this user!`,
@@ -40,31 +47,24 @@ module.exports = {
       });
     }
 
-    member
+    await member
       .send({
         content: `You have been kicked from ${interaction.guild.name} for ${reason}!`,
       })
-      .catch((err) => {
-        log(err, "err");
-        interaction.reply({
-          content: `An error occurred!`,
-          ephemeral: true,
-        });
+      .catch((err) => log(err, "err"));
+
+    try {
+      await member.kick(reason);
+      await interaction.reply({
+        content: `Successfully kicked ${member.user.tag} for ${reason}!`,
+        ephemeral: true,
       });
-    await member
-      .kick(reason)
-      .then(() => {
-        interaction.reply({
-          content: `Successfully kicked ${member.user.tag} for ${reason}!`,
-          ephemeral: true,
-        });
-      })
-      .catch((err) => {
-        log(err, "err");
-        interaction.reply({
-          content: `An error occurred!`,
-          ephemeral: true,
-        });
+    } catch (err) {
+      log(err, "err");
+      await interaction.reply({
+        content: `An error occurred!`,
+        ephemeral: true,
       });
+    }
   },
 };
