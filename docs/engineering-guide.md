@@ -146,17 +146,24 @@ Event loader caveat:
 
 ## Command Deployment
 
-There are two deployment paths:
+There are three guild command registration paths:
 
 - Ready-time slash registration in `src/events/ready/registerCommands.js` fetches guild application commands for `process.env.DEV_GUILD_ID`, compares local command data, and creates, edits, or deletes commands.
 - Ready-time context menu registration in `src/events/ready/registerContextMenus.js` also uses `process.env.DEV_GUILD_ID`, but it only creates missing menus and deletes menus marked `deleted`; it does not edit existing menu definitions.
-- Developer command deployment in `src/handlers/deploy.js` writes commands from `client.collection.developercommands` to `config.handler.guildId`. It is invoked after login in `ExtendedClient.start()` without `await`, and can also be triggered by the developer-only `/deploy` command.
+- Developer command deployment in `src/handlers/deploy.js` fetches guild application commands for `config.handler.guildId`, then creates missing developer commands or edits changed ones by name. It is invoked after login in `ExtendedClient.start()` without `await`, and can also be triggered by the developer-only `/deploy` command.
+
+Developer command deployment constraints:
+
+- `src/handlers/deploy.js` returns early with a warning when `config.handler.guildId` is unset.
+- Developer commands are intentionally registered incrementally through the guild `ApplicationCommandManager`; do not replace this with `REST.put(Routes.applicationGuildCommands(...))`. A bulk PUT overwrites the full guild command set and can delete regular slash commands if it completes after `registerCommands.js`.
+- The developer-command path currently creates and edits only. It does not delete commands that were removed or renamed locally, so clean up obsolete developer commands in Discord manually or add a reviewed delete path first.
 
 Troubleshooting command registration:
 
 - If slash commands do not update, confirm `DEV_GUILD_ID` is set and the bot is in that guild.
 - If developer commands are missing, confirm `config.handler.guildId` resolves to the intended guild and `config.moderation.developers` contains the operator's Discord user ID.
 - If command options are not changing, inspect `src/utils/commandComparing.js`; it normalizes name, description, options, and choices before deciding whether to edit an existing command.
+- If regular slash commands disappear after startup or `/deploy`, inspect developer-command deployment first and run `npm test` to exercise `tests/deploy-handler-shape.test.js`, which guards against reintroducing a guild command bulk PUT.
 - `config.handler.deploy` and `config.handler.guildDeploy` exist in `src/example.config.js`, but the verified deployment paths above do not currently read those flags.
 
 ## GitHub Release Automation
