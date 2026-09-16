@@ -2,6 +2,7 @@ const {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   AttachmentBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { Rank } = require("canvacord");
@@ -101,6 +102,17 @@ module.exports = {
         break;
       }
       case "reset": {
+        if (
+          !interaction.member?.permissions?.has(
+            PermissionFlagsBits.ManageGuild
+          )
+        ) {
+          return await interaction.reply({
+            content: "You need Manage Server permission to reset ranks.",
+            ephemeral: true,
+          });
+        }
+
         const member2 = interaction.options.getMember("user");
         if (!member2) {
           return await interaction.reply({
@@ -131,6 +143,17 @@ module.exports = {
         break;
       }
       case "set": {
+        if (
+          !interaction.member?.permissions?.has(
+            PermissionFlagsBits.ManageGuild
+          )
+        ) {
+          return await interaction.reply({
+            content: "You need Manage Server permission to set ranks.",
+            ephemeral: true,
+          });
+        }
+
         const member3 = interaction.options.getMember("user");
         if (!member3) {
           return await interaction.reply({
