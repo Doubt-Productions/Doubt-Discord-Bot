@@ -25,11 +25,14 @@ module.exports = {
 
     if (!channel) return;
 
-    channel.send(
-      `${data.Message.replace("{user}", member)
-        .replace("{rules}", `<#${data.Rules}>`)
-        .replace(`{server}`, `**${guild.name}**`)}`
-    );
+    if (data.Message) {
+      const rulesMention = data.Rules ? `<#${data.Rules}>` : "the rules channel";
+      await channel.send(
+        `${data.Message.replace("{user}", member)
+          .replace("{rules}", rulesMention)
+          .replace("{server}", `**${guild.name}**`)}`
+      );
+    }
 
     const role = guild.roles.cache.get(data.MemberRole);
     const botRole = guild.roles.cache.get(data.BotRole);
