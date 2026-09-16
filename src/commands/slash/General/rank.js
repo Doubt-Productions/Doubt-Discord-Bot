@@ -94,10 +94,9 @@ module.exports = {
           .setProgressBar("#ffffff", "COLOR")
           .setUsername(member.user.displayName);
 
-        await rank.build({}).then((data) => {
-          interaction.reply({
-            files: [new AttachmentBuilder(data, { name: "rank.png" }).build()],
-          });
+        const imageBuffer = await rank.build({});
+        await interaction.reply({
+          files: [new AttachmentBuilder(imageBuffer, { name: "rank.png" })],
         });
         break;
       }
