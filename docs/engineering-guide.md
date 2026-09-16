@@ -39,6 +39,32 @@ Configuration constraints:
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
 - `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
 
+### Slash-Only / Message Content Intent Runbook
+
+Discord Message Content Intent should remain disabled for this bot. The
+source-verified boundary is:
+
+- `src/class/ExtendedClient.js` requests guild/message event metadata but not
+  `GatewayIntentBits.MessageContent`.
+- `src/handlers/commands.js` loads only `src/commands/slash/**` and
+  `src/commands/devOnly/**`. Do not recreate `src/commands/prefix/**`, prefix
+  config flags, or prefix collections.
+- `src/events/Guild/afkCheck.js` may keep using `messageCreate` because it only
+  reads the author, guild, member/nickname metadata, and
+  `message.mentions.members.first()`.
+- Welcome message setup uses `src/components/selects/welcomeSSM.js` to open the
+  `welcome-message-modal` modal, then
+  `src/components/modals/welcome-message-modal.js` saves the submitted template.
+  Do not replace this with a `MessageCollector`.
+- Message context menus under `src/contextmenus/**` may read the selected
+  message's interaction payload; that payload is the exception covered by the
+  regression test.
+
+Run `npm test` after touching command loading, welcome setup, AFK, context
+menus, or gateway intents. `tests/no-message-content-intent.test.js` blocks
+Message Content Intent, prefix paths, `MessageCollector`, and unauthorized
+`message.content` reads.
+
 ## Prisma Persistence
 
 Persistence now runs through Prisma v6 with the MongoDB provider:

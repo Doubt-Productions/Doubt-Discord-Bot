@@ -5,6 +5,8 @@ Complete reference for all bot commands organized by type and category.
 ## Slash Commands
 
 Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
+Prefix commands are no longer loaded or deployed; use `/help` for command
+discovery and keep Message Content Intent disabled.
 
 ### Economy
 
@@ -67,11 +69,16 @@ Slash commands are registered per-guild on `DEV_GUILD_ID` at startup.
 
 | Command | Description | Options |
 |---------|-------------|---------|
-| `/setup` | Open the setup wizard | — |
+| `/setup` | Open the setup wizard | Requires Manage Server (`ManageGuild`) |
 
 The setup wizard provides a select menu to configure:
-- **Welcome System** — channel, message template, rules channel, member/bot auto-roles
+- **Welcome System** — channel, message template modal, rules channel, member/bot auto-roles
 - **Ticket System** — category, panel channel, support role
+
+When configuring the welcome message, selecting **Message** opens the
+`welcome-message-modal` modal. The modal saves the template directly from the
+interaction submission, so setup does not depend on reading guild message
+content.
 
 ---
 
@@ -85,6 +92,9 @@ Right-click a user or message to access these commands.
 | **Profile** | User | Generate a user profile card image |
 | **Get Avatar** | User | View a user's avatar in full size |
 | **Translate Message** | Message | Translate a message to English |
+
+Message context menus receive the selected message content as part of the
+interaction payload and do not require Message Content Intent.
 
 ---
 

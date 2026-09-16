@@ -22,9 +22,9 @@ cd Doubt-Discord-Bot
 npm install
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). The Prisma client is auto-generated during install via the `postinstall` hook.
-
-If you need to regenerate the Prisma client manually:
+This installs all runtime dependencies and the Prisma CLI (dev dependency).
+This repo does not define a `postinstall` hook, so generate the Prisma client
+after installing dependencies and any time `prisma/schema.prisma` changes:
 
 ```bash
 npx prisma generate

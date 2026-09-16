@@ -26,6 +26,9 @@ Since `client.start()` is not awaited, the Express server starts concurrently wi
 
 ## Command Loading
 
+The bot is slash-command only. There is no `src/commands/prefix/` tree, prefix
+collection, alias collection, or guild `messageCreate` prefix router.
+
 ### Slash Commands (`src/commands/slash/`)
 
 Loaded by `src/handlers/commands.js`. Files are organized in category subdirectories:
@@ -90,7 +93,7 @@ These handle non-interaction events:
 
 | File | Event | Purpose |
 |------|-------|---------|
-| `afkCheck.js` | `messageCreate` | AFK detection and notifications |
+| `afkCheck.js` | `messageCreate` | AFK clearing and mention notifications without reading message content |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
 | `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
@@ -121,12 +124,20 @@ Components are routed by `customId` matching. Some components are handled by the
 
 Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type` (2 for User, 3 for Message). Registered at ready time via `src/events/ready/registerContextMenus.js` on `DEV_GUILD_ID`.
 
+Message context menus, such as **Translate Message**, receive the targeted
+message in the interaction payload. They are allowed to read that payload's
+content and do not require `GatewayIntentBits.MessageContent`.
+
 ## Command Deployment
 
 Two deployment paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
 2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+
+Prefix commands are not deployed. Operators should keep Message Content Intent
+disabled in the Discord Developer Portal and use `/help` plus context menus for
+user-facing command discovery.
 
 ## Database Layer
 

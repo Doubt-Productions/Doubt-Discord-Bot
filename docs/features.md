@@ -66,10 +66,15 @@ Automated welcome messages and role assignment for new members.
 2. Select **Welcome** from the setup menu
 3. Configure:
    - **Channel** — where welcome messages are sent
-   - **Message** — the welcome message template
+   - **Message** — opens a modal for the welcome message template
    - **Rules** — rules channel reference
    - **Member Role** — auto-assigned role for human members
    - **Bot Role** — auto-assigned role for bot members
+
+The setup command and follow-up welcome components require **Manage Server**
+(`ManageGuild`). The message modal stores the submitted text in
+`welcomes.Message`; existing text is pre-filled when editing and Discord limits
+the input to 2000 characters.
 
 ### Message Placeholders
 
@@ -82,6 +87,11 @@ Automated welcome messages and role assignment for new members.
 ### Limitations
 
 The welcome system currently only fires for the support guild (`config.handler.guildId`). It checks `guild.id === config.handler.guildId` before sending welcome messages.
+
+Welcome setup no longer uses free-text message collectors, so it works without
+Message Content Intent. If message editing stops working, check
+`src/components/selects/welcomeSSM.js` for the `welcome-message-modal` handoff
+and `src/components/modals/welcome-message-modal.js` for the database write.
 
 ---
 
@@ -106,9 +116,15 @@ When someone mentions an AFK user, the bot replies with an embed showing:
 - Their AFK reason
 - The notification auto-deletes after 10 seconds
 
+AFK mention checks use Discord's parsed `message.mentions` collection. They do
+not scan `message.content`, so typed names, nicknames, or unparsed text do not
+trigger AFK notifications.
+
 ### Returning from AFK
 
-AFK is automatically cleared when the user sends a message. Alternatively:
+AFK is automatically cleared when the user sends any guild message. The handler
+only needs the message author and guild/member metadata, not Message Content
+Intent. Alternatively:
 
 ```
 /afk remove
@@ -214,7 +230,7 @@ The `/automod` command creates Discord AutoMod rules:
 
 ## Translation
 
-Right-click any message → **Apps** → **Translate Message** to translate it to English using Google Translate. The translation appears as an ephemeral embed visible only to you.
+Right-click any message → **Apps** → **Translate Message** to translate it to English using Google Translate. The translation appears as an ephemeral embed visible only to you. Message context menus receive the targeted message content through the interaction payload, so this feature is the only source-verified message-content reader and does not require Message Content Intent.
 
 ---
 
