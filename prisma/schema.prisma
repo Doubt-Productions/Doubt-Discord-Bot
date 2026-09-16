@@ -80,14 +80,6 @@ model Ticket {
   @@map("tickets")
 }
 
-model GuildSchema {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  guild  String?
-  prefix String?
-
-  @@map("guildschemas")
-}
-
 model Chatbot {
   id      String  @id @default(auto()) @map("_id") @db.ObjectId
   Guild   String?

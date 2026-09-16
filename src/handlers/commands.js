@@ -1,10 +1,8 @@
 const { readdirSync } = require("fs");
-const config = require("../config");
 const { log } = require("../functions");
 const ExtendedClient = require("../class/ExtendedClient");
 const AsciiTable = require("ascii-table");
 const { default: chalk } = require("chalk");
-const getApplicationCommands = require("../utils/getApplicationCommands");
 
 /**
  *
@@ -27,29 +25,7 @@ module.exports = (client) => {
 
         if (!module) continue;
 
-        if (type === "prefix") {
-          if (!module.data?.name || !module.run) {
-            log(
-              "Unable to load the command " +
-                file +
-                " due to missing 'data#name' or/and 'run' properties.",
-              "warn"
-            );
-            table.addRow(module.data.name, type, "Failed");
-
-            continue;
-          }
-
-          table.addRow(module.data.name, type, "Loaded");
-
-          client.collection.prefixcommands.set(module.data.name, module);
-
-          if (module.data.aliases && Array.isArray(module.data.aliases)) {
-            module.data.aliases.forEach((alias) => {
-              client.collection.aliases.set(alias, module.data.name);
-            });
-          }
-        } else if (type === "devOnly") {
+        if (type === "devOnly") {
           if (!module.data?.name || !module.run) {
             log(
               "Unable to load the command " +
@@ -91,16 +67,6 @@ module.exports = (client) => {
         }
       }
     }
-  }
-
-  if (
-    client.collection.prefixcommands.size > 0 &&
-    !config.handler.commands.prefix
-  ) {
-    log(
-      `${client.collection.prefixcommands.size} prefix command(s) loaded but handler.commands.prefix is false; prefix commands will not run until enabled in src/config.js.`,
-      "warn"
-    );
   }
 
   console.log(chalk.green(table.toString()));

@@ -10,7 +10,7 @@ Welcome to the in-repo documentation for **Doubt**, an advanced multi-purpose Di
 |----------|-------------|
 | [Getting Started](getting-started.md) | Installation, configuration, and running the bot |
 | [Configuration](configuration.md) | Environment variables and `config.js` reference |
-| [Commands](commands.md) | Complete reference for all slash, prefix, and developer commands |
+| [Commands](commands.md) | Complete reference for all slash and developer commands |
 | [Features](features.md) | In-depth guides for economy, tickets, welcome, AFK, and more |
 | [Database](database.md) | Prisma schema, models, and data layer |
 | [Architecture](architecture.md) | Codebase structure, event pipeline, and handler system |
@@ -52,7 +52,6 @@ doubt/
 │   ├── class/             # ExtendedClient (bot client)
 │   ├── commands/
 │   │   ├── devOnly/       # Developer-only slash commands
-│   │   ├── prefix/        # Legacy prefix commands
 │   │   └── slash/         # Slash commands (Economy, General, Info, etc.)
 │   ├── components/
 │   │   ├── buttons/       # Button interaction handlers

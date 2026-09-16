@@ -55,15 +55,13 @@ module.exports = {
         .setColor(`Blurple`)
         .setTimestamp();
 
-      if (message.content.includes(members)) {
-        const m = await message.reply({
-          embeds: [embed],
-          content: `${message.author}`,
-        });
-        setTimeout(() => {
-          m.delete();
-        }, 10000);
-      }
+      const m = await message.reply({
+        embeds: [embed],
+        content: `${message.author}`,
+      });
+      setTimeout(() => {
+        m.delete();
+      }, 10000);
     }
   },
 };

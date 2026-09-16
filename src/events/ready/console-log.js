@@ -39,12 +39,9 @@ module.exports = async (client) => {
   const commandData = [
     {
       SlashCommands: client.collection.interactioncommands.size,
-      PrefixCommands: client.collection.prefixcommands.size,
       DeveloperCommands: client.collection.developercommands.size,
-      Aliases: client.collection.aliases.size,
       TotalCommands:
         client.collection.interactioncommands.size +
-        client.collection.prefixcommands.size +
         client.collection.developercommands.size,
     },
   ];

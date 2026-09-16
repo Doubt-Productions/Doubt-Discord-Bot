@@ -52,12 +52,6 @@ Same structure as slash commands but loaded into `client.collection.developercom
 
 Developer commands may set `options: { developers: true }` to restrict access.
 
-### Prefix Commands (`src/commands/prefix/`)
-
-Export `{ data: { name, description, aliases?, permissions?, developers? }, run }`. Loaded into `client.collection.prefixcommands` with aliases in `client.collection.aliases`.
-
-Only active when `config.handler.commands.prefix` is `true`.
-
 ## Event System
 
 ### Event Registration (`src/handlers/events.js`)
@@ -96,7 +90,6 @@ These handle non-interaction events:
 
 | File | Event | Purpose |
 |------|-------|---------|
-| `messageCreate.js` | `messageCreate` | Prefix command routing |
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |

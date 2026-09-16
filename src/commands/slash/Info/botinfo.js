@@ -39,9 +39,7 @@ module.exports = {
     let uptime = `${days} days, ${hours} hours, ${minutes} minutes & ${seconds} seconds`;
 
     let ping = `${Date.now() - interaction.createdTimestamp}ms`;
-    let prefixcommands = client.collection.prefixcommands.size;
     let slashcommands = client.collection.interactioncommands.size;
-    let totalcommands = prefixcommands + slashcommands;
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -98,18 +96,8 @@ module.exports = {
           inline: true,
         },
         {
-          name: "Prefix Commands",
-          value: `${prefixcommands} Commands`,
-          inline: true,
-        },
-        {
           name: "Slash Commands",
           value: `${slashcommands} Commands`,
-          inline: true,
-        },
-        {
-          name: "Total Commands",
-          value: `${prefixcommands + slashcommands} Commands`,
           inline: true,
         },
         {

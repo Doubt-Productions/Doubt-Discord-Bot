@@ -74,12 +74,10 @@ module.exports = {
     developers: [""],    // Array of user IDs with developer access
   },
   handler: {
-    prefix: "?",         // Default prefix for prefix commands
     deploy: true,        // (unused by current code)
     guildDeploy: true,   // (unused by current code)
     guildId: "",         // Guild for developer command deployment
     commands: {
-      prefix: false,     // Enable/disable prefix commands
       slash: true,       // Enable/disable slash commands
       user: true,        // Enable/disable user context menus
       message: true,     // Enable/disable message context menus
@@ -102,15 +100,9 @@ Cross-guild bot staff is stored in Mongo (`BotStaff` collection) and managed wit
 
 **Cutover:** If you still have `moderation.staffRoles` in your private `config.js`, run `/botstaff migrate` once while `BotStaff` is empty to import those members before removing the key. Otherwise add each person with `/botstaff add` before deploy. Re-runs are refused once `BotStaff` has entries unless you pass `force: true`; bots and users removed with `/botstaff remove` are always skipped.
 
-#### `handler.commands.prefix`
-Set to `true` to enable prefix commands (`?help`, `?ping`, etc.). Disabled by default.
-
 #### `handler.mongodb.toggle`
 Set to `false` to skip the database connection entirely. The bot will start but all database-dependent features (economy, AFK, tickets, etc.) will fail.
 
 #### `variables.channels.botGuilds` / `botUsers`
 The bot renames these channels every 30 minutes to display current guild and user counts. If these IDs are empty or invalid, the bot will log non-fatal errors periodically. Set to valid voice channel IDs in your support guild, or leave empty and ignore the errors.
 
-### Per-Guild Prefix
-
-Each guild can set a custom prefix with `?prefix set <new_prefix>`. Custom prefixes are stored in the `guildschemas` MongoDB collection. If no custom prefix is set, the default from `handler.prefix` is used.

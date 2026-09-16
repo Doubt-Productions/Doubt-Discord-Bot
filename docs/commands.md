@@ -88,20 +88,6 @@ Right-click a user or message to access these commands.
 
 ---
 
-## Prefix Commands
-
-Prefix commands use `?` by default (configurable per-guild). They are **disabled by default** — set `handler.commands.prefix: true` in `config.js` to enable.
-
-| Command | Aliases | Description | Permissions |
-|---------|---------|-------------|-------------|
-| `?help` | `?h` | List all available commands | — |
-| `?ping` | `?p` | Check bot latency | Administrator |
-| `?prefix set <new>` | — | Change the guild's command prefix | Administrator |
-| `?prefix reset` | — | Reset prefix to default | Administrator |
-| `?eval <code>` | `?e` | Evaluate JavaScript code | Developer only |
-
----
-
 ## Developer Commands
 
 These commands are deployed only to the support/dev guild (`config.handler.guildId`). Most require the user's ID to be listed in `config.moderation.developers`.
