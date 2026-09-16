@@ -201,6 +201,7 @@ test("my feature works correctly", () => {
 | Test File | What It Tests |
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
+| `deploy-handler-shape.test.js` | Developer command deployment uses incremental create/edit instead of bulk guild command PUT |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |

@@ -48,7 +48,7 @@ Commands are stored in `client.collection.interactioncommands` and `client.appli
 
 ### Developer Commands (`src/commands/devOnly/`)
 
-Same structure as slash commands but loaded into `client.collection.developercommands`. Deployed to `config.handler.guildId` via REST API (separate from regular slash command registration).
+Same structure as slash commands but loaded into `client.collection.developercommands`. Deployed to `config.handler.guildId` through the guild `ApplicationCommandManager` in `src/handlers/deploy.js` (separate from regular slash command registration).
 
 Developer commands may set `options: { developers: true }` to restrict access.
 
@@ -130,10 +130,13 @@ Files in `src/contextmenus/` export `{ data, run }` where `data` includes `type`
 
 ## Command Deployment
 
-Two deployment paths exist:
+Three guild command registration paths exist:
 
 1. **Slash commands** — `src/events/ready/registerCommands.js` diffs local commands against Discord API and creates/edits/deletes as needed on `DEV_GUILD_ID`
-2. **Developer commands** — `src/handlers/deploy.js` bulk-overwrites guild commands on `config.handler.guildId` using the developer command array
+2. **Context menus** — `src/events/ready/registerContextMenus.js` creates missing context menus and deletes menus marked `deleted` on `DEV_GUILD_ID`
+3. **Developer commands** — `src/handlers/deploy.js` fetches guild commands on `config.handler.guildId`, then creates missing developer commands or edits changed ones by name
+
+Developer command deployment intentionally avoids `REST.put(Routes.applicationGuildCommands(...))`. A bulk PUT replaces the entire guild command set, so it can wipe regular slash commands when it races with ready-time slash registration. The incremental developer-command path does not delete stale developer commands; remove obsolete commands from Discord manually or add an explicit safe delete path before relying on deletion.
 
 ## Database Layer
 
