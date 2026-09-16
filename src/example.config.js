@@ -24,14 +24,12 @@ module.exports = {
     developers: [""],
   },
   handler: {
-    prefix: "?",
     deploy: true,
     guildDeploy: true,
     guildId: process.env.PRODUCTION === "true"
       ? process.env.GUILD_ID
       : process.env.DEV_GUILD_ID,
     commands: {
-      prefix: false,
       slash: true,
       user: true,
       message: true,

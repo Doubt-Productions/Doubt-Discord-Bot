@@ -17,9 +17,7 @@ const { log, topgg } = require("../functions");
 module.exports = class extends Client {
   collection = {
     interactioncommands: new Collection(),
-    prefixcommands: new Collection(),
     developercommands: new Collection(),
-    aliases: new Collection(),
     version: pjson.version,
     components: {
       buttons: new Collection(),
@@ -43,7 +41,6 @@ module.exports = class extends Client {
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageReactions,
-        GatewayIntentBits.MessageContent,
         GatewayIntentBits.AutoModerationConfiguration,
         GatewayIntentBits.AutoModerationExecution,
       ],

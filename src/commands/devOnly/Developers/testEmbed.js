@@ -5,7 +5,6 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const config = require("../../../config");
-const GuildSchema = require("../../../schemas/GuildSchema");
 const { embed } = require("../../../functions");
 
 module.exports = {
