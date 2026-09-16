@@ -66,13 +66,15 @@ The event handler scans `src/events/` subdirectories:
 
 | Folder | Registration Strategy |
 |--------|----------------------|
-| `validations/` | All files registered under `interactionCreate` as a validation chain |
+| `validations/` | Registered first under `interactionCreate` as one awaited validation chain |
 | `ready/` | Files export functions, registered under `ready` event |
 | `Guild/` | Files export `{ event, run }` objects, registered under their declared `event` property |
 
+The loader forces `validations/` to register before other event folders. This matters for `interactionCreate`: validators execute commands/components first, then the Guild fallback listeners run only if the interaction has not already been replied to or deferred.
+
 ### Interaction Validation Pipeline
 
-When an `interactionCreate` event fires, **all** validators run in sequence:
+When an `interactionCreate` event fires, the validations listener awaits each validator in sequence:
 
 ```
 interactionCreate
@@ -100,10 +102,10 @@ These handle non-interaction events:
 | `afkCheck.js` | `messageCreate` | AFK detection and notifications |
 | `guildMemberAdd.js` | `guildMemberAdd` | Welcome messages and auto-roles |
 | `jointocreate.js` | `voiceStateUpdate` | Temporary voice channel management |
-| `interactionCreate.js` | `interactionCreate` | Backup slash command router (skips if already handled) |
-| `components.js` | `interactionCreate` | Backup component router (skips if already handled) |
+| `interactionCreate.js` | `interactionCreate` | Fallback slash command router (skips if already handled) |
+| `components.js` | `interactionCreate` | Fallback component router (skips if already handled) |
 
-The Guild `interactionCreate.js` and `components.js` files include guards (`interaction.replied || interaction.deferred`) to avoid double-executing commands already handled by validators.
+The Guild `interactionCreate.js` and `components.js` files are registered from their object exports' `event` property. Their `interaction.replied || interaction.deferred` guards are required because the validations listener is registered first and may already have executed the command or component.
 
 ## Component System
 

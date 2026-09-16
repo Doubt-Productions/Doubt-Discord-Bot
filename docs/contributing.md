@@ -202,6 +202,8 @@ test("my feature works correctly", () => {
 |-----------|---------------|
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
+| `events-handler-shape.test.js` | Event loader registration for validators-first ordering and `{ event, run }` modules |
+| `interaction-cooldown.test.js` | Slash-command cooldown behavior in the Guild fallback interaction handler |
 | `prefix-developer-gate.test.js` | Prefix command developer restriction |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
 | `economy-account-delete.test.js` | Account deletion uses correct deleteMany filter |
@@ -211,6 +213,7 @@ test("my feature works correctly", () => {
 | `rob-caught-penalty.test.js` | Failed robbery penalty is capped at wallet |
 | `rob-failure-penalty.test.js` | Failed rob transfer amount is capped |
 | `rob-fine-cap.test.js` | Fine cannot exceed robber's wallet |
+| `rank-card-presence-status.test.js` | Rank card presence values are normalized before image rendering |
 
 ## Code Conventions
 
