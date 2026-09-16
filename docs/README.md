@@ -26,7 +26,7 @@ Doubt is a feature-rich Discord bot offering:
 - **AFK System** — automatic AFK status with mention notifications
 - **Join-to-Create** — temporary voice channels
 - **Rank/XP System** — per-guild leveling with rank cards
-- **Utility** — embeds, user info, server info, translation, avatars
+- **Utility** — embeds, user info, server info, ping, and the shipped `info` user context menu
 - **Developer Tools** — eval, deploy, badge management, simulated joins/leaves
 
 ## Tech Stack

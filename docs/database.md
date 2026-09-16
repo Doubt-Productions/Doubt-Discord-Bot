@@ -59,7 +59,7 @@ User configuration and badge assignments.
 
 **Collection:** `users`
 
-**Used by:** `/user info`, `/badge give/take`, context menus (info, profile)
+**Used by:** `/user info`, `/badge give/take`, `info` user context menu
 
 ---
 
@@ -154,7 +154,9 @@ Ticket system configuration — one per guild.
 
 **Collection:** `tickets`
 
-**Used by:** Setup wizard (ticketSSM), ticket menu, ticket modal
+**Used by:** Setup wizard (`ticketSSM`), ticket menu, ticket modal
+
+Implementation note: `src/components/modals/ticket-modal.js` currently reads the stored `Channel` value as the parent for created ticket channels. Keep that mismatch in mind when changing ticket setup or relying on the separate `Category` field.
 
 ---
 
@@ -216,6 +218,8 @@ Join-to-Create voice channel configuration — one per guild.
 **Collection:** `jtcsetups`
 
 **Used by:** `voiceStateUpdate` event handler
+
+Implementation note: `src/events/Guild/jointocreate.js` reads `data.UserLimit`, but the Prisma model does not currently define `UserLimit`. The runtime owner map is also in-memory, so temporary channel ownership is not restored from `Channels` after restart.
 
 ## Schema Files
 

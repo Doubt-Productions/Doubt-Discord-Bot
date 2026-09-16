@@ -29,7 +29,7 @@ Slash commands are registered per-guild on `process.env.DEV_GUILD_ID` at startup
 |---------|-------------|---------|
 | `/afk set [message]` | Set your AFK status | `message` (optional): AFK reason |
 | `/afk remove` | Remove your AFK status | — |
-| `/rank info [user]` | View XP rank card | `user` (optional): defaults to self |
+| `/rank info <user>` | View XP rank card | `user` (required): server member to render |
 | `/rank reset <user>` | Reset a user's XP and level | `user` (required) |
 | `/rank set <user> <level>` | Set a user's level | `user` (required), `level` (required) |
 | `/test` | Simple test command | — |
@@ -77,14 +77,13 @@ The setup wizard provides a select menu to configure:
 
 ## Context Menu Commands
 
-Right-click a user or message to access these commands.
+Right-click a user to access the shipped context menu command.
 
 | Command | Type | Description |
 |---------|------|-------------|
-| **Info** | User | View user information and badges |
-| **Profile** | User | Generate a user profile card image |
-| **Get Avatar** | User | View a user's avatar in full size |
-| **Translate Message** | Message | Translate a message to English |
+| **info** | User | View user information and badges |
+
+Only `src/contextmenus/info.js` is currently present. Add new files under `src/contextmenus/` before documenting or expecting additional right-click actions.
 
 ---
 
