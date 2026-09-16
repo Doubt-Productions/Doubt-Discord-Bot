@@ -90,13 +90,13 @@ Edit `src/config.js` to set:
 docker run -d --name mongodb -p 27017:27017 mongo:7
 ```
 
-Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`.
+Set `DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev` in your `.env`, and set `DATABASE_URL` to the same value for Prisma CLI commands. Include the `/doubt-dev` database path; if it is missing, startup appends `config.variables.dbName` and logs a warning.
 
 ### Option B: MongoDB Atlas
 
 1. Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas)
 2. Create a database user and get the connection string
-3. Set `DEV_MONGODB_URI` to the Atlas connection string
+3. Set `DEV_MONGODB_URI` and `DATABASE_URL` to the Atlas connection string, including the database path
 
 ## Step 7: Run the Bot
 

@@ -39,7 +39,7 @@ Configuration constraints:
 - MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` is treated as a strict string flag in `src/example.config.js`: only `PRODUCTION=true` selects production token, client ID, guild ID, MongoDB URI, and `dbName`. Any other value, including `PRODUCTION=false`, selects the development values.
 
 ## Prisma Persistence
 
@@ -151,19 +151,20 @@ Permission and safety gates are split across validators in `src/events/validatio
 
 Command execution contracts:
 
-- The Guild slash-command handler in `src/events/Guild/interactionCreate.js` supports `command.options.cooldown` as a millisecond duration. The cooldown store is an in-memory `Map` keyed by Discord user ID, with command names as values, so it is per-process and clears on restart.
-- Slash cooldowns are per user and per command name. A user can be cooling down for one slash command while using another command, and another user is not blocked by the first user's cooldown.
-- The slash cooldown is recorded before `command.run(client, interaction)` executes. Expiry uses `setTimeout`; if another timer has already removed the user entry, the expiry handler no-ops instead of throwing.
-- The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
+- Chat-input slash commands, developer-only commands, context menus, buttons, selects, and modals are executed by the validators in `src/events/validations/**`.
+- The previous backup `src/events/Guild/interactionCreate.js` and `src/events/Guild/components.js` routers have been removed to prevent duplicate command/component execution. Keep `tests/no-duplicate-interaction-handlers.test.js` aligned with that invariant.
+- There is no shared slash-command cooldown framework in the validator path. Commands that need concurrency or cooldown protection, such as `/rob`, must implement their own lock and release behavior.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
 - If prefix command modules load but `handler.commands.prefix` is `false`, `src/handlers/commands.js` logs a startup warning and `messageCreate.js` returns before matching any command.
 
 Event loader notes:
 
-- `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
-- Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects. The loader registers them with `client.on(eventModule.event, ...)`, so `messageCreate` and other Guild handlers use the Discord event name from the module export.
+- `src/handlers/events.js` scans each direct folder under `src/events`.
+- The `validations` folder is special-cased into one `interactionCreate` listener that awaits each validator function in sequence.
+- Function exports in other folders are grouped under the folder name as the Discord event, so function files under `src/events/ready` run on `ready`.
+- Object exports with `{ event, run }` are registered on their declared `event` and call `eventModule.run(client, ...args)`. This is how the remaining `src/events/Guild` handlers wire `messageCreate`, `guildMemberAdd`, and `voiceStateUpdate`.
+- Keep `tests/events-handler-shape.test.js` aligned with this contract when changing the loader; it protects against regressions that register `Guild` as an event or call object modules as plain functions.
 
 ## Command Deployment
 
