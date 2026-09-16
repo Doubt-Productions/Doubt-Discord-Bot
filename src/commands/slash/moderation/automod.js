@@ -3,6 +3,7 @@ const {
   SlashCommandBuilder,
   ChannelType,
   EmbedBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const config = require("../../../config");
@@ -82,7 +83,9 @@ module.exports = {
             .setRequired(true)
         )
     )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON(),
+  userPermissions: [PermissionFlagsBits.ManageGuild],
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

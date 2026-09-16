@@ -1,6 +1,8 @@
 # Doubt Discord Bot — Documentation
 
-Welcome to the official documentation for **Doubt**, an advanced multi-purpose Discord bot built with [discord.js v14](https://discord.js.org/), [Prisma](https://www.prisma.io/) (MongoDB), and [Express](https://expressjs.com/).
+> **Public documentation:** The canonical docs for operators and users live at **[https://doubtbot.eu/docs](https://doubtbot.eu/docs)**. The files in this folder are maintained for contributors and may lag behind the Mintlify site.
+
+Welcome to the in-repo documentation for **Doubt**, an advanced multi-purpose Discord bot built with [discord.js v14](https://discord.js.org/), [Prisma](https://www.prisma.io/) (MongoDB), and [Express](https://expressjs.com/).
 
 ## Table of Contents
 

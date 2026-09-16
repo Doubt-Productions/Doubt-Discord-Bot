@@ -12,7 +12,7 @@ Required local setup:
 2. Copy `.env.example` to `.env`.
 3. Copy `src/example.config.js` to `src/config.js`.
 4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
-5. Set `DATABASE_URL` for Prisma CLI commands. The runtime client reads the MongoDB URI from `src/config.js`, so keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata.
+5. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
 6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
 7. Run `npm run dev` for nodemon or `npm start` for node.
 8. Run `npm test` before opening a PR.
@@ -30,9 +30,13 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
+- Prefix commands are loaded from `src/commands/prefix/**` but are gated by `handler.commands.prefix` in `src/config.js`. The example config defaults this to `false`; set it to `true` in your copied `src/config.js` to enable prefix command execution.
+- The default prefix character is `?` via `handler.prefix`. Per-guild overrides come from `GuildSchema.prefix` when `handler.mongodb.toggle` is enabled.
+- Prefix commands are handled by `src/events/Guild/messageCreate.js`, which is registered through the `{ event, run }` export shape in `src/handlers/events.js`.
+- Discord **Message Content Intent** must be enabled for the bot application in the Discord Developer Portal. The client requests `GatewayIntentBits.MessageContent` in `src/class/ExtendedClient.js`, but Discord still requires the privileged intent to be turned on for the app; without it, `message.content` is empty and prefix commands never match.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
-- Prisma runtime queries use `config.handler.mongodb.uri`. `DATABASE_URL` is only read by Prisma CLI tools.
-- `config.variables.dbName` still exists for configuration compatibility, but the verified Prisma startup path does not read it; include the database name in the MongoDB URI instead.
+- Prisma runtime queries use the MongoDB URI from `config.handler.mongodb.uri`, resolved through `resolveMongoUri` in `src/handlers/prisma.js`. At startup, that handler sets `process.env.DATABASE_URL` to the same resolved URI so Prisma schema `env("DATABASE_URL")` and the client `datasourceUrl` stay aligned.
+- MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
 - `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
@@ -42,7 +46,7 @@ Configuration constraints:
 Persistence now runs through Prisma v6 with the MongoDB provider:
 
 - `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `guildschemas`, `chatbots`, and `jtcsetups`.
-- `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with `datasourceUrl: config.handler.mongodb.uri`.
+- `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with a resolved `datasourceUrl` and `process.env.DATABASE_URL` is set to match before `new PrismaClient()`.
 - Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema` and `src/schemas/GuildSchema.js` exports `prisma.guildSchema`.
 - The legacy `src/handlers/mongoose.js` file remains in the tree, but `ExtendedClient` imports `src/handlers/prisma.js`. Do not add new imports of the Mongoose handler unless Mongoose is intentionally restored as a dependency.
 
@@ -122,7 +126,23 @@ Permission and safety gates are split across validators in `src/events/validatio
 - Developer-only slash commands use `devCommandValidator.js` and `src/utils/getLocalDevCommands.js`.
 - `devOnly: true` or `options.developers: true`: user must be listed in `config.moderation.developers`. Regular slash/context/component validators compare against `interaction.member.id`; the developer-command validator compares against `interaction.user.id`.
 - Missing or empty `config.moderation.developers`: developer-only commands in `devCommandValidator.js` are denied as misconfigured.
-- `options.staffOnly: true`: enforced by `devCommandValidator.js`; the member must have one of `config.moderation.staffRoles`.
+- `options.staffOnly: true` **without** `options.developers: true`: enforced by `devCommandValidator.js` using only the Mongo `BotStaff` ACL (`isStaffOnlyAllowed`; developers still pass). Bot staff do **not** need to be listed in `config.moderation.developers` for these commands.
+- `options.developers: true` (for example `/botstaff`, `/badge`, `/eval`): still requires `config.moderation.developers` regardless of `staffOnly`.
+- Global bot staff is managed with `/botstaff` (developer-only). It writes `BotStaff` records and syncs the reserved `bot-staff` badge (display-only; privilege comes from Mongo, not the badge).
+
+### Cutover from `moderation.staffRoles`
+
+`config.moderation.staffRoles` was removed in favor of the Mongo `BotStaff` ACL. Operators upgrading must not deploy with an empty ACL and expect staff-only commands to keep working.
+
+**Recommended upgrade checklist**
+
+1. Before removing `staffRoles` from your live `src/config.js`, run `/botstaff migrate` while the legacy role IDs are still present and `BotStaff` is empty. Migration reads `moderation.staffRoles`, resolves the support guild (`variables.supportServerId` or `handler.guildId`), and creates `BotStaff` rows (with badge sync) for human members who hold any listed role.
+2. If you already removed `staffRoles`, add each person manually with `/botstaff add <user>` before deploy.
+3. Run `npx prisma db push` so the `botstaff` and `botstaffremovals` collections exist.
+4. Confirm with `/botstaff list`, then remove `staffRoles` from config.
+5. Remove the legacy Discord staff roles. `/botstaff migrate` is refused when `BotStaff` already has entries unless `force: true`. Users removed with `/botstaff remove` are tombstoned in `botstaffremovals` and always skipped by migrate; bots are never imported.
+
+**Fail-closed behavior:** `options.staffOnly` denies non-developers who are not in `BotStaff`. If the collection is empty, the denial message explicitly tells operators to run `/botstaff migrate` or `/botstaff add` — there is no silent fallback to guild roles.
 - `options.nsfw: true`: enforced by `devCommandValidator.js`; guild channel interactions must run in an NSFW channel.
 - `testMode: true`: command must run in `config.handler.guildId`.
 - `userPermissions`: member must have each listed Discord permission.
@@ -137,12 +157,13 @@ Command execution contracts:
 - The active validation path in `src/events/validations/chatInputCommandValidator.js` calls chat-input commands directly and does not apply the Guild handler cooldown map. Verify the event loader caveat below before depending on `options.cooldown` in production.
 - Prefix commands are executed through `src/events/Guild/messageCreate.js` with `await command.run(client, message, args)`, so async command failures are caught by that handler's `try/catch` and logged through `log(error, "err")`.
 - Prefix command metadata can include `data.permissions` and `data.developers`; `data.cooldown` is present on the prefix eval command but is not enforced by `messageCreate.js`.
+- If prefix command modules load but `handler.commands.prefix` is `false`, `src/handlers/commands.js` logs a startup warning and `messageCreate.js` returns before matching any command.
 
-Event loader caveat:
+Event loader notes:
 
 - `src/handlers/events.js` registers each direct folder under `src/events` as an event name, except `validations`, which is remapped to `interactionCreate`.
 - Files under `src/events/ready` and `src/events/validations` export callable functions and match that loader.
-- Files under `src/events/Guild` export `{ event, run }` objects and the folder name would register as `Guild`. That shape does not match the current loader's callable function contract or Discord event names such as `messageCreate`, so verify runtime registration before relying on those handlers for prefix commands or component routing.
+- Files under `src/events/Guild` export `{ event, run }` objects. The loader registers them with `client.on(eventModule.event, ...)`, so `messageCreate` and other Guild handlers use the Discord event name from the module export.
 
 ## Command Deployment
 
@@ -240,4 +261,4 @@ When changing economy code, prefer adding or updating focused `node:test` regres
 - Prisma/MongoDB connection failures are logged and rethrown from `src/handlers/prisma.js`; `ExtendedClient.start()` attaches a `.catch()` and does not block Discord login while the connection attempt runs. Commands that query MongoDB still depend on a valid runtime URI, network, generated Prisma client, and database credentials.
 - Top.gg autoposting only starts when `TOPGG_TOKEN` is present, but the functions module is required during client startup.
 - The health endpoint is not authenticated. Do not expose port `8080` publicly unless that is intentional for the hosting environment.
-- Prefix command support depends on the `messageCreate` handler in `src/events/Guild/messageCreate.js`; because of the event loader caveat above, verify runtime registration before documenting prefix commands as available to server members.
+- Prefix command support depends on `handler.commands.prefix`, the `messageCreate` handler in `src/events/Guild/messageCreate.js`, and the Discord **Message Content Intent** being enabled for the bot application.

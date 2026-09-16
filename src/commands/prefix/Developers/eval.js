@@ -1,5 +1,6 @@
 const { Message } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
+const { safeEval } = require("../../../utils/safeEval");
 
 module.exports = {
   data: {
@@ -15,11 +16,15 @@ module.exports = {
    * @param {[String]} args
    */
   run: async (client, message, args) => {
-    const evaled = eval(args.join(" "));
-
-    console.log(evaled);
-    await message.reply({
-      content: String(evaled),
-    });
+    try {
+      const evaled = await safeEval(args.join(" "), { client, message });
+      await message.reply({
+        content: String(evaled).slice(0, 2000),
+      });
+    } catch (error) {
+      await message.reply({
+        content: `Eval failed: ${error.message}`,
+      });
+    }
   },
 };

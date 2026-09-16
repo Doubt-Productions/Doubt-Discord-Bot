@@ -2,6 +2,7 @@ const {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   EmbedBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const ms = require("ms");
@@ -26,7 +27,9 @@ module.exports = {
     .addStringOption((option) =>
       option.setName(`reason`).setDescription(`The reason for the time out`)
     )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .toJSON(),
+  userPermissions: [PermissionFlagsBits.ModerateMembers],
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

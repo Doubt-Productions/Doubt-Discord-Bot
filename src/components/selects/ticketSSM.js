@@ -10,6 +10,10 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../class/ExtendedClient");
 const ticketSchema = require("../../schemas/ticketSchema");
+const {
+  denyUnlessManageGuild,
+  setupComponentFilter,
+} = require("../../utils/setupGuard");
 
 module.exports = {
   customId: "ticketSSM",
@@ -19,6 +23,8 @@ module.exports = {
    * @param {StringSelectMenuInteraction} interaction
    */
   run: async (client, interaction) => {
+    if (!(await denyUnlessManageGuild(interaction))) return;
+
     const value = interaction.values[0];
 
     const goBackBtn = new ButtonBuilder()
@@ -59,7 +65,7 @@ module.exports = {
           fetchReply: true,
         });
 
-        const filter = (i) => i.customId === "ticketCSM";
+        const filter = setupComponentFilter(interaction, "ticketCSM");
         const collector = reply.createMessageComponentCollector({
           filter,
           time: 60000,
@@ -122,7 +128,7 @@ module.exports = {
           fetchReply: true,
         });
 
-        const filter2 = (i) => i.customId === "ticketCSM2";
+        const filter2 = setupComponentFilter(interaction, "ticketCSM2");
         const collector2 = reply2.createMessageComponentCollector({
           filter: filter2,
           time: 60000,
@@ -183,7 +189,7 @@ module.exports = {
           fetchReply: true,
         });
 
-        const filter3 = (i) => i.customId === "ticketRSM";
+        const filter3 = setupComponentFilter(interaction, "ticketRSM");
         const collector3 = reply3.createMessageComponentCollector({
           filter: filter3,
           time: 60000,

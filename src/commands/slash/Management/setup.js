@@ -5,6 +5,7 @@ const {
   ChannelType,
   StringSelectMenuBuilder,
   ActionRowBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const welcomeSchema = require("../../../schemas/welcomeSchema");
@@ -14,7 +15,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("setup")
     .setDescription("Setup command!")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .toJSON(),
+  userPermissions: [PermissionFlagsBits.ManageGuild],
   /**
    * @param {ExtendedClient} client
    * @param {ChatInputCommandInteraction} interaction

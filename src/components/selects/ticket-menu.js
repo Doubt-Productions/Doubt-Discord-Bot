@@ -6,7 +6,8 @@ const {
   ActionRowBuilder,
 } = require("discord.js");
 const ExtendedClient = require("../../class/ExtendedClient");
-const ticketSchema = require("../../schemas/ticketSchema");
+
+const TICKET_MODAL_PREFIX = "ticket-modal:";
 
 module.exports = {
   customId: "ticket",
@@ -16,9 +17,11 @@ module.exports = {
    * @param {StringSelectMenuInteraction} interaction
    */
   run: async (client, interaction) => {
+    const subject = interaction.values.join("");
+
     const modal = new ModalBuilder()
       .setTitle("Please enter more information!")
-      .setCustomId("ticket-modal");
+      .setCustomId(`${TICKET_MODAL_PREFIX}${encodeURIComponent(subject)}`);
 
     const reason = new TextInputBuilder()
       .setCustomId("reason")
@@ -31,21 +34,6 @@ module.exports = {
 
     modal.addComponents(firstActionRow);
 
-    let choices;
-
-    choices = interaction.values;
-
-    const result = choices.join("");
-
-    const data = await ticketSchema.findFirst({ where: { Guild: interaction.guild.id } });
-
-    if (data) {
-      await ticketSchema.update({
-        where: { id: data.id },
-        data: { Ticket: result },
-      });
-    }
-
-    interaction.showModal(modal);
+    await interaction.showModal(modal);
   },
 };

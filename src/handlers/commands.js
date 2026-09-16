@@ -1,4 +1,5 @@
 const { readdirSync } = require("fs");
+const config = require("../config");
 const { log } = require("../functions");
 const ExtendedClient = require("../class/ExtendedClient");
 const AsciiTable = require("ascii-table");
@@ -91,5 +92,16 @@ module.exports = (client) => {
       }
     }
   }
+
+  if (
+    client.collection.prefixcommands.size > 0 &&
+    !config.handler.commands.prefix
+  ) {
+    log(
+      `${client.collection.prefixcommands.size} prefix command(s) loaded but handler.commands.prefix is false; prefix commands will not run until enabled in src/config.js.`,
+      "warn"
+    );
+  }
+
   console.log(chalk.green(table.toString()));
 };

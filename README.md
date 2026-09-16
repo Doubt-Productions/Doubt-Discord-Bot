@@ -16,6 +16,19 @@ This project is currently a WIP!
 
 </div>
 
+<!--- Documentation -->
+## 📚 Documentation
+
+**Canonical operator and user documentation:** [https://doubtbot.eu/docs](https://doubtbot.eu/docs)
+
+| Topic | Link |
+|-------|------|
+| Getting started | [doubtbot.eu/docs/get-started/getting-started](https://doubtbot.eu/docs/get-started/getting-started) |
+| Security | [doubtbot.eu/docs/security](https://doubtbot.eu/docs/security) |
+| Commands | [doubtbot.eu/docs/guides/commands](https://doubtbot.eu/docs/guides/commands) |
+
+The in-repo [`docs/`](docs/) folder may still be useful for contributors, but it is not the primary public documentation.
+
 <!--- Credits -->
 ## ℹ️ Credits
 ```md
@@ -31,6 +44,7 @@ This project is currently a WIP!
 - Run npm i.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
 - Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
+- Prefix commands load from `src/commands/prefix/**` but are disabled by default (`handler.commands.prefix: false`). Set `handler.commands.prefix: true` in `src/config.js` to enable them. The default prefix is `?`, and the Discord **Message Content Intent** must be enabled for the bot application in the Discord Developer Portal.
 - Set DATABASE_URL for Prisma CLI commands, then run npx prisma generate after install or schema changes.
 - Run npm run dev to start the bot with nodemon, or npm start to run it with node.
 - Run npm test before opening a PR.
@@ -41,5 +55,5 @@ This project is currently a WIP!
 
 This is a Discord bot application, not an importable npm module. It starts from `src/index.js`, logs in with the token selected by `src/config.js`, connects to MongoDB through Prisma when enabled, registers commands/components/events, and exposes an unauthenticated health endpoint on `0.0.0.0:8080` that returns a plain-text online message plus Discord invite link.
 
-Developer and operator notes live in [`docs/engineering-guide.md`](docs/engineering-guide.md). Start there for setup constraints, command deployment, permission gates, economy behavior, and troubleshooting.
+For setup constraints, command deployment, permission gates, economy behavior, and troubleshooting, see the [public documentation](https://doubtbot.eu/docs). Contributors may also reference [`docs/engineering-guide.md`](docs/engineering-guide.md) in this repository.
 
