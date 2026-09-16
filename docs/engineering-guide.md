@@ -8,7 +8,7 @@ The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.
 
 Required local setup:
 
-1. Run `npm i`.
+1. Run `npm ci` for a reproducible install, or `npm install` when intentionally changing dependencies.
 2. Copy `.env.example` to `.env`.
 3. Copy `src/example.config.js` to `src/config.js`.
 4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
@@ -39,7 +39,7 @@ Configuration constraints:
 - MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` is read as a string. Only `PRODUCTION=true` selects production token, client ID, guild ID, MongoDB URI, and `dbName`; `false`, an empty value, or an unset variable selects development values.
 
 ## Prisma Persistence
 
@@ -166,14 +166,14 @@ Troubleshooting command registration:
 
 ## GitHub Release Automation
 
-`.github/workflows/release.yml` publishes GitHub Releases from `main` when `package.json` changes the top-level `version` field.
+`.github/workflows/release.yml` publishes GitHub Releases from `main` when the current package version does not already have a matching Git tag.
 
 Release workflow behavior:
 
 1. A push to `main` starts the `Release` workflow.
 2. The workflow reads `package.json` with Node and derives the release tag as `v<version>`, for example `v1.2.1`.
-3. It checks only the latest pushed commit range, `HEAD~1..HEAD`, for a `package.json` line containing `"version"`.
-4. If the version changed, it fetches tags and skips the release when the derived tag already exists.
+3. It checks whether the derived tag already exists. There is no latest-commit diff or version-line gate.
+4. If the tag exists, the workflow skips release creation.
 5. If the tag is new, it sets up Node.js `22`, installs dependencies with `npm ci || npm install`, runs `npm test`, generates a changelog from commits since the most recent version-sorted tag, and creates a non-draft, non-prerelease GitHub Release with `softprops/action-gh-release`.
 
 Release operator notes:
