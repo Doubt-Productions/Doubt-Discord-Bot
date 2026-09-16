@@ -6,6 +6,7 @@ const getModals = require("../../utils/getModals");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isModalSubmit()) return;
+  if (interaction.replied || interaction.deferred) return;
   const modals = getModals();
 
   try {
