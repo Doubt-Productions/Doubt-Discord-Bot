@@ -50,7 +50,7 @@ Commands are stored in `client.collection.interactioncommands` and `client.appli
 
 Same structure as slash commands but loaded into `client.collection.developercommands`. Deployed to `config.handler.guildId` via REST API (separate from regular slash command registration).
 
-Developer commands may set `options: { developers: true }` to restrict access.
+Developer commands may set `options: { developers: true }` to require `config.moderation.developers`. Commands that set `options.staffOnly: true` without `options.developers: true` use the global Mongo `BotStaff` ACL instead; developers are always allowed through that staff gate.
 
 ### Prefix Commands (`src/commands/prefix/`)
 
@@ -87,8 +87,16 @@ interactionCreate
 Each validator:
 1. Checks if the interaction matches its type (e.g., `isChatInputCommand()`)
 2. Finds the matching command/component from local files
-3. Validates permissions (developer, staff, NSFW, test mode, user/bot perms)
+3. Validates permissions (developer, BotStaff, NSFW, test mode, user/bot perms)
 4. Calls `run()` if validation passes
+
+`devCommandValidator.js` chooses exactly one high-level access gate before the NSFW/test/user/bot permission checks:
+
+- `options.developers: true` requires a developer user ID from `config.moderation.developers`.
+- `options.staffOnly: true` without `options.developers: true` checks `BotStaff` membership through `src/utils/botStaff.js`; developers still pass even without a BotStaff record.
+- All other developer-folder commands use the developer gate by default.
+
+The staff gate fails closed when `BotStaff` cannot be read or is empty. There is no runtime fallback to the removed `moderation.staffRoles` config.
 
 ### Guild Event Handlers
 
@@ -176,6 +184,9 @@ The schema files maintain backward-compatible import paths so existing `require(
 | `getButtons.js` / `getSelects.js` / `getModals.js` | Load component modules |
 | `commandComparing.js` | Normalize command data for diff comparison |
 | `normalizeIdAllowlist.js` | Ensure ID lists are arrays |
+| `botStaff.js` | Global BotStaff ACL operations, reserved badge sync, and legacy staff role migration |
+| `botStaffAcl.js` | Pure staff/developer gate helpers and reserved Bot Staff badge matching |
+| `botStaffMigration.js` | Legacy `moderation.staffRoles` extraction and support-guild member filtering |
 | `buttonPagination.js` | Alternative pagination helper |
 | `join-to-create/generateEmbed.js` | JTC status embed builder |
 | `join-to-create/generateRow.js` | JTC dashboard button row |
