@@ -1,28 +1,47 @@
-const { REST, Routes } = require("discord.js");
 const { log } = require("../functions");
 const config = require("../config");
-const ExtendedClient = require("../class/ExtendedClient");
+const commandComparing = require("../utils/commandComparing");
+const getApplicationCommands = require("../utils/getApplicationCommands");
 
 /**
+ * Registers developer (guild) slash commands without replacing other guild commands.
+ * A bulk REST PUT on applicationGuildCommands overwrites the entire guild command set,
+ * which races with ready-time slash registration and can delete every non-dev command.
  *
- * @param {ExtendedClient} client
+ * @param {*} client discord.js client with `collection.developercommands`
  */
 module.exports = async (client) => {
-  const rest = new REST({ version: "10" }).setToken(config.client.token);
-
   try {
     log("Started refreshing Developer Commands.", "info");
 
-    const devCommands = client.collection.developercommands.map((command) =>
-      command.data.toJSON()
-    );
+    const guildId = config.handler.guildId;
+    if (!guildId) {
+      log(
+        "Developer command deploy skipped: config.handler.guildId is unset.",
+        "warn"
+      );
+      return;
+    }
 
-    await rest.put(
-      Routes.applicationGuildCommands(client.user.id, config.handler.guildId),
-      {
-        body: devCommands,
+    const applicationCommands = await getApplicationCommands(client, guildId);
+
+    for (const moduleEntry of client.collection.developercommands.values()) {
+      const localCommand = { data: moduleEntry.data };
+      const body = moduleEntry.data.toJSON();
+      const commandName = body.name;
+
+      const existingCommand = applicationCommands.cache.find(
+        (cmd) => cmd.name === commandName
+      );
+
+      if (existingCommand) {
+        if (commandComparing(existingCommand, localCommand)) {
+          await applicationCommands.edit(existingCommand.id, body);
+        }
+      } else {
+        await applicationCommands.create(body);
       }
-    );
+    }
 
     log("Successfully reloaded Developer Commands.", "done");
   } catch (err) {
