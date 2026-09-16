@@ -179,6 +179,7 @@ test("my feature works correctly", () => {
 
 | Test File | What It Tests |
 |-----------|---------------|
+| `no-message-content-intent.test.js` | Blocks Message Content Intent, prefix paths, and MessageCollector reintroduction |
 | `dev-command-gate.test.js` | Developer command `options.developers` flag detection |
 | `developer-gate.test.js` | Developer ID allowlist validation |
 | `economy-amount-all.test.js` | Case-insensitive `all` keyword for deposit/withdraw |
@@ -198,12 +199,6 @@ All slash and developer commands use:
 
 ```js
 run: async (client, interaction) => { ... }
-```
-
-Prefix commands use:
-
-```js
-run: async (client, message, args) => { ... }
 ```
 
 ### Database Access

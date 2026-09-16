@@ -9,7 +9,6 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const welcomeSchema = require("../../../schemas/welcomeSchema");
-const chatbotSchema = require("../../../schemas/chatbotSchema");
 
 module.exports = {
   data: new SlashCommandBuilder()

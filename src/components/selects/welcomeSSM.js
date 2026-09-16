@@ -6,7 +6,9 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  MessageCollector,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } = require("discord.js");
 const ExtendedClient = require("../../class/ExtendedClient");
 const welcomeSchema = require("../../schemas/welcomeSchema");
@@ -109,101 +111,27 @@ module.exports = {
           }
         });
         break;
-      case "message":
-        embed.setDescription(
-          "Type the message you want to send!\n\n`💡` You can use the variable {RULES} to mention the rules channel.\n\n`💡` You can use {USER} to mention the user."
-        );
+      case "message": {
+        const messageInput = new TextInputBuilder()
+          .setCustomId("welcomeMessage")
+          .setLabel("Welcome message")
+          .setStyle(TextInputStyle.Paragraph)
+          .setPlaceholder("Use {user} and {rules} as variables")
+          .setRequired(true)
+          .setMaxLength(2000);
 
-        await interaction.update({
-          embeds: [embed],
-          components: [goBackRow],
-        });
+        if (data?.Message) {
+          messageInput.setValue(data.Message.slice(0, 2000));
+        }
 
-        const filter = (m) => m.author.id === interaction.user.id;
-        const collector2 = new MessageCollector(interaction.channel, {
-          filter,
-          time: 60000,
-          max: 1,
-        });
+        const modal = new ModalBuilder()
+          .setCustomId("welcome-message-modal")
+          .setTitle("Welcome message")
+          .addComponents(new ActionRowBuilder().addComponents(messageInput));
 
-        collector2.on("collect", async (msg) => {
-          if (msg.content) {
-            collector2.stop();
-            embed.setDescription(
-              `Message: \n\`\`\`${msg.content}\`\`\`\n\nIs this the message you want to send?`
-            );
-
-            const confirmBtn = new ButtonBuilder()
-              .setCustomId("wcmConfirmBtn")
-              .setLabel("Confirm")
-              .setStyle(ButtonStyle.Success);
-
-            const cancelBtn = new ButtonBuilder()
-              .setCustomId("wcmCancelBtn")
-              .setLabel("Cancel")
-              .setStyle(ButtonStyle.Danger);
-
-            const row = new ActionRowBuilder().addComponents(
-              confirmBtn,
-              cancelBtn
-            );
-
-            const reply = await interaction.editReply({
-              embeds: [embed],
-              components: [row],
-            });
-
-            const filter = (button) => button.user.id === interaction.user.id;
-            const collector = reply.createMessageComponentCollector({
-              filter,
-              time: 30000,
-            });
-
-            collector.on("collect", async (i) => {
-              if (i.customId === "wcmConfirmBtn") {
-                collector.stop();
-                embed.setDescription(
-                  `The message has been set to \n\`\`\`${msg.content}\`\`\`\n\n\`💡\` You can continue the setup by pressing \`Go back\``
-                );
-
-                if (!data) {
-                  await welcomeSchema.create({
-                    data: {
-                      Guild: interaction.guildId,
-                      Message: msg.content,
-                    },
-                  });
-
-                  await i.update({
-                    embeds: [embed],
-                    components: [goBackRow],
-                  });
-                } else {
-                  await welcomeSchema.update({
-                    where: { id: data.id },
-                    data: { Message: msg.content },
-                  });
-
-                  await i.update({
-                    embeds: [embed],
-                    components: [goBackRow],
-                  });
-                }
-              } else if (i.customId === "wcmCancelBtn") {
-                collector.stop();
-                embed.setDescription(
-                  `You have cancelled the message setup! Please try again.`
-                );
-
-                await i.update({
-                  embeds: [embed],
-                  components: [goBackRow],
-                });
-              }
-            });
-          }
-        });
+        await interaction.showModal(modal);
         break;
+      }
       case "rules-channel":
         const welcomeCSM2 = new ChannelSelectMenuBuilder()
           .setCustomId("welcomeCSM2")
