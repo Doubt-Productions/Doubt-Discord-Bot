@@ -4,7 +4,16 @@ const ascii = require("ascii-table");
 const { default: chalk } = require("chalk");
 
 module.exports = (client) => {
-  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
+  const eventFolders = getAllFiles(
+    path.join(__dirname, "..", "events"),
+    true
+  ).sort((a, b) => {
+    const aName = a.replace(/\\/g, "/").split("/").pop();
+    const bName = b.replace(/\\/g, "/").split("/").pop();
+    if (aName === "validations") return -1;
+    if (bName === "validations") return 1;
+    return aName.localeCompare(bName);
+  });
 
   const table = new ascii().setHeading("Event", "Status");
 
