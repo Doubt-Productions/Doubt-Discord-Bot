@@ -85,7 +85,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await selectObject.run(client, interaction);
   } catch (err) {
     console.error(`An error occurred while validating select menus! ${err}`);
   }

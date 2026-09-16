@@ -69,7 +69,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await commandObject.run(client, interaction);
   } catch (err) {
     console.error(
       `An error occurred while validating chat input commands! ${err}`

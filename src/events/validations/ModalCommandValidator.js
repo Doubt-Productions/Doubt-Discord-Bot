@@ -71,7 +71,6 @@ module.exports = async (client, interaction) => {
       }
     }
 
-    await modalObject.run(client, interaction);
   } catch (err) {
     console.error(
       `An error occurred while validating modal commands! ${err}`
