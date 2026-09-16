@@ -46,13 +46,13 @@ module.exports = {
       subcommand
         .setName("migrate")
         .setDescription(
-          "One-time cutover: import legacy moderation.staffRoles members into BotStaff (does not remove Discord roles)"
+          "One-time cutover: import legacy moderation.staffRoles members into BotStaff"
         )
         .addBooleanOption((option) =>
           option
             .setName("force")
             .setDescription(
-              "Re-import when BotStaff already has entries (still skips removed users and bots)"
+              "Re-import when BotStaff already has entries"
             )
             .setRequired(false)
         )
