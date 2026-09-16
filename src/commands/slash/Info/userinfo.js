@@ -6,7 +6,7 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const { time } = require("../../../functions");
-const { profileImage } = require("discord-arts");
+const { Profile } = require("discord-arts");
 const badge = require("../../../schemas/badge");
 const userConfig = require("../../../schemas/userConfig");
 const config = require("../../../config");
@@ -119,12 +119,10 @@ module.exports = {
         break;
 
       case "profile":
-        const buffer = await profileImage(user.user.id, {
-          username: user.user.username,
-          avatar: user.user.displayAvatarURL({ format: "png" }),
-          customBadges: badgeURLs,
-          background: user.user.bannerURL(),
-          color: user.user.accentColor,
+        const bannerUrl = user.user.bannerURL();
+        const buffer = await Profile(user.user.id, {
+          customBadges: badgeURLs.filter(Boolean),
+          ...(bannerUrl ? { customBackground: bannerUrl } : {}),
         });
 
         await interaction.editReply({
