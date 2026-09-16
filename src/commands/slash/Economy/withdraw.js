@@ -70,7 +70,12 @@ module.exports = {
 
       Data.Wallet += parseInt(Converted);
       Data.Bank -= parseInt(Converted);
-      Data.Bank = Math.abs(Data.Bank);
+      if (Data.Bank < 0) {
+        return await interaction.reply({
+          content: `You don't have that much money!`,
+          ephemeral: true,
+        });
+      }
       await ecoSchema.update({ where: { id: Data.id }, data: { Wallet: Data.Wallet, Bank: Data.Bank } });
 
       const embed = new EmbedBuilder()
