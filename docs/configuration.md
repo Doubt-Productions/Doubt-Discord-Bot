@@ -10,11 +10,11 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set exactly to `true` for production; any other value uses development settings | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not exactly `true` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not exactly `true` |
 | `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is not exactly `true` |
 
 ### Production Variables
 
@@ -29,22 +29,24 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). Not used at runtime. |
+| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). At runtime, `src/handlers/prisma.js` overwrites it with the resolved MongoDB URI before creating the Prisma client. |
 | `TOPGG_TOKEN` | [Top.gg](https://top.gg/) API token for automatic stat posting |
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+`src/index.js` calls `require("dotenv").config()` once at startup, before `src/config.js` is imported. The bot relies on dotenv's default `.env` loading behavior; custom dotenv paths or overrides are not configured in this repository.
+
+Environment variables are strings. The config template checks `process.env.PRODUCTION === "true"`, so only the literal lowercase value `true` selects production credentials:
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=true               →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false / blank / 1  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 ```
 
 The guild ID for command registration:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION=true               →  GUILD_ID
+PRODUCTION=false / blank / 1  →  DEV_GUILD_ID
 ```
 
 ---

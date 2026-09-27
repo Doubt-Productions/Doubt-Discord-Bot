@@ -51,6 +51,8 @@ DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
 
+`src/index.js` loads this file with dotenv's default `.env` lookup before importing the runtime config. Keep `PRODUCTION=false` for local development; only the literal lowercase value `PRODUCTION=true` selects `CLIENT_TOKEN`, `CLIENT_ID`, `GUILD_ID`, and `MONGODB_URI`.
+
 ## Step 4: Configure the Bot
 
 Copy the configuration template:
