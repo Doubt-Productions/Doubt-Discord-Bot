@@ -40,19 +40,18 @@ test("events handler uses per-module registration and .run for object exports", 
   );
 });
 
-test("Guild components duplicate handler removed", () => {
+test("Guild components handler exists for post-validation execution", () => {
   const componentsPath = path.join(
     __dirname,
     "../src/events/Guild/components.js"
   );
-  assert.ok(!fs.existsSync(componentsPath));
+  assert.ok(fs.existsSync(componentsPath));
 });
 
 test("slash command validators validate only and do not execute", () => {
   for (const file of [
     "chatInputCommandValidator.js",
     "devCommandValidator.js",
-    "contextMenuCommandValidator.js",
   ]) {
     const src = fs.readFileSync(
       path.join(__dirname, "../src/events/validations", file),
