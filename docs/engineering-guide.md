@@ -30,6 +30,7 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
+- `src/index.js` loads environment variables with a single default `require("dotenv").config()` call before requiring `ExtendedClient` and `src/config.js`. Start commands from the repository root or provide equivalent process environment variables; no `.env.local` or mode-specific dotenv files are loaded by the app.
 - The bot is slash-command only. `ExtendedClient` does **not** request `GatewayIntentBits.MessageContent`. Keep Message Content Intent disabled in the Discord Developer Portal.
 - AFK uses `messageCreate` for clearing the author's AFK status and for mention-based notifications via `message.mentions`; it does not read `message.content`.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
@@ -37,7 +38,7 @@ Configuration constraints:
 - MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` deserves extra care: environment variables are strings, and the checked-in `src/example.config.js` selects production token, client ID, guild ID, database name, and MongoDB URI values only when `PRODUCTION === "true"`. Leaving it unset or setting `PRODUCTION=false` selects the development values.
 
 ## Prisma Persistence
 

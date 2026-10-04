@@ -6,6 +6,8 @@ Doubt uses two configuration files and environment variables. Both configuration
 
 Copy `.env.example` to `.env` and fill in the values.
 
+`src/index.js` calls `require("dotenv").config()` once before the runtime config is loaded. The default loader reads `.env` from the process working directory, so start the bot from the repository root or provide the same values through the shell/service environment. This project does not load `.env.local`, `.env.production`, or other environment-specific files automatically.
+
 ### Required Variables
 
 | Variable | Description | Used When |
@@ -40,6 +42,8 @@ The `PRODUCTION` flag controls which set of credentials the bot uses:
 PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
 PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
+
+Environment variables are strings. The checked-in `src/example.config.js` selects production values only when `PRODUCTION` is exactly `"true"`; leaving it unset or setting `PRODUCTION=false` selects the development token, client ID, guild ID, and MongoDB URI.
 
 The guild ID for command registration:
 ```
