@@ -3,7 +3,7 @@ const config = require("../../config");
 const { normalizeIdAllowlist } = require("../../utils/normalizeIdAllowlist");
 const mConfig = require("../../messageConfig.json");
 const getButtons = require("../../utils/getButtons");
-const chalk = require("chalk");
+const chalk = require("chalk").default ?? require("chalk");
 
 module.exports = async (client, interaction) => {
   if (!interaction.isButton()) return;

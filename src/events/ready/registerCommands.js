@@ -1,4 +1,4 @@
-const chalk = require("chalk");
+const chalk = require("chalk").default ?? require("chalk");
 
 const commandComparing = require("../../utils/commandComparing");
 const getApplicationCommands = require("../../utils/getApplicationCommands");
