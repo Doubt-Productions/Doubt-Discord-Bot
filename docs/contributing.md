@@ -6,9 +6,12 @@ Guide for developers contributing to the Doubt Discord Bot.
 
 See [Getting Started](getting-started.md) for full setup instructions. Quick start:
 
+Use Node.js 22 or newer before installing dependencies; this matches release CI and the dependency engine requirements.
+
 ```bash
 git clone https://github.com/Doubt-Productions/Doubt-Discord-Bot.git
 cd Doubt-Discord-Bot
+node --version  # v22.x or newer
 npm install
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs

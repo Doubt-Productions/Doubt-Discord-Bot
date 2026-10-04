@@ -40,7 +40,7 @@ The in-repo [`docs/`](docs/) folder may still be useful for contributors, but it
 <!--- Installation -->
 ## 🔌 Installation
 ```md
-- Install Node.js and npm.
+- Install Node.js 22 or newer and npm.
 - Run npm i.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
 - Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.

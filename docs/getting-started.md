@@ -4,7 +4,7 @@ This guide walks you through setting up Doubt for local development.
 
 ## Prerequisites
 
-- **Node.js** v16.11 or higher (v18+ LTS recommended)
+- **Node.js** v22 or higher. The current dependency tree includes packages with `engines.node >=22` (for example Chalk 6), and release CI runs on Node 22.
 - **npm** (included with Node.js)
 - **MongoDB** — either a local instance, Docker container, or [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
 - **Discord Application** — create one at the [Discord Developer Portal](https://discord.com/developers/applications)

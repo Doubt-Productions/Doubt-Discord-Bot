@@ -8,14 +8,15 @@ The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.
 
 Required local setup:
 
-1. Run `npm i`.
-2. Copy `.env.example` to `.env`.
-3. Copy `src/example.config.js` to `src/config.js`.
-4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
-5. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
-6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
-7. Run `npm run dev` for nodemon or `npm start` for node.
-8. Run `npm test` before opening a PR.
+1. Use Node.js 22 or newer (`node --version`). Current dependencies include Node 22 engine constraints, and release CI uses Node 22.
+2. Run `npm i`.
+3. Copy `.env.example` to `.env`.
+4. Copy `src/example.config.js` to `src/config.js`.
+5. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
+6. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
+7. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
+8. Run `npm run dev` for nodemon or `npm start` for node.
+9. Run `npm test` before opening a PR.
 
 Environment variables used by the code:
 
