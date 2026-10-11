@@ -4,7 +4,7 @@ This guide walks you through setting up Doubt for local development.
 
 ## Prerequisites
 
-- **Node.js** v16.11 or higher (v18+ LTS recommended)
+- **Node.js** v22.12.0 or higher (matches `package.json` `engines` and chalk 6)
 - **npm** (included with Node.js)
 - **MongoDB** — either a local instance, Docker container, or [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
 - **Discord Application** — create one at the [Discord Developer Portal](https://discord.com/developers/applications)
@@ -19,10 +19,10 @@ cd Doubt-Discord-Bot
 ## Step 2: Install Dependencies
 
 ```bash
-npm install
+npm ci
 ```
 
-This installs all runtime dependencies and the Prisma CLI (dev dependency). This repository does not define an npm `postinstall` hook, so generate the Prisma client explicitly after installing dependencies:
+Use `npm install` when intentionally changing dependencies. The checked-in `package-lock.json` keeps local installs aligned with CI. This installs all runtime dependencies and the Prisma CLI (dev dependency). This repository does not define an npm `postinstall` hook, so generate the Prisma client explicitly after installing dependencies:
 
 ```bash
 npx prisma generate

@@ -8,14 +8,15 @@ The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.
 
 Required local setup:
 
-1. Run `npm i`.
-2. Copy `.env.example` to `.env`.
-3. Copy `src/example.config.js` to `src/config.js`.
-4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
-5. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
-6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
-7. Run `npm run dev` for nodemon or `npm start` for node.
-8. Run `npm test` before opening a PR.
+1. Use Node.js v22.12.0 or newer.
+2. Run `npm ci` for a lockfile-based install. Use `npm install` when intentionally changing dependencies.
+3. Copy `.env.example` to `.env`.
+4. Copy `src/example.config.js` to `src/config.js`.
+5. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
+6. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
+7. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
+8. Run `npm run dev` for nodemon or `npm start` for node.
+9. Run `npm test` before opening a PR.
 
 Environment variables used by the code:
 
@@ -38,6 +39,7 @@ Configuration constraints:
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
 - `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- Startup log styling uses chalk 6 from CommonJS modules. Import chalk as `require("chalk").default ?? require("chalk")` in CommonJS files that call color helpers; plain `require("chalk")` returns the module namespace in chalk 6 and does not expose methods such as `green` or `red` directly.
 
 ## Prisma Persistence
 
