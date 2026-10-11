@@ -1,7 +1,7 @@
 /**
- * Regression: restoring Guild interactionCreate/components registration (c430893)
- * must not re-introduce a second command/component dispatch path alongside
- * src/events/validations/* — that double-ran handlers and corrupted economy writes.
+ * Regression: interaction dispatch must use one interactionCreate listener where
+ * validators run first, then Guild execution handlers — not parallel listeners
+ * that both call .run() (economy double-writes, InteractionAlreadyReplied).
  */
 const { test } = require("node:test");
 const assert = require("node:assert");
@@ -11,7 +11,7 @@ const path = require("path");
 const guildEventsDir = path.join(__dirname, "../src/events/Guild");
 const validationsDir = path.join(__dirname, "../src/events/validations");
 
-const removedDuplicateHandlers = ["interactionCreate.js", "components.js"];
+const executionHandlers = ["interactionCreate.js", "components.js"];
 
 const forbiddenInteractionDispatchPatterns = [
   /client\.collection\.interactioncommands/,
@@ -19,11 +19,11 @@ const forbiddenInteractionDispatchPatterns = [
   /client\.collection\.components/,
 ];
 
-test("duplicate Guild interaction dispatch modules stay removed", () => {
-  for (const file of removedDuplicateHandlers) {
+test("Guild execution handlers exist for the unified interactionCreate chain", () => {
+  for (const file of executionHandlers) {
     assert.ok(
-      !fs.existsSync(path.join(guildEventsDir, file)),
-      `${file} must not register a second interaction dispatch path`
+      fs.existsSync(path.join(guildEventsDir, file)),
+      `${file} must execute commands/components after validators in events.js`
     );
   }
 });
@@ -31,11 +31,12 @@ test("duplicate Guild interaction dispatch modules stay removed", () => {
 test("remaining Guild event modules do not dispatch interactions via collections", () => {
   for (const file of fs.readdirSync(guildEventsDir)) {
     if (!file.endsWith(".js")) continue;
+    if (executionHandlers.includes(file)) continue;
     const src = fs.readFileSync(path.join(guildEventsDir, file), "utf8");
     for (const pattern of forbiddenInteractionDispatchPatterns) {
       assert.ok(
         !pattern.test(src),
-        `${file} must not match ${pattern} (validations own interaction dispatch)`
+        `${file} must not match ${pattern} (execution belongs in interactionCreate.js / components.js)`
       );
     }
   }
@@ -49,6 +50,22 @@ test("validation handlers guard against duplicate execution", () => {
     assert.ok(
       src.includes("interaction.replied") && src.includes("interaction.deferred"),
       `${file} must skip when the interaction was already handled`
+    );
+  }
+});
+
+test("slash and component validators validate only", () => {
+  for (const file of [
+    "chatInputCommandValidator.js",
+    "devCommandValidator.js",
+    "buttonValidator.js",
+    "selectMenuValidator.js",
+    "ModalCommandValidator.js",
+  ]) {
+    const src = fs.readFileSync(path.join(validationsDir, file), "utf8");
+    assert.ok(
+      !/\bawait\s+\w+\.run\s*\(/.test(src),
+      `${file} must not execute handlers; Guild modules run after validation`
     );
   }
 });
