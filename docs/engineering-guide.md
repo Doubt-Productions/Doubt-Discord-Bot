@@ -193,6 +193,7 @@ Release operator notes:
 - The workflow publishes a GitHub Release only. It does not publish an npm package, build Docker images, deploy the bot, or update Discord commands.
 - `contents: write` permission is required so the workflow token can create the release and tag.
 - Release creation is gated by `npm test`; keep tests passing before merging a version bump.
+- Workflow actions are pinned to full commit SHAs with version comments for reviewability, for example `actions/setup-node@<sha> # v7.1.0`. Dependabot's `github-actions` updater in `.github/dependabot.yml` opens weekly PRs for those pins; when updating an action manually, keep the SHA and trailing version comment in sync with the upstream release.
 
 ## Economy Notes
 
