@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    ignore:
+      # Prisma 7 has no MongoDB support; stay on Prisma 6 until it does.
+      - dependency-name: "prisma"
+        versions: [">=7"]
+      - dependency-name: "@prisma/client"
+        versions: [">=7"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
