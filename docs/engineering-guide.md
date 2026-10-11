@@ -11,7 +11,7 @@ Required local setup:
 1. Run `npm i`.
 2. Copy `.env.example` to `.env`.
 3. Copy `src/example.config.js` to `src/config.js`.
-4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
+4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, and developer user IDs.
 5. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
 6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
 7. Run `npm run dev` for nodemon or `npm start` for node.
@@ -30,6 +30,7 @@ Environment variables used by the code:
 Configuration constraints:
 
 - `src/example.config.js` is the runtime schema for `src/config.js`.
+- `src/index.js` calls `require("dotenv").config()` before requiring `ExtendedClient`, `server`, or the runtime config. The standard npm scripts go through that entry point; one-off scripts that import modules directly must load the same environment first.
 - The bot is slash-command only. `ExtendedClient` does **not** request `GatewayIntentBits.MessageContent`. Keep Message Content Intent disabled in the Discord Developer Portal.
 - AFK uses `messageCreate` for clearing the author's AFK status and for mention-based notifications via `message.mentions`; it does not read `message.content`.
 - `handler.mongodb.toggle` controls whether `ExtendedClient.start()` calls `connectPrisma()` from `src/handlers/prisma.js`.
@@ -37,7 +38,7 @@ Configuration constraints:
 - MongoDB URIs must include a `/dbname` path segment (for example `mongodb://127.0.0.1:27017/doubt`). If the path is empty, `src/handlers/prisma.js` appends `config.variables.dbName` (`production` or `development`) before creating the Prisma client and logs a warning. A missing or blank `MONGODB_URI` / `DEV_MONGODB_URI` fails at startup with a clear error.
 - The Express sidecar in `src/server.js` listens on `0.0.0.0:8080` and returns `Bot is online! Join our discord here: https://discord.gg/rmqAhQz2qu` at `/`.
 - `ExtendedClient` updates `config.variables.channels.botGuilds` and `config.variables.channels.botUsers` every 30 minutes. Those IDs must point to editable channels in `config.handler.guildId`.
-- `PRODUCTION` deserves extra care: environment variables are strings. Token, client ID, and guild ID selection compare against `"true"`, but MongoDB URI selection uses `process.env.PRODUCTION` truthiness. With `PRODUCTION=false` as a string, `config.handler.mongodb.uri` still selects `MONGODB_URI`. Verify the generated `src/config.js` values before running a bot.
+- `PRODUCTION` deserves extra care: environment variables are strings, and the runtime compares against the exact lowercase string `"true"`. `PRODUCTION=false`, `PRODUCTION=TRUE`, `PRODUCTION=1`, an empty string, or an unset variable all select development token, client ID, guild ID, database name, and MongoDB URI values. Verify the generated `src/config.js` values before running a bot.
 
 ## Prisma Persistence
 

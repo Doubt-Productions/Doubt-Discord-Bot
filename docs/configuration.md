@@ -6,46 +6,61 @@ Doubt uses two configuration files and environment variables. Both configuration
 
 Copy `.env.example` to `.env` and fill in the values.
 
+`src/index.js` loads `.env` once with `require("dotenv").config()` before it
+requires the Discord client or runtime configuration. The npm scripts run that
+entry point directly, so they do not need the `dotenv` CLI. If you execute a
+module directly for ad-hoc debugging, export the same variables in your shell or
+preload dotenv yourself.
+
 ### Required Variables
 
 | Variable | Description | Used When |
 |----------|-------------|-----------|
-| `PRODUCTION` | Set to `true` for production, `false` for development | Always — controls which token/ID/URI set is used |
-| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION=false` |
-| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION=false` |
-| `DEV_GUILD_ID` | Guild ID for slash command registration | Always |
-| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION=false` |
+| `PRODUCTION` | Set to the exact string `true` for production. Leave unset or set any other value, such as `false`, for development. | Always — controls which token/ID/URI set is used |
+| `DEV_TOKEN` | Discord bot token for development | `PRODUCTION` is not exactly `true` |
+| `DEV_CLIENT_ID` | Discord application ID for development | `PRODUCTION` is not exactly `true` |
+| `DEV_GUILD_ID` | Development guild ID. Ready-time slash/context menu registration always reads this value. | Always |
+| `DEV_MONGODB_URI` | MongoDB connection string for development | `PRODUCTION` is not exactly `true` |
 
 ### Production Variables
 
 | Variable | Description |
 |----------|-------------|
-| `CLIENT_TOKEN` | Discord bot token for production |
-| `CLIENT_ID` | Discord application ID for production |
-| `GUILD_ID` | Support/production guild ID |
-| `MONGODB_URI` | MongoDB connection string for production |
+| `CLIENT_TOKEN` | Discord bot token for production (`PRODUCTION=true`) |
+| `CLIENT_ID` | Discord application ID for production (`PRODUCTION=true`) |
+| `GUILD_ID` | Support/production guild ID (`PRODUCTION=true` for `config.handler.guildId`) |
+| `MONGODB_URI` | MongoDB connection string for production (`PRODUCTION=true`) |
 
 ### Optional Variables
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). Not used at runtime. |
+| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). At runtime `src/handlers/prisma.js` overwrites it with the resolved MongoDB URI before creating the Prisma client. |
 | `TOPGG_TOKEN` | [Top.gg](https://top.gg/) API token for automatic stat posting |
 
 ### Production Toggle Behavior
 
-The `PRODUCTION` flag controls which set of credentials the bot uses:
+The code compares `process.env.PRODUCTION` to the exact lowercase string
+`"true"` in `src/example.config.js` and `src/handlers/prisma.js`. Only that
+value selects production credentials, guild ID, database name, and MongoDB URI.
+Values such as `false`, `TRUE`, `1`, an empty string, or an unset variable all
+use the development set.
 
 ```
-PRODUCTION=false  →  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
-PRODUCTION=true   →  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
+PRODUCTION=false  ->  DEV_TOKEN, DEV_CLIENT_ID, DEV_MONGODB_URI
+PRODUCTION=true   ->  CLIENT_TOKEN, CLIENT_ID, MONGODB_URI
 ```
 
-The guild ID for command registration:
+The runtime guild ID in `config.handler.guildId` follows the same toggle:
 ```
-PRODUCTION=false  →  DEV_GUILD_ID
-PRODUCTION=true   →  GUILD_ID
+PRODUCTION=false  ->  DEV_GUILD_ID
+PRODUCTION=true   ->  GUILD_ID
 ```
+
+Ready-time slash command and context menu registration is separate: both
+`src/events/ready/registerCommands.js` and
+`src/events/ready/registerContextMenus.js` read `DEV_GUILD_ID` directly, even in
+production mode.
 
 ---
 

@@ -7,7 +7,7 @@ Technical overview of the bot's internal architecture, event pipeline, and modul
 The entry point is `src/index.js`:
 
 ```
-1. Load environment variables (dotenv)
+1. Load environment variables with `require("dotenv").config()`
 2. Create ExtendedClient instance
 3. client.start() (async, not awaited)
    ├── Load commands (src/handlers/commands.js)

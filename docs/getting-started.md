@@ -51,6 +51,11 @@ DEV_MONGODB_URI=mongodb://localhost:27017/doubt-dev
 DATABASE_URL=mongodb://localhost:27017/doubt-dev
 ```
 
+`src/index.js` loads this file with `dotenv` before the bot reads
+`src/config.js`. The toggle is strict: only `PRODUCTION=true` selects production
+tokens and `MONGODB_URI`; `PRODUCTION=false` selects the development values
+shown above.
+
 ## Step 4: Configure the Bot
 
 Copy the configuration template:

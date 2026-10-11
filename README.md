@@ -43,7 +43,7 @@ The in-repo [`docs/`](docs/) folder may still be useful for contributors, but it
 - Install Node.js and npm.
 - Run npm i.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
-- Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
+- Copy src/example.config.js to src/config.js and fill in guild, channel, and developer IDs.
 - The bot is slash-command only. **Message Content Intent** is not required and should remain disabled in the Discord Developer Portal.
 - Set DATABASE_URL for Prisma CLI commands, then run npx prisma generate after install or schema changes.
 - Run npm run dev to start the bot with nodemon, or npm start to run it with node.
