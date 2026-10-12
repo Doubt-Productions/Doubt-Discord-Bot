@@ -29,7 +29,7 @@ Copy `.env.example` to `.env` and fill in the values.
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, etc.). Not used at runtime. |
+| `DATABASE_URL` | MongoDB URI for Prisma CLI tools (`prisma db push`, `prisma studio`, etc.). Runtime code resolves the URI from `src/config.js` and overwrites `process.env.DATABASE_URL` before creating the Prisma client. |
 | `TOPGG_TOKEN` | [Top.gg](https://top.gg/) API token for automatic stat posting |
 
 ### Production Toggle Behavior

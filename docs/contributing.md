@@ -22,6 +22,7 @@ npm run dev                  # Start with nodemon
 | `npm start` | `node .` | Start the bot |
 | `npm run dev` | `nodemon .` | Start with auto-restart on file changes |
 | `npm test` | `node --test tests/*.test.js` | Run the test suite |
+| `npm run postinstall` | `prisma generate` | Regenerate the Prisma client after dependency installs or schema edits |
 
 ## Code Structure
 
@@ -129,7 +130,7 @@ module.exports = {
 ### Adding a Database Model
 
 1. Add the model to `prisma/schema.prisma`
-2. Run `npx prisma generate` to regenerate the client
+2. Run `npx prisma generate` to regenerate the client. A fresh `npm install` also does this through `postinstall`, but schema edits in an existing checkout require a manual regenerate.
 3. Create a schema re-export in `src/schemas/`:
 
 ```js

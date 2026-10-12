@@ -23,6 +23,10 @@ npx prisma studio
 npx prisma generate
 ```
 
+`npm install` runs `prisma generate` automatically through the repository's `postinstall` script. Run `npx prisma generate` yourself after editing `prisma/schema.prisma` in an already-installed checkout, or when installing with lifecycle scripts disabled.
+
+Both `prisma` and `@prisma/client` are pinned to `6.19.3`. Do not upgrade them to Prisma 7 while the MongoDB provider is unsupported; Dependabot is configured to ignore Prisma updates at `>=7` for the same reason.
+
 MongoDB does not support migrations (`prisma migrate` commands will not work).
 
 ## Models

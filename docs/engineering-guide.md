@@ -8,12 +8,12 @@ The bot starts in `src/index.js`. It creates an `ExtendedClient`, calls `client.
 
 Required local setup:
 
-1. Run `npm i`.
+1. Run `npm i`. The `postinstall` lifecycle runs `prisma generate`.
 2. Copy `.env.example` to `.env`.
 3. Copy `src/example.config.js` to `src/config.js`.
 4. Fill in Discord application IDs/tokens, MongoDB URIs, guild IDs, stat channel IDs, developer user IDs, and staff role IDs.
 5. Set `DATABASE_URL` for Prisma CLI commands. Include a `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` (or rely on `config.variables.dbName` appending at startup). Keep `DATABASE_URL` aligned with the selected runtime URI when generating or pushing schema metadata; `src/handlers/prisma.js` also overwrites `DATABASE_URL` with the resolved URI before creating the Prisma client.
-6. Run `npx prisma generate` after installing dependencies or changing `prisma/schema.prisma`.
+6. Run `npx prisma generate` manually after changing `prisma/schema.prisma`, or after installs that skipped lifecycle scripts.
 7. Run `npm run dev` for nodemon or `npm start` for node.
 8. Run `npm test` before opening a PR.
 
@@ -45,6 +45,8 @@ Persistence now runs through Prisma v6 with the MongoDB provider:
 
 - `prisma/schema.prisma` defines the generated client models and maps them to existing MongoDB collections with `@@map`, such as `ecoschemas`, `users`, `badges`, `afks`, `xps`, `welcomes`, `tickets`, `chatbots`, and `jtcsetups`.
 - `src/handlers/prisma.js` exports a singleton `prisma` client and `connectPrisma()`. The client is constructed with a resolved `datasourceUrl` and `process.env.DATABASE_URL` is set to match before `new PrismaClient()`.
+- `package.json` pins both `prisma` and `@prisma/client` to `6.19.3`. Prisma 7 currently has no MongoDB provider support, so `.github/dependabot.yml` ignores Prisma updates at `>=7` until the provider is supported again.
+- `npm install` and CI installs run `prisma generate` through the `postinstall` script. Schema-only edits still need an explicit `npx prisma generate` before running code that imports the generated client.
 - Files in `src/schemas/**` are compatibility modules that export Prisma delegates, for example `src/schemas/EcoSchema.js` exports `prisma.ecoSchema`.
 - The legacy `src/handlers/mongoose.js` file remains in the tree, but `ExtendedClient` imports `src/handlers/prisma.js`. Do not add new imports of the Mongoose handler unless Mongoose is intentionally restored as a dependency.
 
@@ -71,6 +73,7 @@ Prisma constraints and pitfalls:
 - Returned records are plain objects. They do not have Mongoose methods such as `save()`, `deleteOne()`, or document-scoped `deleteMany()`.
 - Current models do not define unique compound indexes for guild/user pairs. Existing code usually reads with `findFirst({ where: ... })`, then updates or deletes by the returned `id`.
 - MongoDB is schema-less, so this repo does not use `prisma migrate`. Run `npx prisma generate` after schema edits, and use `npx prisma db push` only when you intentionally need Prisma to sync MongoDB indexes or schema metadata.
+- Keep the `prisma` CLI and `@prisma/client` versions in lockstep. A generated client from a different major version can fail before the bot reaches Discord login.
 
 ## Command And Component Architecture
 

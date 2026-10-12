@@ -21,14 +21,15 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 | Task | Command |
 |------|---------|
-| Install deps | `npm install` |
+| Install deps | `npm install` (runs `prisma generate` via `postinstall`) |
 | Run tests | `npm test` |
 | Start bot (dev) | `npm run dev` (uses nodemon) |
 | Start bot (prod) | `npm start` |
 
 ### Prisma notes
 
-- The Prisma schema is at `prisma/schema.prisma`. After schema changes, run `npx prisma generate` to regenerate the client.
+- The Prisma schema is at `prisma/schema.prisma`. `npm install` runs `prisma generate` via `postinstall`; after schema changes in an existing checkout, run `npx prisma generate` to regenerate the client.
+- `prisma` and `@prisma/client` are pinned to `6.19.3` because Prisma 7 does not currently support MongoDB. Dependabot ignores Prisma updates at `>=7`.
 - The Prisma client singleton is in `src/handlers/prisma.js` and reads the MongoDB URI from `config.handler.mongodb.uri`.
 - `DATABASE_URL` in `.env` is used by Prisma CLI tools (e.g., `prisma db push`). At runtime, `src/handlers/prisma.js` resolves the MongoDB URI (appending `config.variables.dbName` when the path is empty) and sets `process.env.DATABASE_URL` to match before creating the client. Include `/dbname` in `MONGODB_URI` / `DEV_MONGODB_URI` and keep `DATABASE_URL` aligned for CLI use.
 - MongoDB is schema-less so `prisma migrate` commands do NOT work. Use `prisma db push` to sync indexes.
@@ -36,7 +37,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 ### Known issues
 
 - No ESLint or other linter is configured in this repo.
-- `package-lock.json` is `.gitignore`d, so `npm install` may resolve slightly different dependency versions across environments.
+- `package-lock.json` is tracked; keep lockfile changes with dependency bumps.
 
 ### Testing notes
 
