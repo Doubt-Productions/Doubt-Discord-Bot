@@ -9,7 +9,7 @@ See [Getting Started](getting-started.md) for full setup instructions. Quick sta
 ```bash
 git clone https://github.com/Doubt-Productions/Doubt-Discord-Bot.git
 cd Doubt-Discord-Bot
-npm install
+npm ci
 cp .env.example .env        # Fill in credentials
 cp src/example.config.js src/config.js  # Fill in IDs
 npm run dev                  # Start with nodemon

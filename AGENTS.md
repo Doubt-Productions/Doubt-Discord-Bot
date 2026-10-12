@@ -8,6 +8,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 ### Prerequisites
 
+- **Node.js**: Use v22.12.0 or newer. `package.json` enforces this in `engines`, and chalk 6 requires Node 22+.
 - **MongoDB**: Must be running and reachable by the URI selected in `src/config.js`. For local development, set `DEV_MONGODB_URI=mongodb://127.0.0.1:27017/doubt`. In Cloud Agent environments, start MongoDB via Docker:
   ```
   sudo dockerd &>/tmp/dockerd.log &
@@ -21,7 +22,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 
 | Task | Command |
 |------|---------|
-| Install deps | `npm install` |
+| Install deps | `npm ci` |
 | Run tests | `npm test` |
 | Start bot (dev) | `npm run dev` (uses nodemon) |
 | Start bot (prod) | `npm start` |
@@ -36,7 +37,7 @@ This is **Doubt Discord Bot** — a multi-purpose Discord bot built with discord
 ### Known issues
 
 - No ESLint or other linter is configured in this repo.
-- `package-lock.json` is `.gitignore`d, so `npm install` may resolve slightly different dependency versions across environments.
+- `package-lock.json` is tracked; use `npm ci` for reproducible installs and `npm install` only when intentionally updating dependencies.
 
 ### Testing notes
 

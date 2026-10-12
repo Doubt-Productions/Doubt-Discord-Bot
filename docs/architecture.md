@@ -150,7 +150,7 @@ The schema files maintain backward-compatible import paths so existing `require(
 
 | Function | Description |
 |----------|-------------|
-| `log(string, style)` | Chalk-colored console output (`info`, `err`, `warn`, `done`) |
+| `log(string, style)` | Chalk-colored console output (`info`, `err`, `warn`, `done`); CommonJS callers use `require("chalk").default ?? require("chalk")` for chalk 6 compatibility |
 | `time(timeMs, style)` | Discord timestamp formatting (`<t:...>`) |
 | `embed(title, desc, color, footer, image, thumbnail, channel, interaction)` | Build and send an embed |
 | `randomId(length)` | Generate alphanumeric ID |

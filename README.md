@@ -40,8 +40,8 @@ The in-repo [`docs/`](docs/) folder may still be useful for contributors, but it
 <!--- Installation -->
 ## 🔌 Installation
 ```md
-- Install Node.js and npm.
-- Run npm i.
+- Install Node.js v22.12.0 or newer and npm.
+- Run npm ci.
 - Copy .env.example to .env and fill in the Discord and MongoDB values.
 - Copy src/example.config.js to src/config.js and fill in guild, channel, developer, and staff role IDs.
 - The bot is slash-command only. **Message Content Intent** is not required and should remain disabled in the Discord Developer Portal.
