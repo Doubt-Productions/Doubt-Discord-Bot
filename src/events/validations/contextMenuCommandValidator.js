@@ -33,14 +33,14 @@ module.exports = async (client, interaction) => {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
       if (!developerIds.includes(interaction.member.id)) {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandDevOnly}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
     }
@@ -50,7 +50,7 @@ module.exports = async (client, interaction) => {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.commandTestMode}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
     }
@@ -63,7 +63,7 @@ module.exports = async (client, interaction) => {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.userNoPermissions}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
     }
@@ -77,7 +77,7 @@ module.exports = async (client, interaction) => {
         const rEmbed = new EmbedBuilder()
           .setColor(`${mConfig.embedColorError}`)
           .setDescription(`${mConfig.botNoPermissions}`);
-        interaction.reply({ embeds: [rEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [rEmbed], ephemeral: true });
         return;
       }
     }

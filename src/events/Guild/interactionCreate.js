@@ -1,5 +1,6 @@
 const { log } = require("../../functions");
 const ExtendedClient = require("../../class/ExtendedClient");
+const config = require("../../config");
 
 module.exports = {
   event: "interactionCreate",
@@ -10,6 +11,7 @@ module.exports = {
   run: async (client, interaction) => {
     if (!interaction.isChatInputCommand()) return;
     if (interaction.replied || interaction.deferred) return;
+    if (config.handler.commands.slash === false) return;
 
     const command =
       client.collection.interactioncommands.get(interaction.commandName) ||
