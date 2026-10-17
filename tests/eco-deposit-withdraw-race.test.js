@@ -48,3 +48,36 @@ test("withdraw acquires eco user lock before first await", () => {
   assert.ok(lockIdx < firstAwait, "lock must be taken before any await");
   assert.ok(!src.includes("Math.abs(Data.Bank)"));
 });
+
+test("concurrent deposit and stale rob wallet update can duplicate balance", () => {
+  let wallet = 100;
+  let bank = 0;
+  const stolen = 50;
+
+  // Deposit moves wallet -> bank; rob only persists wallet from a stale read.
+  const depositAll = () => {
+    bank += wallet;
+    wallet = 0;
+  };
+  const robSuccessStale = () => {
+    wallet = 100 + stolen;
+  };
+
+  depositAll();
+  robSuccessStale();
+  assert.strictEqual(wallet + bank, 250, "expected exploit total 250 vs honest 150");
+});
+
+test("rob acquires eco user lock before balance reads", () => {
+  const src = fs.readFileSync(
+    path.join(__dirname, "../src/commands/slash/Economy/rob.js"),
+    "utf8"
+  );
+  const lockIdx = src.indexOf("ecoUserLock.tryAcquireAll");
+  const dataAwait = src.indexOf("await ecoSchema.findFirst");
+  assert.ok(lockIdx !== -1, "expected ecoUserLock.tryAcquireAll");
+  assert.ok(
+    lockIdx < dataAwait,
+    "lock must be taken before ecoSchema reads/writes"
+  );
+});

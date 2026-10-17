@@ -5,6 +5,7 @@ const {
 } = require("discord.js");
 const ExtendedClient = require("../../../class/ExtendedClient");
 const ecoSchema = require("../../../schemas/EcoSchema");
+const ecoUserLock = require("../../../utils/ecoUserLock");
 
 var timeout = [];
 
@@ -32,7 +33,23 @@ module.exports = {
         ephemeral: true,
       });
 
-    // Hold per-user lock before any await. Otherwise two concurrent /rob calls
+    const target = options.getUser("user");
+    if (target.id === user.id) {
+      return await interaction.reply({
+        content: `You can't rob yourself!`,
+        ephemeral: true,
+      });
+    }
+
+    const lockUserIds = [user.id, target.id];
+    if (!ecoUserLock.tryAcquireAll(lockUserIds)) {
+      return await interaction.reply({
+        content: `You already have an economy command in progress. Try again in a moment.`,
+        ephemeral: true,
+      });
+    }
+
+    // Hold per-user cooldown before any await. Otherwise two concurrent /rob calls
     // can both pass the cooldown check, run overlapping saves, and corrupt balances.
     timeout.push(user.id);
     const releaseCooldown = () => {
@@ -40,15 +57,6 @@ module.exports = {
     };
 
     try {
-      const target = options.getUser("user");
-      if (target.id === user.id) {
-        releaseCooldown();
-        return await interaction.reply({
-          content: `You can't rob yourself!`,
-          ephemeral: true,
-        });
-      }
-
       let Data = await ecoSchema.findFirst({ where: { User: user.id, Guild: guild.id } });
       let TargetData = await ecoSchema.findFirst({
         where: { User: target.id, Guild: guild.id },
@@ -123,6 +131,8 @@ module.exports = {
     } catch (err) {
       releaseCooldown();
       throw err;
+    } finally {
+      ecoUserLock.releaseAll(lockUserIds);
     }
   },
 };

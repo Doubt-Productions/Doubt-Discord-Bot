@@ -9,8 +9,31 @@ function tryAcquire(userId) {
   return true;
 }
 
+/** Acquire locks for multiple users in a stable order to avoid deadlocks. */
+function tryAcquireAll(userIds) {
+  const ordered = [...new Set(userIds)].sort();
+  for (const userId of ordered) {
+    if (!tryAcquire(userId)) {
+      for (const heldId of ordered) {
+        if (heldId === userId) {
+          break;
+        }
+        release(heldId);
+      }
+      return false;
+    }
+  }
+  return true;
+}
+
 function release(userId) {
   held.delete(userId);
 }
 
-module.exports = { tryAcquire, release };
+function releaseAll(userIds) {
+  for (const userId of userIds) {
+    release(userId);
+  }
+}
+
+module.exports = { tryAcquire, tryAcquireAll, release, releaseAll };
